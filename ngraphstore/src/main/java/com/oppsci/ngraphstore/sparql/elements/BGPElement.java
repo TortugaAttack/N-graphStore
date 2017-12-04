@@ -9,6 +9,8 @@ public class BGPElement implements Element {
 	private boolean objectVar;
 	private boolean predicateVar;
 	
+	private boolean isOptional;
+	
 	public BGPElement(String[] triple) {
 		subject = triple[0];
 		setPredicate(triple[1]);
@@ -16,6 +18,15 @@ public class BGPElement implements Element {
 		setSubjectVar(subject.startsWith("?"));
 		setPredicateVar(subject.startsWith("?"));
 		setObjectVar(subject.startsWith("?"));
+	}
+	public BGPElement(String[] triple, boolean isOptional) {
+		subject = triple[0];
+		setPredicate(triple[1]);
+		setObject(triple[2]);
+		setSubjectVar(subject.startsWith("?"));
+		setPredicateVar(subject.startsWith("?"));
+		setObjectVar(subject.startsWith("?"));
+		this.isOptional=isOptional;
 	}
 	
 	/**
@@ -100,6 +111,20 @@ public class BGPElement implements Element {
 	 */
 	public void setObjectVar(boolean objectVar) {
 		this.objectVar = objectVar;
+	}
+
+	/**
+	 * @return the isOptional
+	 */
+	public boolean isOptional() {
+		return isOptional;
+	}
+
+	/**
+	 * @param isOptional the isOptional to set
+	 */
+	public void setOptional(boolean isOptional) {
+		this.isOptional = isOptional;
 	}
 
 }

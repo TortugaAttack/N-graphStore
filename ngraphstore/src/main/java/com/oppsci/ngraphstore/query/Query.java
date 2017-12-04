@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.oppsci.ngraphstore.sparql.elements.BGPElement;
+import com.oppsci.ngraphstore.sparql.elements.Filter;
 
 
 public class Query {
@@ -30,6 +31,10 @@ public class Query {
 	public void setProjectionVars(List<String> vars) {
 		this.projectionVars = vars;
 	}
+	
+	public List<String> getProjectionVars() {
+		return projectionVars;
+	}
 
 	public void addBGPElement(BGPElement bgp) {
 		this.elements.add(bgp);
@@ -47,6 +52,11 @@ public class Query {
 	 */
 	public void setElements(List<BGPElement> elements) {
 		this.elements = elements;
+	}
+
+	public List<Filter> getFilter() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	
