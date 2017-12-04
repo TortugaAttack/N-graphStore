@@ -14,15 +14,20 @@
 	<div class="abs">
 		<div class="nav">
 			<ul class="nav">
-				<li><img class="navlogo"
-					src="/ngraphstore/webResources/images/logo.png" /></li>
-				<li><a class="active" href="/ngraphstore/index.jsp"><i class="fa fa-home"></i>
-				<span>Home</span></a></li>
+				<li><a href="https://github.com/TortugaAttack/N-graphStore">
+						<span class="navlogo">N-graphStore</span>
+				</a></li>
+				<li><a class="active" href="/ngraphstore/index.jsp"><i
+						class="fa fa-home"></i> <span>Home</span></a></li>
 				<li><a href="/ngraphstore/sparql.jsp"><i
 						class="fa fa-search"></i> <span>Query</span></a></li>
 			</ul>
 		</div>
 	</div>
 	<img class="logo" src="/ngraphstore/webResources/images/logo.png" />
+
+	<div id="footer" class="footer">
+		<a href="https://github.com/TortugaAttack/N-graphStore">GitHub</a>
+	</div>
 </body>
 </html>
