@@ -1,8 +1,8 @@
-package con.oppsci.ngraphstore.storage;
+package com.oppsci.ngraphstore.storage;
 
 import java.util.List;
 
-import con.oppsci.ngraphstore.results.SimpleResultSet;
+import com.oppsci.ngraphstore.results.SimpleResultSet;
 
 public class ClusterOverseer {
 

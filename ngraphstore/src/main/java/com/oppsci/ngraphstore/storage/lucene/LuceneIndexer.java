@@ -1,4 +1,4 @@
-package con.oppsci.ngraphstore.storage.lucene;
+package com.oppsci.ngraphstore.storage.lucene;
 
 import java.io.File;
 import java.io.IOException;

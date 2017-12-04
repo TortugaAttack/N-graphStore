@@ -12,8 +12,7 @@ import com.oppsci.ngraphstore.processor.SPARQLProcessorFactory;
 import com.oppsci.ngraphstore.rest.SPARQLRestController;
 import com.oppsci.ngraphstore.rest.TripleRestController;
 import com.oppsci.ngraphstore.rest.UpdateRestController;
-
-import con.oppsci.ngraphstore.storage.MemoryStorage;
+import com.oppsci.ngraphstore.storage.MemoryStorage;
 
 /**
  * Controller for autowired elememnts

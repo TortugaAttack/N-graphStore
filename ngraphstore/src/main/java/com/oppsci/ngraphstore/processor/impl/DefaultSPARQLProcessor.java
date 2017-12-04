@@ -4,8 +4,7 @@ import org.apache.jena.query.ResultSet;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
-
-import con.oppsci.ngraphstore.storage.MemoryStorage;
+import com.oppsci.ngraphstore.storage.MemoryStorage;
 
 /**
  * The Default SPARQLProcessor. <br/>

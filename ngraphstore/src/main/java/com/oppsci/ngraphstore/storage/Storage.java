@@ -1,4 +1,4 @@
-package con.oppsci.ngraphstore.storage;
+package com.oppsci.ngraphstore.storage;
 
 /**
  * Storage interface for 

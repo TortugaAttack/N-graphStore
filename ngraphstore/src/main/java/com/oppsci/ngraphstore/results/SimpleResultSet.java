@@ -1,7 +1,9 @@
-package con.oppsci.ngraphstore.results;
+package com.oppsci.ngraphstore.results;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.jena.sparql.core.Var;
 
 public class SimpleResultSet {
 
@@ -9,8 +11,8 @@ public class SimpleResultSet {
 	private List<String[]> rows = new LinkedList<String[]>();
 	
 	
-	public SimpleResultSet(List<String> vars, List<String[]> results) {
-		this.vars = vars;
+	public SimpleResultSet(List<String> list, List<String[]> results) {
+		this.vars = list;
 		this.rows = results;
 	}
 	

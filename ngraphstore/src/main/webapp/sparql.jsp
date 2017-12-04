@@ -54,16 +54,21 @@
 							<span>Home</span></a></li>
 					<li><a class="active" href="/ngraphstore/sparql.jsp"><i
 							class="fa fa-search"></i> <span>Query</span></a></li>
+					<li><a href="/ngraphstore/update.jsp"><i
+							class="fa fa-pencil"></i> <span>Update</span></a></li>
+					<li><a href="/ngraphstore/upload.jsp"><i
+							class="fa fa-upload"></i> <span>Upload</span></a></li>
 				</ul>
 			</div>
 			<div class="divider"></div>
 
 		</div>
-		<div id="content" class="content" ng-app="table" ng-controller="TableController">
+		<div id="content" class="content" ng-app="table"
+			ng-controller="TableController">
 
 			<form id="myform" ng-submit="sparqlSubmit()">
 				<div class=".col-md-12">
-					<textarea class="itxt" rows="15" ng-model="sparqlForm.query"></textarea>
+					<textarea class="itxt" rows="10" ng-model="sparqlForm.query"></textarea>
 				</div>
 				<div class=".col-md-12">
 					<input type="submit" class="btn" value="Submit">
@@ -92,7 +97,9 @@
 			<div class="divider"></div>
 		</div>
 		<div id="footer" class="footer">
-			<a href="https://github.com/TortugaAttack/N-graphStore">GitHub</a>
+			<div class="copyright">Copyright (c) Public Domain - 2017</div>
+			<a href="https://github.com/TortugaAttack/N-graphStore"><img
+				width="60px" src="/ngraphstore/webResources/images/GitHub_Logo.png"></a>
 		</div>
 	</div>
 </body>
