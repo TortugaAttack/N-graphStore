@@ -1,0 +1,114 @@
+.btn {
+	-webkit-border-radius: 15;
+	-moz-border-radius: 15;
+	border-radius: 15px;
+	font-family: Arial;
+	color: #ffffff;
+	font-size: 20px;
+	background: #3f3f3f;
+	padding: 10px 20px 10px 20px;
+	text-decoration: none;
+	width: 50%;
+	text-decoration: none;
+	position: relative;
+	left: 25%;
+	border-style: none;
+}
+
+.btn:hover {
+	background: #3cb0fd;
+	text-decoration: none;
+}
+
+.itxt {
+	width: 50%;
+	position: relative;
+	left: 25%
+}
+
+.fancytable {
+	font-family: Arial;
+	border-bottom: 1px solid #ddd;
+}
+
+.fancytable th {
+	font-size: 20px;
+	border-bottom: 1px solid #ddd;
+}
+
+.fancytable td {
+	border-bottom: 1px solid #ddd;
+}
+
+.fancytable  tr:hover {
+	background-color: #f5f5f5;
+}
+
+.logo {
+	position: relative;
+	left: 45%;
+	width: 10%;
+	padding: 20px 0px 20px 0px;
+}
+
+.logo {
+	position: relative;
+	width: 25%;
+	left: 37.5%;
+	top: 20px;
+}
+
+.nav li a {
+	display: block;
+	color: #777;
+	text-align: center;
+	text-decoration: none;
+	font-size: 15pt;
+	font-family: ubuntu;
+	padding: 14px 16px;
+}
+
+.nav li a:hover {
+	color: white;
+}
+
+.active {
+	color: white !important;
+}
+
+.nav li {
+	float: left;
+}
+
+.nav {
+	top: 0;
+	left: 0;
+	position: absolute;
+	width: 100%;
+}
+
+.abs {
+	margin-bottom:50px;
+	
+}
+
+.nav ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #1f1f1f;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+
+.navlogo {
+	width: 40pt;
+	right: 40pt;
+	padding: 0px 100px 0px 30px;
+}
+
+.divider {
+	padding: 30px 0px 0px 0px;
+}
