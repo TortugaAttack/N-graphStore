@@ -9,9 +9,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.oppsci.ngraphstore.graph.Triple;
 import com.oppsci.ngraphstore.query.Query;
 import com.oppsci.ngraphstore.query.QueryParser;
 import com.oppsci.ngraphstore.results.SimpleResultSet;
+import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 
 /**
@@ -26,14 +28,21 @@ public class ClusterOverseer {
 	private long timeout = 180;
 	private int clusterSize;
 	private LuceneSearcher[] searcher;
+	private LuceneIndexer[] indexer;
 	
 	public ClusterOverseer(int clusterSize, String rootFolder, long timeout) throws IOException {
 		this.clusterSize=clusterSize;
 		this.timeout=timeout;
 		searcher = new LuceneSearcher[clusterSize];
+		indexer = new LuceneIndexer[clusterSize];
 		for(int i=0;i<clusterSize;i++) {
 			//create LuceneSearcher at rootFolder/0/ ... rootFolder/N/
-			searcher[i] = new LuceneSearcher(rootFolder+File.separator+i);
+			File dir = new File(rootFolder+File.separator+i);
+			if(!dir.exists()) {
+				dir.mkdirs();
+			}
+			indexer[i] = new LuceneIndexer(dir.getAbsolutePath());
+			searcher[i] = new LuceneSearcher(dir.getAbsolutePath());
 		}
 	}
 	
@@ -78,4 +87,70 @@ public class ClusterOverseer {
 		return mergeSyncedResults(results);
 	}
 	
+	/**
+	 * Adds triples to index cluster
+	 * @param triples
+	 * @return
+	 */
+	public boolean add(Triple<String>[] triples) {
+		int i=0;
+		for(Triple<String> triple : triples) {
+			try {
+				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject());
+			} catch (IOException e) {
+				return false;
+			}
+			if(i>=clusterSize) {
+				i=0;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Adds triples to index cluster
+	 * @param triples
+	 * @return
+	 */
+	public boolean load(Triple<String>[] triples) {
+		int i=0;
+		for(Triple<String> triple : triples) {
+			try {
+				indexer[i].deleteAll();
+				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject());
+			} catch (IOException e) {
+				return false;
+			}
+			if(i>=clusterSize) {
+				i=0;
+			}
+		}
+		return true;
+	}
+	
+	public boolean drop() {
+		for(LuceneIndexer index : indexer) {
+			try {
+				index.deleteAll();
+			} catch (IOException e) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean delete(Triple<String>[] triples) {
+		int i=0;
+		for(Triple<String> triple : triples) {
+			try {
+				indexer[i++].delete(triple.getSubject(), triple.getPredicate(), triple.getObject());
+			} catch (IOException e) {
+				return false;
+			}
+			if(i>=clusterSize) {
+				i=0;
+			}
+		}
+		return true;
+	}
 }

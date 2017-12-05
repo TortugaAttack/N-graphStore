@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.oppsci.ngraphstore.graph.Graph;
 import com.oppsci.ngraphstore.results.SimpleResultSet;
 import com.oppsci.ngraphstore.sparql.elements.BGPElement;
 import com.oppsci.ngraphstore.sparql.elements.Filter;
 import com.oppsci.ngraphstore.storage.ClusterOverseer;
-import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 
 public class DefaultQueryPlanner implements QueryPlanner{
 
@@ -31,6 +31,36 @@ public class DefaultQueryPlanner implements QueryPlanner{
 		currentResults = applyFilter(currentResults, query.getFilter());
 		//return results
 		currentResults.setVars(query.getProjectionVars());
+		return currentResults;
+	}
+	
+	public boolean ask(String queryString) throws Exception {
+		return ask(parser.parse(queryString));
+	}
+	
+	public boolean ask(Query query){
+		//sort BGP according to restrictive first principle
+		List<BGPElement> rfpSortedBGPs = sortToRfp(query.getElements());
+		//apply BGP Lucene Search
+		SimpleResultSet currentResults = applyBGPs(rfpSortedBGPs);
+		//apply in memory Filter search
+		currentResults = applyFilter(currentResults, query.getFilter());
+		return currentResults.getRows().size()>0;
+	}
+	
+	public Graph describe(String queryString) throws Exception {
+		return describe(parser.parse(queryString));
+	}
+	
+	public Graph describe(Query query){
+		return null;
+	}
+	
+	public Graph construct(String queryString) throws Exception {
+		return construct(parser.parse(queryString));
+	}
+	
+	public Graph construct(Query query){
 		return null;
 	}
 	

@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.lucene.index.CorruptIndexException;
 
+import com.oppsci.ngraphstore.graph.Node;
 import com.oppsci.ngraphstore.query.Query;
 import com.oppsci.ngraphstore.query.QueryPlanner;
 import com.oppsci.ngraphstore.results.SimpleResultSet;
@@ -40,7 +41,7 @@ public class Cluster implements Callable<SimpleResultSet> {
 			return convertLuceneResults(searcher.searchRelation(spec.getUris(), spec.getObjectsFlags(), spec.getSearchFields()));
 	}
 
-	private SimpleResultSet convertLuceneResults(Collection<String[]> results) {
+	private SimpleResultSet convertLuceneResults(Collection<Node[]> results) {
 		SimpleResultSet resultSet = new SimpleResultSet();
 		List<String> vars = new LinkedList<String>();
 		resultSet.addRows(results);

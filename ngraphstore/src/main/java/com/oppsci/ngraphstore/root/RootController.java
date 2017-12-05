@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
 import com.oppsci.ngraphstore.processor.SPARQLProcessorFactory;
+import com.oppsci.ngraphstore.processor.UpdateProcessor;
+import com.oppsci.ngraphstore.processor.impl.DirectUpdateProcessor;
 import com.oppsci.ngraphstore.rest.SPARQLRestController;
 import com.oppsci.ngraphstore.rest.TripleRestController;
 import com.oppsci.ngraphstore.rest.UpdateRestController;
@@ -69,6 +71,11 @@ public class RootController {
 	public static @Bean TripleRestController tripleUpdateRestController() {
 		TripleRestController tripleRestController = new TripleRestController();
 		return tripleRestController;
+	}
+	
+	public static @Bean UpdateProcessor directProcessor() {
+		DirectUpdateProcessor processor = new DirectUpdateProcessor();
+		return processor;
 	}
 
 }

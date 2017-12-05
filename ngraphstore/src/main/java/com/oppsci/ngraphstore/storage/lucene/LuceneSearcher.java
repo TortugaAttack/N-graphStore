@@ -22,6 +22,9 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import com.oppsci.ngraphstore.graph.Node;
+import com.oppsci.ngraphstore.graph.NodeFactory;
+
 public class LuceneSearcher {
 
 	private IndexSearcher indexSearcher;
@@ -74,7 +77,7 @@ public class LuceneSearcher {
 		IOUtils.closeQuietly(indexDirectory);
 	}
 
-	public Collection<String[]> search(String uri, boolean[] objectsFlag, String searchField) throws IOException {
+	public Collection<Node[]> search(String uri, boolean[] objectsFlag, String searchField) throws IOException {
 		return searchRelation(uri, objectsFlag, searchField);
 	}
 
@@ -85,32 +88,32 @@ public class LuceneSearcher {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<String[]> searchRelation(String uri, boolean[] objectsFlag, String searchField) throws IOException {
+	public Collection<Node[]> searchRelation(String uri, boolean[] objectsFlag, String searchField) throws IOException {
 		TopDocs docs;
 		docs = searchTops(uri, searchField);
 		return searchTopDocs(docs, objectsFlag);
 	}
 	
-	public Collection<String[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields) throws CorruptIndexException, IOException {
+	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields) throws CorruptIndexException, IOException {
 			TopDocs docs; 
 			docs = searchTops(uris, searchFields);
 			return searchTopDocs(docs, objectsFlag);
 	}
 	
-	private Collection<String[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag) throws CorruptIndexException, IOException{
-		Collection<String[]> triples = new HashSet<String[]>();
+	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag) throws CorruptIndexException, IOException{
+		Collection<Node[]> triples = new HashSet<Node[]>();
 		for (ScoreDoc scoreDoc : docs.scoreDocs) {
 			Document doc;
 			doc = getDocument(scoreDoc);
-			List<String> triple = new LinkedList<String>();
+			List<Node> triple = new LinkedList<Node>();
 			if (objectsFlag[0])
-				triple.add(doc.get(LuceneConstants.SUBJECT));
+				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.SUBJECT)));
 			if (objectsFlag[1])
-				triple.add(doc.get(LuceneConstants.PREDICATE));
+				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.PREDICATE)));
 			if (objectsFlag[2])
-				triple.add(doc.get(LuceneConstants.OBJECT));
+				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.OBJECT)));
 
-			triples.add(triple.toArray(new String[] {}));
+			triples.add(triple.toArray(new Node[] {}));
 		}
 		return triples;
 	}

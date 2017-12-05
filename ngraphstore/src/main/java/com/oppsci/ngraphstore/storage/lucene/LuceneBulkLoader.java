@@ -76,7 +76,7 @@ public class LuceneBulkLoader {
 			try {
 				loadSingle(file);
 				System.out.println(file.getName()+" successfully loaded.");
-			} catch (MalformedURLException e) {
+			} catch (IOException e) {
 				System.err.println("Could not load "+file.getName()+" due to following exception, ");
 				e.printStackTrace();
 			}	
@@ -84,7 +84,7 @@ public class LuceneBulkLoader {
 		indexer.close();
 	}
 	
-	private void loadSingle(File file) throws MalformedURLException {
+	private void loadSingle(File file) throws IOException {
 		Model m = ModelFactory.createDefaultModel();
 		m.read(file.toURI().toURL().toString());
 		StmtIterator statements = m.listStatements();

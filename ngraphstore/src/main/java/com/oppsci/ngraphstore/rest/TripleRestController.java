@@ -1,5 +1,9 @@
 package com.oppsci.ngraphstore.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.oppsci.ngraphstore.processor.UpdateProcessor;
+
 /**
  * The Controller for handling uploaded triple data.
  * 
@@ -8,15 +12,27 @@ package com.oppsci.ngraphstore.rest;
  */
 public class TripleRestController {
 
+	@Autowired
+	UpdateProcessor directProcessor;
+	
 	/**
-	 * Processes triples either using a POST or PUT method
+	 * Processes triples either using a PUT method
 	 * 
 	 * @param data the triple data
-	 * @param isPost true if POST, false if PUT
 	 * @return true if succeeded, otherwise false
 	 */
-	public Boolean processTriple(String data, boolean isPost) {
-		// TODO Auto-generated method stub
+	public Boolean processTriple(String data) {
+			return directProcessor.load(data);
+		
+	}
+
+	public Boolean processTriple(String triple, String method) {
+		if(method.equals("insert")) {
+			directProcessor.insert(triple);
+		}		
+		else if(method.equals("delete")) {
+			directProcessor.delete(triple);
+		}
 		return null;
 	}
 

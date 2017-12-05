@@ -77,8 +77,8 @@ public class QueryRestController {
 	 * @return true if succeeded, false otherwise
 	 */
 	@RequestMapping(value = "/data", method = RequestMethod.POST, headers = "Accept=text/plain")
-	public Boolean postTriples(@RequestParam(value="data") String data) {
-		Boolean updateSucceeded =  tripleRestController.processTriple(data, true);
+	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="method") String method) {
+		Boolean updateSucceeded =  tripleRestController.processTriple(data, method);
 		return updateSucceeded;
 	}
 	
@@ -92,7 +92,7 @@ public class QueryRestController {
 	 */
 	@RequestMapping(value = "/data", method = RequestMethod.PUT, headers = "Accept=text/plain")
 	public Boolean putTriples(@RequestParam(value="data") String data) {
-		Boolean updateSucceeded =  tripleRestController.processTriple(data, false);
+		Boolean updateSucceeded =  tripleRestController.processTriple(data);
 		return updateSucceeded;
 	}
 }

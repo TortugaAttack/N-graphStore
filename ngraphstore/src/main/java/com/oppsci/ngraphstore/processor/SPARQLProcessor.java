@@ -1,6 +1,7 @@
 package com.oppsci.ngraphstore.processor;
 
 import org.apache.jena.query.ResultSet;
+import org.json.simple.JSONObject;
 
 /**
  * Provides an interface to process SPARQL Queries
@@ -10,7 +11,7 @@ import org.apache.jena.query.ResultSet;
  */
 public interface SPARQLProcessor {
 
-	ResultSet select(String query);
+	public JSONObject select(String query);
 
 
 	

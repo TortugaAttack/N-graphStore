@@ -12,9 +12,8 @@ import org.json.simple.parser.ParseException;
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
 
 /**
- * SPARQL REST Controller. 
- * Will get the SPARQL query out of a GET Request and forwards it to
- * a provided SPARQLProcessor
+ * SPARQL REST Controller. Will get the SPARQL query out of a GET Request and
+ * forwards it to a provided SPARQLProcessor
  * 
  * 
  * 
@@ -32,7 +31,7 @@ public class SPARQLRestController {
 	 */
 	public SPARQLRestController() {
 	}
-	
+
 	/**
 	 * Creates a SPARQLRestController using the provided SPARQLProcessor
 	 * 
@@ -41,7 +40,7 @@ public class SPARQLRestController {
 	public SPARQLRestController(SPARQLProcessor processor) {
 		this.processor = processor;
 	}
-	
+
 	/**
 	 * @return the processor
 	 */
@@ -50,12 +49,13 @@ public class SPARQLRestController {
 	}
 
 	/**
-	 * @param processor the processor to set
+	 * @param processor
+	 *            the processor to set
 	 */
 	public void setProcessor(SPARQLProcessor processor) {
 		this.processor = processor;
 	}
-	
+
 	/**
 	 * Will process the given sparql query and send the results in a JSON object
 	 * 
@@ -63,19 +63,8 @@ public class SPARQLRestController {
 	 * @return
 	 */
 	public JSONObject processQuery(String query) {
-		JSONObject results = new JSONObject();
-		ResultSet set = processor.select(query);
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		ResultSetFormatter.outputAsJSON(os, set);
-		try {
-			String jsonString = new String(os.toByteArray(),"UTF-8");
-			JSONParser parser = new JSONParser();
-			results = (JSONObject) parser.parse(jsonString);
-		} catch (UnsupportedEncodingException | ParseException  e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		return results;
+
+		return processor.select(query);
 	}
-	
+
 }
