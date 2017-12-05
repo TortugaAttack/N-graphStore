@@ -74,6 +74,7 @@ public class QueryRestController {
 	 * Will add data
 	 * 
 	 * @param data
+	 * @param method 
 	 * @return true if succeeded, false otherwise
 	 */
 	@RequestMapping(value = "/data", method = RequestMethod.POST, headers = "Accept=text/plain")

@@ -30,6 +30,7 @@ public class LuceneSearcher {
 	private IndexSearcher indexSearcher;
 	private Directory indexDirectory;
 	private IndexReader indexReader;
+	private String path;
 
 	/**
 	 * 
@@ -39,11 +40,20 @@ public class LuceneSearcher {
 	 * @throws IOException
 	 */
 	public LuceneSearcher(String indexDirectoryPath) throws IOException {
+		open(indexDirectoryPath);
+	}
+	
+	public void open(String indexDirectoryPath) throws IOException {
+		this.path  = indexDirectoryPath;
 		indexDirectory = FSDirectory.open(new File(indexDirectoryPath));
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
 
+	public void reopen() throws IOException {
+		open(path);
+	}
+	
 	public TopDocs searchTops(String searchQuery, String searchField) throws IOException {
 		return searchTerm(searchQuery, searchField);
 	}

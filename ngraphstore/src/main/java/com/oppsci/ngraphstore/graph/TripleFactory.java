@@ -23,6 +23,7 @@ public class TripleFactory {
 			triple.setPredicate(line.substring(0, index));
 			line = line.substring(index).trim();
 			triple.setObject(line);
+			tripleList.add(triple);
 		}
 		return tripleList.toArray(new Triple[] {});
 	}

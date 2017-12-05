@@ -27,130 +27,199 @@ public class ClusterOverseer {
 
 	private long timeout = 180;
 	private int clusterSize;
+	private File dir;
 	private LuceneSearcher[] searcher;
 	private LuceneIndexer[] indexer;
-	
+
 	public ClusterOverseer(int clusterSize, String rootFolder, long timeout) throws IOException {
-		this.clusterSize=clusterSize;
-		this.timeout=timeout;
-		searcher = new LuceneSearcher[clusterSize];
-		indexer = new LuceneIndexer[clusterSize];
-		for(int i=0;i<clusterSize;i++) {
-			//create LuceneSearcher at rootFolder/0/ ... rootFolder/N/
-			File dir = new File(rootFolder+File.separator+i);
-			if(!dir.exists()) {
-				dir.mkdirs();
+		this.clusterSize = clusterSize;
+		this.timeout = timeout;
+		for (int i = 0; i < clusterSize; i++) {
+			// create LuceneSearcher at rootFolder/0/ ... rootFolder/N/
+			dir = new File(rootFolder + File.separator + i);
+			indexer = createIndexerOnTheFly(dir.getAbsolutePath());
+			closeIndexer(indexer);
+			searcher = createSearcherOnTheFly(dir.getAbsolutePath());
+			closeSearcher(searcher);
+		}
+	}
+
+	private LuceneIndexer[] createIndexerOnTheFly(String dir) throws IOException {
+		LuceneIndexer[] indexer = new LuceneIndexer[clusterSize];
+		for (int i = 0; i < clusterSize; i++) {
+			indexer[i] = new LuceneIndexer(dir);
+		}
+		return indexer;
+	}
+
+	private void closeIndexer(LuceneIndexer[] indexer) {
+		for (LuceneIndexer index : indexer) {
+			index.close();
+		}
+	}
+
+	private void reopenIndexer(LuceneIndexer[] indexer) {
+		for (LuceneIndexer index : indexer) {
+			try {
+				index.reopen();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			indexer[i] = new LuceneIndexer(dir.getAbsolutePath());
-			searcher[i] = new LuceneSearcher(dir.getAbsolutePath());
+		}
+	}
+
+	private void reopenSearcher(LuceneSearcher[] searcher) {
+		for (LuceneSearcher search : searcher) {
+			try {
+				search.reopen();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
+	private void closeSearcher(LuceneSearcher[] searcher) {
+		for (LuceneSearcher search : searcher) {
+			try {
+				search.close();
+			} catch (IOException e) {
+
+			}
+		}
+	}
+
+	private LuceneSearcher[] createSearcherOnTheFly(String dir) throws IOException {
+		LuceneSearcher[] searcher = new LuceneSearcher[clusterSize];
+		for (int i = 0; i < clusterSize; i++) {
+			searcher[i] = new LuceneSearcher(dir);
+		}
+		return searcher;
+	}
+
 	private SimpleResultSet mergeSyncedResults(SimpleResultSet[] results) {
 		SimpleResultSet merged = new SimpleResultSet();
-		if(results.length>0) {
-			//as they are synchronized this is okay
+		if (results.length > 0) {
+			// as they are synchronized this is okay
 			merged.setVars(results[0].getVars());
 		}
-		for(SimpleResultSet srs : results) {
+		for (SimpleResultSet srs : results) {
 			merged.addRows(srs.getRows());
 		}
 		return merged;
 	}
-	
+
 	/**
-	 * This will execute N Cluster as threads and proides 
+	 * This will execute N Cluster as threads and proides
+	 * 
 	 * @param queryString
 	 * @return
 	 * @throws Exception
 	 */
 	public SimpleResultSet search(LuceneSpec spec) throws Exception {
+		reopenSearcher(searcher);
 		List<Future<SimpleResultSet>> futures = new LinkedList<Future<SimpleResultSet>>();
 		SimpleResultSet[] results = new SimpleResultSet[clusterSize];
-		
-		//create executorservice for threading
+
+		// create executorservice for threading
 		ExecutorService service = Executors.newFixedThreadPool(clusterSize);
-		
-		//put query into each cluster using the according lucenesearcher
-		for(int i=0;i<clusterSize;i++) {
+		// put query into each cluster using the according lucenesearcher
+		for (int i = 0; i < clusterSize; i++) {
 			futures.add(service.submit(new Cluster(spec, searcher[i])));
 		}
-		//shutdown and await termination of threads
+		// shutdown and await termination of threads
 		service.shutdown();
 		service.awaitTermination(timeout, TimeUnit.SECONDS);
 
-		//start cluster as thread using pool
-		for(int i=0;i<clusterSize;i++) {
+		// start cluster as thread using pool
+		for (int i = 0; i < clusterSize; i++) {
 			results[i] = futures.get(i).get();
 		}
-		//sync results and return
+		// sync results and return
+		closeSearcher(searcher);
 		return mergeSyncedResults(results);
 	}
-	
+
 	/**
 	 * Adds triples to index cluster
+	 * 
 	 * @param triples
 	 * @return
 	 */
 	public boolean add(Triple<String>[] triples) {
-		int i=0;
-		for(Triple<String> triple : triples) {
+		reopenIndexer(indexer);
+		int i = 0;
+
+		for (Triple<String> triple : triples) {
 			try {
 				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject());
 			} catch (IOException e) {
+				//TODO rollback!
 				return false;
 			}
-			if(i>=clusterSize) {
-				i=0;
+			if (i >= clusterSize) {
+				i = 0;
 			}
 		}
+		closeIndexer(indexer);
 		return true;
 	}
-	
+
 	/**
 	 * Adds triples to index cluster
+	 * 
 	 * @param triples
 	 * @return
 	 */
 	public boolean load(Triple<String>[] triples) {
-		int i=0;
-		for(Triple<String> triple : triples) {
+		reopenIndexer(indexer);
+		int i = 0;
+		for (Triple<String> triple : triples) {
 			try {
 				indexer[i].deleteAll();
 				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject());
 			} catch (IOException e) {
+				//TODO rollback!
 				return false;
 			}
-			if(i>=clusterSize) {
-				i=0;
+			if (i >= clusterSize) {
+				i = 0;
 			}
 		}
+		closeIndexer(indexer);
 		return true;
 	}
-	
+
 	public boolean drop() {
-		for(LuceneIndexer index : indexer) {
+		reopenIndexer(indexer);
+		for (LuceneIndexer index : indexer) {
 			try {
 				index.deleteAll();
 			} catch (IOException e) {
+				//TODO rollback!
 				return false;
 			}
 		}
+		closeIndexer(indexer);
+
 		return true;
 	}
-	
+
 	public boolean delete(Triple<String>[] triples) {
-		int i=0;
-		for(Triple<String> triple : triples) {
+		reopenIndexer(indexer);
+		int i = 0;
+		for (Triple<String> triple : triples) {
 			try {
 				indexer[i++].delete(triple.getSubject(), triple.getPredicate(), triple.getObject());
 			} catch (IOException e) {
+				//TODO rollback!
 				return false;
 			}
-			if(i>=clusterSize) {
-				i=0;
+			if (i >= clusterSize) {
+				i = 0;
 			}
 		}
+		closeIndexer(indexer);
+
 		return true;
 	}
 }

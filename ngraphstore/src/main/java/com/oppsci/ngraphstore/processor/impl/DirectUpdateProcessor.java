@@ -11,12 +11,12 @@ import com.oppsci.ngraphstore.storage.ClusterOverseer;
 public class DirectUpdateProcessor implements UpdateProcessor {
 
 	@Autowired
-	ClusterOverseer overseer;
+	ClusterOverseer clusterOverseer;
 
 	@Override
 	public boolean insert(String triples) {
 		try {
-			return overseer.add(TripleFactory.parseTriples(triples));
+			return clusterOverseer.add(TripleFactory.parseTriples(triples));
 		} catch (IOException e) {
 			return false;
 		}
@@ -25,7 +25,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	@Override
 	public boolean delete(String triples) {
 		try {
-			return overseer.delete(TripleFactory.parseTriples(triples));
+			return clusterOverseer.delete(TripleFactory.parseTriples(triples));
 		} catch (IOException e) {
 			return false;
 		}
@@ -34,7 +34,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	@Override
 	public boolean load(String triples) {
 		try {
-			return overseer.load(TripleFactory.parseTriples(triples));
+			return clusterOverseer.load(TripleFactory.parseTriples(triples));
 		} catch (IOException e) {
 			return false;
 		}

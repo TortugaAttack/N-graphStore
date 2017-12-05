@@ -26,6 +26,32 @@
 	left: 25%
 }
 
+table {
+	table-layout: fixed;
+}
+
+.error-icon{
+	float:right;
+	text-decoration:none;
+	color: white;
+}
+
+.error-icon:hover{
+	color: #AAA;
+}
+
+.error {
+	background-color: #FF4444;
+	font-family: 'Advent Pro';
+	padding: 1em;
+	margin-top: 1em;
+	border-radius: 10px;
+	font-size: 1.2em;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+}
+
 .fancytable {
 	font-family: 'Arial';
 	border-bottom: 1px solid #ddd;
@@ -80,6 +106,16 @@
 	text-align: left;
 	width: 10em;
 	padding: 1em;
+}
+
+.fancylink {
+	text-decoration: none;
+	color: #3f6f6f;
+}
+
+.fancylink:hover {
+	text-decoration: none;
+	color: #2f2f2f;
 }
 
 .logo {

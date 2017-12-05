@@ -12,6 +12,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.MergePolicy.OneMerge;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -27,15 +28,27 @@ public class LuceneIndexer {
 
 	private IndexWriter writer;
 	private Directory dir;
+	private String path;
 
 	public LuceneIndexer(String path) throws IOException {
+		open(path);
+	}
+	
+	public void open(String path) throws IOException {
+		this.path = path;
 		dir = FSDirectory.open(new File(path));
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
-		config.setOpenMode(OpenMode.CREATE);
+		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
+		
 		writer = new IndexWriter(dir, config);
 	}
 
+	//TODO update existin segments instead of creating new ones
+	public void reopen() throws IOException {
+		open(path);
+	}
+	
 	public void close() {
 		try {
 			writer.commit();
@@ -46,12 +59,29 @@ public class LuceneIndexer {
 		}
 	}
 
+	public void commit() throws IOException {
+		try {
+			writer.commit();
+			writer.close(true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (IndexWriter.isLocked(dir)) {
+				IndexWriter.unlock(dir);
+			}
+
+		}
+
+	}
+
 	public void index(String subject, String predicate, String object) throws IOException {
 		indexTriple(subject, predicate, object);
 	}
 
 	public void indexTriple(String subject, String predicate, String object) throws IOException {
 		Document doc = convertTerm(subject, predicate, object);
+		//check before adding if already existent
 		writer.addDocument(doc);
 	}
 
@@ -65,7 +95,7 @@ public class LuceneIndexer {
 		finalQuery.add(query, Occur.MUST);
 		writer.deleteDocuments(finalQuery);
 	}
-	
+
 	public void deleteAll() throws IOException {
 		writer.deleteAll();
 	}

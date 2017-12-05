@@ -1,6 +1,7 @@
 package com.oppsci.ngraphstore.root;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import com.oppsci.ngraphstore.processor.impl.DirectUpdateProcessor;
 import com.oppsci.ngraphstore.rest.SPARQLRestController;
 import com.oppsci.ngraphstore.rest.TripleRestController;
 import com.oppsci.ngraphstore.rest.UpdateRestController;
+import com.oppsci.ngraphstore.storage.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.MemoryStorage;
 
 /**
@@ -76,6 +78,11 @@ public class RootController {
 	public static @Bean UpdateProcessor directProcessor() {
 		DirectUpdateProcessor processor = new DirectUpdateProcessor();
 		return processor;
+	}
+	
+	public static @Bean ClusterOverseer clusterOverseer() throws IOException {
+		ClusterOverseer overseer = new ClusterOverseer(1, "lucene_test", 180);
+		return overseer;
 	}
 
 }
