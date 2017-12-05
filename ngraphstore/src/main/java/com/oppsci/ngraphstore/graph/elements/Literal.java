@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.graph;
+package com.oppsci.ngraphstore.graph.elements;
 
 import org.json.simple.JSONObject;
 

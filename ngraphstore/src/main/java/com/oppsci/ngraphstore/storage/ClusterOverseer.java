@@ -145,13 +145,13 @@ public class ClusterOverseer {
 	 * @param triples
 	 * @return
 	 */
-	public boolean add(Triple<String>[] triples) {
+	public boolean add(Triple<String>[] triples, String graph) {
 		reopenIndexer(indexer);
 		int i = 0;
 
 		for (Triple<String> triple : triples) {
 			try {
-				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject());
+				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject(), graph);
 			} catch (IOException e) {
 				//TODO rollback!
 				return false;
@@ -170,13 +170,13 @@ public class ClusterOverseer {
 	 * @param triples
 	 * @return
 	 */
-	public boolean load(Triple<String>[] triples) {
+	public boolean load(Triple<String>[] triples, String graph) {
 		reopenIndexer(indexer);
 		int i = 0;
 		for (Triple<String> triple : triples) {
 			try {
 				indexer[i].deleteAll();
-				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject());
+				indexer[i++].index(triple.getSubject(), triple.getPredicate(), triple.getObject(), graph);
 			} catch (IOException e) {
 				//TODO rollback!
 				return false;
@@ -189,7 +189,7 @@ public class ClusterOverseer {
 		return true;
 	}
 
-	public boolean drop() {
+	public boolean dropAll() {
 		reopenIndexer(indexer);
 		for (LuceneIndexer index : indexer) {
 			try {
@@ -203,13 +203,17 @@ public class ClusterOverseer {
 
 		return true;
 	}
+	
+	public void drop(String graph) {
+		//delete all triples with graph
+	}
 
-	public boolean delete(Triple<String>[] triples) {
+	public boolean delete(Triple<String>[] triples, String graph) {
 		reopenIndexer(indexer);
 		int i = 0;
 		for (Triple<String> triple : triples) {
 			try {
-				indexer[i++].delete(triple.getSubject(), triple.getPredicate(), triple.getObject());
+				indexer[i++].delete(triple.getSubject(), triple.getPredicate(), triple.getObject(), graph);
 			} catch (IOException e) {
 				//TODO rollback!
 				return false;

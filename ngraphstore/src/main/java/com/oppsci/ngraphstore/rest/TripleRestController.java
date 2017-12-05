@@ -13,7 +13,7 @@ import com.oppsci.ngraphstore.processor.UpdateProcessor;
 public class TripleRestController {
 
 	@Autowired
-	UpdateProcessor directProcessor;
+	private UpdateProcessor directProcessor;
 	
 	/**
 	 * Processes triples either using a PUT method
@@ -21,17 +21,17 @@ public class TripleRestController {
 	 * @param data the triple data
 	 * @return true if succeeded, otherwise false
 	 */
-	public Boolean processTriple(String data) {
-			return directProcessor.load(data);
+	public Boolean processTriple(String data, String graphURI) {
+			return directProcessor.load(data, graphURI);
 		
 	}
 
-	public Boolean processTriple(String triple, String method) {
+	public Boolean processTriple(String triple, String method, String graphURI) {
 		if(method.equals("insert")) {
-			directProcessor.insert(triple);
+			directProcessor.insert(triple, graphURI);
 		}		
 		else if(method.equals("delete")) {
-			directProcessor.delete(triple);
+			directProcessor.delete(triple, graphURI);
 		}
 		return null;
 	}

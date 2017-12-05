@@ -22,8 +22,8 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import com.oppsci.ngraphstore.graph.Node;
-import com.oppsci.ngraphstore.graph.NodeFactory;
+import com.oppsci.ngraphstore.graph.elements.Node;
+import com.oppsci.ngraphstore.graph.elements.NodeFactory;
 
 public class LuceneSearcher {
 
@@ -122,7 +122,9 @@ public class LuceneSearcher {
 				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.PREDICATE)));
 			if (objectsFlag[2])
 				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.OBJECT)));
-
+			if (objectsFlag[3]) {
+				//TODO set Graph
+			}
 			triples.add(triple.toArray(new Node[] {}));
 		}
 		return triples;

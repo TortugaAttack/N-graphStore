@@ -1,23 +1,23 @@
-package com.oppsci.ngraphstore.graph;
+package com.oppsci.ngraphstore.graph.elements;
 
 import org.json.simple.JSONObject;
 
-public class BlankNode implements Node {
+public class URINode implements Node {
 
-	private String value;
-	
-	protected BlankNode(String value) {
-		this.value = value;
+	String uri;
+
+	protected URINode(String uri) {
+		this.uri=uri;
 	}
 	
 	@Override
 	public String getValue() {
-		return value;
+		return uri;
 	}
 
 	@Override
 	public String getNode() {
-		return value;
+		return "<" + uri + ">";
 	}
 
 	@Override
@@ -27,10 +27,10 @@ public class BlankNode implements Node {
 
 	@Override
 	public JSONObject asJSON() {
-		JSONObject bnode = new JSONObject();
-		bnode.put("type", "bnode");
-		bnode.put("value", value);
-		return bnode;
+		JSONObject uri = new JSONObject();
+		uri.put("type", "uri");
+		uri.put("value", uri);
+		return uri;
 	}
 
 	@Override
@@ -40,12 +40,12 @@ public class BlankNode implements Node {
 
 	@Override
 	public boolean isURI() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isBlankNode() {
-		return true;
+		return false;
 	}
 
 }

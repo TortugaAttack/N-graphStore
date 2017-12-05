@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+
+import com.oppsci.ngraphstore.graph.Triple;
 
 /**
  * Bulk Loading Files into lucene folder
@@ -28,15 +31,16 @@ public class LuceneBulkLoader {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		if(args.length<2) {
-			System.out.println("Usage: bulkload.sh folder file1 file2...");
+		if(args.length<32) {
+			System.out.println("Usage: bulkload.sh graphURI folder file1 file2...");
 			return;
 		}
 		String folder = args[0];
 		//TODO use folder as prefix and make N folders. which can be used for clusters
 		LuceneBulkLoader loader = new LuceneBulkLoader();
 		loader.setIndexer(new LuceneIndexer(folder));
-		loader.load(getFiles(args));
+		String graph=args[1];
+		loader.load(graph, getFiles(args));
 	}
 
 	/**
@@ -61,7 +65,7 @@ public class LuceneBulkLoader {
 	 */
 	private static File[] getFiles(String[] args) {
 		File[] files = new File[args.length-1];
-		for(int i=1; i<args.length;i++) {
+		for(int i=2; i<args.length;i++) {
 			files[i-1] = new File(args[i]);
 		}
 		return files;
@@ -70,11 +74,11 @@ public class LuceneBulkLoader {
 	/**
 	 * @param files
 	 */
-	public void load(File... files ) {
+	public void load(String graph, File... files ) {
 		for(File file : files) {
 			
 			try {
-				loadSingle(file);
+				loadSingle(file, graph);
 				System.out.println(file.getName()+" successfully loaded.");
 			} catch (IOException e) {
 				System.err.println("Could not load "+file.getName()+" due to following exception, ");
@@ -84,16 +88,39 @@ public class LuceneBulkLoader {
 		indexer.close();
 	}
 	
-	private void loadSingle(File file) throws IOException {
+	private void loadSingle(File file, String graph) throws IOException {
 		Model m = ModelFactory.createDefaultModel();
 		m.read(file.toURI().toURL().toString());
 		StmtIterator statements = m.listStatements();
 		while(statements.hasNext()) {
 			Statement stmt = statements.next();
-			String subject = stmt.getSubject().getURI();
-			String predicate = stmt.getPredicate().getURI();
-			String object = stmt.getObject().asNode().toString(true);
-			indexer.index(subject, predicate, object);
+			String subject="";
+			String predicate="";
+			if(stmt.getSubject().isURIResource()) {
+				subject = "<" + stmt.getSubject().getURI() + ">";
+			}
+			else if(stmt.getSubject().isAnon()) {
+				subject = stmt.getSubject().toString();
+			}
+			if(stmt.getPredicate().isURIResource()) {
+				predicate = "<" + stmt.getPredicate().getURI() + ">";
+			}
+			else if(stmt.getPredicate().isAnon()) {
+				predicate = stmt.getPredicate().toString();
+			}
+			String object;
+			if (stmt.getObject().isLiteral()) {
+				Literal literal = stmt.getObject().asLiteral();
+				object = stmt.getObject().asNode().toString(true);
+				if (literal.getLanguage().isEmpty()
+						&& !literal.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+					object = object.substring(0, object.lastIndexOf("^^") + 2) + "<" + literal.getDatatypeURI() + ">";
+				}
+			} else {
+				object = stmt.getObject().asNode().toString(true);
+			}
+
+			indexer.index(subject, predicate, object, graph);
 		}
 	}
 }

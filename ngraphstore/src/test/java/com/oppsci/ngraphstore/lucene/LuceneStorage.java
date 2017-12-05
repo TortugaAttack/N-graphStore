@@ -10,8 +10,8 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.oppsci.ngraphstore.graph.Literal;
-import com.oppsci.ngraphstore.graph.Node;
+import com.oppsci.ngraphstore.graph.elements.Literal;
+import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
@@ -22,11 +22,11 @@ public class LuceneStorage {
 	@Test
 	public void storage() throws IOException {
 		LuceneIndexer index = new LuceneIndexer("luceneTest");
-		index.index("<test>", "<test>", "<test>");
-		index.index("<test2>", "<test2>", "\"test\"@de");
+		index.index("<test>", "<test>", "<test>", "GRAPH");
+		index.index("<test2>", "<test2>", "\"test\"@de", "GRAPH");
 		index.close();
 		LuceneSearcher searcher = new LuceneSearcher("luceneTest");
-		Collection<Node[]> results = searcher.search("<test2>", new boolean[] {true, true, true}, LuceneConstants.SUBJECT);
+		Collection<Node[]> results = searcher.search("<test2>", new boolean[] {true, true, true, false}, LuceneConstants.SUBJECT);
 		Iterator<Node[]> resultsIterator = results.iterator();
 		assertTrue(resultsIterator.hasNext());
 		Node[] result = resultsIterator.next();

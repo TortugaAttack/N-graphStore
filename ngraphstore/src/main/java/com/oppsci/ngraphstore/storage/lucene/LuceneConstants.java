@@ -6,4 +6,5 @@ public class LuceneConstants {
 	public final static String SUBJECT="subject";	
 	public final static String PREDICATE="predicate";
 	public final static String OBJECT="object";
+	public static final String GRAPH = "graph";
 }

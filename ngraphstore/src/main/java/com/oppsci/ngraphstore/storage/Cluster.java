@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.lucene.index.CorruptIndexException;
 
-import com.oppsci.ngraphstore.graph.Node;
+import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.query.Query;
 import com.oppsci.ngraphstore.query.QueryPlanner;
 import com.oppsci.ngraphstore.results.SimpleResultSet;

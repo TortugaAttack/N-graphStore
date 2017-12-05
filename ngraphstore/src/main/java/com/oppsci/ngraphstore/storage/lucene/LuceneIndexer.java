@@ -75,23 +75,25 @@ public class LuceneIndexer {
 
 	}
 
-	public void index(String subject, String predicate, String object) throws IOException {
-		indexTriple(subject, predicate, object);
+	public void index(String subject, String predicate, String object, String graph) throws IOException {
+		indexTriple(subject, predicate, object, graph);
 	}
 
-	public void indexTriple(String subject, String predicate, String object) throws IOException {
-		Document doc = convertTerm(subject, predicate, object);
+	public void indexTriple(String subject, String predicate, String object, String graph) throws IOException {
+		Document doc = convertTerm(subject, predicate, object, graph);
 		//check before adding if already existent
 		writer.addDocument(doc);
 	}
 
-	public void delete(String subject, String predicate, String object) throws IOException {
+	public void delete(String subject, String predicate, String object, String graph) throws IOException {
 		BooleanQuery finalQuery = new BooleanQuery();
 		TermQuery query = new TermQuery(new Term(LuceneConstants.SUBJECT, subject));
 		finalQuery.add(query, Occur.MUST);
 		query = new TermQuery(new Term(LuceneConstants.PREDICATE, predicate));
 		finalQuery.add(query, Occur.MUST);
 		query = new TermQuery(new Term(LuceneConstants.OBJECT, object));
+		finalQuery.add(query, Occur.MUST);
+		query = new TermQuery(new Term(LuceneConstants.GRAPH, graph));
 		finalQuery.add(query, Occur.MUST);
 		writer.deleteDocuments(finalQuery);
 	}
@@ -100,15 +102,17 @@ public class LuceneIndexer {
 		writer.deleteAll();
 	}
 
-	private Document convertTerm(String subject, String predicate, String object) {
+	private Document convertTerm(String subject, String predicate, String object, String graph) {
 		Document document = new Document();
 		Field subjectField = new StringField(LuceneConstants.SUBJECT, subject, Field.Store.YES);
 		Field predicateField = new StringField(LuceneConstants.PREDICATE, predicate, Field.Store.YES);
 		Field objectField = new StringField(LuceneConstants.OBJECT, object, Field.Store.YES);
-
+		Field graphField = new StringField(LuceneConstants.GRAPH, graph, Field.Store.YES);
+		
 		document.add(subjectField);
 		document.add(predicateField);
 		document.add(objectField);
+		document.add(graphField);
 		return document;
 	}
 

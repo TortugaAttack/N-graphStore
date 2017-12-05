@@ -10,7 +10,7 @@ import org.apache.jena.sparql.core.Var;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.oppsci.ngraphstore.graph.Node;
+import com.oppsci.ngraphstore.graph.elements.Node;
 
 public class SimpleResultSet {
 

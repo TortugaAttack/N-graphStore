@@ -14,27 +14,27 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	ClusterOverseer clusterOverseer;
 
 	@Override
-	public boolean insert(String triples) {
+	public boolean insert(String triples, String graph) {
 		try {
-			return clusterOverseer.add(TripleFactory.parseTriples(triples));
+			return clusterOverseer.add(TripleFactory.parseTriples(triples), graph);
 		} catch (IOException e) {
 			return false;
 		}
 	}
 
 	@Override
-	public boolean delete(String triples) {
+	public boolean delete(String triples, String graph) {
 		try {
-			return clusterOverseer.delete(TripleFactory.parseTriples(triples));
+			return clusterOverseer.delete(TripleFactory.parseTriples(triples), graph);
 		} catch (IOException e) {
 			return false;
 		}
 	}
 
 	@Override
-	public boolean load(String triples) {
+	public boolean load(String triples, String graph) {
 		try {
-			return clusterOverseer.load(TripleFactory.parseTriples(triples));
+			return clusterOverseer.load(TripleFactory.parseTriples(triples), graph);
 		} catch (IOException e) {
 			return false;
 		}

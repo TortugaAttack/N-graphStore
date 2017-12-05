@@ -20,12 +20,13 @@
 						$scope.error = false;
 						$scope.errormsg = '';
 						$scope.sparqlForm = {
-							triples : ''
+							triples : '',
+							graph='';
 						}
-						$scope.errorClear = function(){
+						$scope.errorClear = function() {
 							console.log("test");
-							$scope.error=false;
-							$scope.errormsg='';
+							$scope.error = false;
+							$scope.errormsg = '';
 						};
 						$scope.sparqlSubmit = function() {
 							var startDate = new Date();
@@ -36,7 +37,8 @@
 										url : 'http://localhost:9098/ngraphstore/data',
 										data : $.param({
 											data : $scope.sparqlForm.triples,
-											method : 'insert'
+											method : 'insert',
+											graph : $scope.sparqlForm.graph
 										}),
 										headers : {
 											'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
@@ -90,10 +92,13 @@
 
 			<form id="myform" ng-submit="sparqlSubmit()">
 				<div class=".col-md-12">
+					<input type="text" class="itxt" ng-model="sparqlForm.graph"></input>
+				</div>
+				<div class=".col-md-12">
 					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples"></textarea>
 				</div>
 				<div class=".col-md-12">
-					<input type="submit" class="btn" value="Submit">
+					<input type="submit" class="btn" value="Submit"/>
 				</div>
 			</form>
 			<div class="divider"></div>

@@ -2,10 +2,10 @@ package com.oppsci.ngraphstore.processor;
 
 public interface UpdateProcessor {
 
-	public boolean insert(String triple);
+	public boolean insert(String triple, String graph);
 	
-	public boolean delete(String triple);
+	public boolean delete(String triple, String graph);
 
-	public boolean load(String data);
+	public boolean load(String data, String graph);
 	
 }

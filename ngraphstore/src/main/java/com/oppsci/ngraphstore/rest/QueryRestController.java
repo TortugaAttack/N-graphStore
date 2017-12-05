@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class QueryRestController {
 	
 	@Autowired
-	SPARQLRestController sparqlRestController;
+	private SPARQLRestController sparqlRestController;
 	@Autowired
-	UpdateRestController updateRestController;
+	private UpdateRestController updateRestController;
 	@Autowired
-	TripleRestController tripleRestController;
+	private TripleRestController tripleRestController;
 	
-	
+	private String defaultGraph;
 	
 	/**
 	 * 
@@ -78,8 +78,12 @@ public class QueryRestController {
 	 * @return true if succeeded, false otherwise
 	 */
 	@RequestMapping(value = "/data", method = RequestMethod.POST, headers = "Accept=text/plain")
-	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="method") String method) {
-		Boolean updateSucceeded =  tripleRestController.processTriple(data, method);
+	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph, @RequestParam(value="method") String method) {
+		String graphURI =graph;
+		if(defaultGraph.isEmpty()) {
+			graphURI = defaultGraph;
+		}
+		Boolean updateSucceeded =  tripleRestController.processTriple(data, graphURI, method);
 		return updateSucceeded;
 	}
 	
@@ -92,8 +96,12 @@ public class QueryRestController {
 	 * @return true if succeeded, false otherwise
 	 */
 	@RequestMapping(value = "/data", method = RequestMethod.PUT, headers = "Accept=text/plain")
-	public Boolean putTriples(@RequestParam(value="data") String data) {
-		Boolean updateSucceeded =  tripleRestController.processTriple(data);
+	public Boolean putTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph) {
+		String graphURI =graph;
+		if(defaultGraph.isEmpty()) {
+			graphURI = defaultGraph;
+		}
+		Boolean updateSucceeded =  tripleRestController.processTriple(data, graphURI);
 		return updateSucceeded;
 	}
 }
