@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.root;
+package com.oppsci.ngraphstore.web.root;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,11 +12,11 @@ import com.oppsci.ngraphstore.processor.SPARQLProcessor;
 import com.oppsci.ngraphstore.processor.SPARQLProcessorFactory;
 import com.oppsci.ngraphstore.processor.UpdateProcessor;
 import com.oppsci.ngraphstore.processor.impl.DirectUpdateProcessor;
-import com.oppsci.ngraphstore.rest.SPARQLRestController;
-import com.oppsci.ngraphstore.rest.TripleRestController;
-import com.oppsci.ngraphstore.rest.UpdateRestController;
 import com.oppsci.ngraphstore.storage.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.MemoryStorage;
+import com.oppsci.ngraphstore.web.rest.SPARQLRestController;
+import com.oppsci.ngraphstore.web.rest.TripleRestController;
+import com.oppsci.ngraphstore.web.rest.UpdateRestController;
 
 /**
  * Controller for autowired elememnts
@@ -81,8 +81,14 @@ public class RootController {
 	}
 	
 	public static @Bean ClusterOverseer clusterOverseer() throws IOException {
+		//TODO get parameter from properties file
 		ClusterOverseer overseer = new ClusterOverseer("lucene_test", 1, 180);
 		return overseer;
+	}
+	
+	public static @Bean boolean ignoreErrors() {
+		//TODO get parameter from properties file
+		return true;
 	}
 
 }

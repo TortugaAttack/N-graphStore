@@ -3,8 +3,8 @@ package com.oppsci.ngraphstore.query;
 import java.util.List;
 import java.util.Map;
 
-import com.oppsci.ngraphstore.sparql.elements.BGPElement;
-import com.oppsci.ngraphstore.sparql.elements.Filter;
+import com.oppsci.ngraphstore.query.sparql.elements.BGPElement;
+import com.oppsci.ngraphstore.query.sparql.elements.Filter;
 
 
 public class Query {

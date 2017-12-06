@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.results;
+package com.oppsci.ngraphstore.storage.results;
 
 import java.util.Collection;
 import java.util.HashMap;

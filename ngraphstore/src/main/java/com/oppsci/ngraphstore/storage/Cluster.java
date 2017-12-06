@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.oppsci.ngraphstore.graph.Triple;
 import com.oppsci.ngraphstore.graph.elements.Node;
-import com.oppsci.ngraphstore.results.SimpleResultSet;
 import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
+import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
  * One of the Nth Cluster

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.oppsci.ngraphstore.sparql.elements.BGPElement;
+import com.oppsci.ngraphstore.query.sparql.elements.BGPElement;
 
 public class QueryParser {
 

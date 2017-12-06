@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.oppsci.ngraphstore.sparql.elements.BGPElement;
+import com.oppsci.ngraphstore.query.sparql.elements.BGPElement;
 
 public class QueryParserTest {
 

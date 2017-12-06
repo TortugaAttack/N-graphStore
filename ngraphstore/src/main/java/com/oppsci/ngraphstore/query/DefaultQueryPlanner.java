@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.oppsci.ngraphstore.graph.Graph;
-import com.oppsci.ngraphstore.results.SimpleResultSet;
-import com.oppsci.ngraphstore.sparql.elements.BGPElement;
-import com.oppsci.ngraphstore.sparql.elements.Filter;
+import com.oppsci.ngraphstore.query.sparql.elements.BGPElement;
+import com.oppsci.ngraphstore.query.sparql.elements.Filter;
 import com.oppsci.ngraphstore.storage.ClusterOverseer;
+import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 public class DefaultQueryPlanner implements QueryPlanner{
 

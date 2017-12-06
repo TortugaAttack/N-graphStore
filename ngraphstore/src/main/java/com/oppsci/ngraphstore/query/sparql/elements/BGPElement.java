@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.sparql.elements;
+package com.oppsci.ngraphstore.query.sparql.elements;
 
 public class BGPElement implements Element {
 

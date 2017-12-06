@@ -13,11 +13,11 @@ import java.util.concurrent.TimeUnit;
 import com.oppsci.ngraphstore.graph.Triple;
 import com.oppsci.ngraphstore.query.Query;
 import com.oppsci.ngraphstore.query.QueryParser;
-import com.oppsci.ngraphstore.results.SimpleResultSet;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
+import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
  * TODO: make code more lucid, updates into Cluster, add Triples as subarray The
