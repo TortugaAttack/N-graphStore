@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 
 /**
  * @author f.conrads
@@ -109,7 +110,7 @@ public class ExecutionOverseer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> List<T> execute(LuceneSpec spec, int methodIdentifier, Class T)
+	public <T> List<T> execute(LuceneSpec spec, int methodIdentifier, Class T, SearchStats stats)
 			throws InterruptedException, ExecutionException {
 		List<Future<T>> futures = new LinkedList<Future<T>>();
 		List<T> results = new LinkedList<T>();
@@ -118,7 +119,7 @@ public class ExecutionOverseer {
 		ExecutorService service = Executors.newFixedThreadPool(indexer.length);
 		// put query into each cluster using the according lucenesearcher
 		for (int i = 0; i < indexer.length; i++) {
-			futures.add((Future<T>) service.submit(new Cluster(spec, searcher[i], indexer[i], methodIdentifier)));
+			futures.add((Future<T>) service.submit(new Cluster(spec, searcher[i], indexer[i], methodIdentifier, stats)));
 		}
 		// shutdown and await termination of threads
 		service.shutdown();

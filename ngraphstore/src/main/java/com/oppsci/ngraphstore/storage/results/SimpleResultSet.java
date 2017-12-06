@@ -1,19 +1,17 @@
 package com.oppsci.ngraphstore.storage.results;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.jena.sparql.core.Var;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.oppsci.ngraphstore.graph.elements.Node;
+import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 
-public class SimpleResultSet {
-
+public class SimpleResultSet{
+	
+	private SearchStats stats;
 	private List<String> vars = new LinkedList<String>();
 	private Collection<Node[]> rows = new LinkedList<Node[]>();
 
@@ -23,7 +21,6 @@ public class SimpleResultSet {
 	}
 
 	public SimpleResultSet() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -80,6 +77,20 @@ public class SimpleResultSet {
 		}
 		json.put("results", bindings);
 		return json;
+	}
+
+	/**
+	 * @return the stats
+	 */
+	public SearchStats getStats() {
+		return stats;
+	}
+
+	/**
+	 * @param stats the stats to set
+	 */
+	public void setStats(SearchStats stats) {
+		this.stats = stats;
 	}
 
 

@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.query;
+package com.oppsci.ngraphstore.query.parser;
 
 import java.util.List;
 import java.util.Map;
@@ -55,6 +55,11 @@ public class Query {
 	}
 
 	public List<Filter> getFilter() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String createCacheKey() {
 		// TODO Auto-generated method stub
 		return null;
 	}

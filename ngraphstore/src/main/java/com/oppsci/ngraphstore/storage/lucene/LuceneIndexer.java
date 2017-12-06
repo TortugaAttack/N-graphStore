@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 /**
  * The Lucene Indexer. Will update and load data into the provided path
  * 
+ * TODO add semaphore and mutex
+ * 
  * @author f.conrads
  *
  */

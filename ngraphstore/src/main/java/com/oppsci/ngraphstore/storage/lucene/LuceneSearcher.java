@@ -17,6 +17,8 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.RegexpQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
@@ -25,11 +27,13 @@ import org.apache.lucene.store.FSDirectory;
 
 import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.graph.elements.NodeFactory;
+import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 
 /**
  * The Lucene Searcher to find records in the lucene segments.
  * 
- * TODO add methods using sortation
+ * TODO add semaphore and mutex
+ * 
  * 
  * @author f.conrads
  *
@@ -78,8 +82,8 @@ public class LuceneSearcher {
 	 * @return
 	 * @throws IOException
 	 */
-	private TopDocs searchTops(String searchQuery, String searchField) throws IOException {
-		return searchTerm(searchQuery, searchField);
+	private TopDocs searchTops(String searchQuery, String searchField, SearchStats stats) throws IOException {
+		return searchTerm(searchQuery, searchField, stats);
 	}
 	
 	/**
@@ -90,23 +94,41 @@ public class LuceneSearcher {
 	 * @return
 	 * @throws IOException
 	 */
-	private TopDocs searchTops(String[] searchQueries, String[] searchFields) throws IOException {
-		return searchTerms(searchQueries, searchFields);
+	private TopDocs searchTops(String[] searchQueries, String[] searchFields, SearchStats stats) throws IOException {
+		return searchTerms(searchQueries, searchFields, stats);
 	}
 
-	private TopDocs searchTerms(String[] searchQueries, String[] searchFields) throws IOException {
+	private TopDocs searchTerms(String[] searchQueries, String[] searchFields, SearchStats stats) throws IOException {
 		BooleanQuery finalQuery = new BooleanQuery();
 		
 		for(int i=0;i<searchQueries.length;i++) {
-			TermQuery query = new TermQuery(new Term(searchFields[i], searchQueries[i]));
-			finalQuery.add(query, Occur.MUST); 
+			if(searchQueries[i].equals("_:")) {
+				//bnode
+				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "^_:.+$"));
+				finalQuery.add(query, Occur.MUST);
+			}
+			else {
+				TermQuery query = new TermQuery(new Term(searchFields[i], searchQueries[i]));
+				finalQuery.add(query, Occur.MUST); 
+			}
 		}
+		if(stats.getLastDoc()!=null)
+			return indexSearcher.searchAfter(stats.getLastDoc(), finalQuery, LuceneConstants.MAX_SEARCH);
 		return indexSearcher.search(finalQuery, LuceneConstants.MAX_SEARCH);
 		
 	}
 	
-	private TopDocs searchTerm(String searchQuery, String searchField) throws IOException {
-		TermQuery query = new TermQuery(new Term(searchField, searchQuery));
+	private TopDocs searchTerm(String searchQuery, String searchField, SearchStats stats) throws IOException {
+		Query query;
+		if(searchQuery.equals("_:")) {
+			//bnode
+			query = new RegexpQuery(new Term(searchField, "^_:.+$"));
+		}
+		else {
+			query = new TermQuery(new Term(searchField, searchQuery));
+		}
+		if(stats.getLastDoc()!=null)
+			return indexSearcher.searchAfter(stats.getLastDoc(), query, LuceneConstants.MAX_SEARCH);
 		return indexSearcher.search(query, LuceneConstants.MAX_SEARCH);
 	}
 
@@ -132,11 +154,12 @@ public class LuceneSearcher {
 	 * @param uri the term to search 
 	 * @param objectsFlag
 	 * @param searchField the searchField to search in
+	 * @param stats 
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Node[]> search(String uri, boolean[] objectsFlag, String searchField) throws IOException {
-		return searchRelation(uri, objectsFlag, searchField);
+	public Collection<Node[]> search(String uri, boolean[] objectsFlag, String searchField, SearchStats stats) throws IOException {
+		return searchRelation(uri, objectsFlag, searchField, stats);
 	}
 
 	/**
@@ -148,13 +171,14 @@ public class LuceneSearcher {
 	 * @param uri the term to search 
 	 * @param objectsFlag
 	 * @param searchField the searchField to search in
+	 * @param stats 
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Node[]> searchRelation(String uri, boolean[] objectsFlag, String searchField) throws IOException {
+	public Collection<Node[]> searchRelation(String uri, boolean[] objectsFlag, String searchField, SearchStats stats) throws IOException {
 		TopDocs docs;
-		docs = searchTops(uri, searchField);
-		return searchTopDocs(docs, objectsFlag);
+		docs = searchTops(uri, searchField, stats);
+		return searchTopDocs(docs, objectsFlag, stats);
 	}
 	
 	/**
@@ -166,14 +190,15 @@ public class LuceneSearcher {
 	 * @param uris the terms to search 
 	 * @param objectsFlag
 	 * @param searchFields the searchFields to search in
+	 * @param stats 
 	 * @return
 	 * @throws CorruptIndexException 
 	 * @throws IOException
 	 */
-	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields) throws CorruptIndexException, IOException {
+	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields, SearchStats stats) throws CorruptIndexException, IOException {
 			TopDocs docs; 
-			docs = searchTops(uris, searchFields);
-			return searchTopDocs(docs, objectsFlag);
+			docs = searchTops(uris, searchFields, stats);
+			return searchTopDocs(docs, objectsFlag, stats);
 	}
 	
 	/**
@@ -182,18 +207,20 @@ public class LuceneSearcher {
 	 * F.e. objectFlag: (true, false, false, true)
 	 * will return subject, graph
 	 * @param objectsFlag
+	 * @param stats 
 	 * @return
 	 * @throws CorruptIndexException
 	 * @throws IOException
 	 */
-	public Collection<Node[]> getAllRecords(boolean[] objectsFlag) throws CorruptIndexException, IOException{
+	public Collection<Node[]> getAllRecords(boolean[] objectsFlag, SearchStats stats) throws CorruptIndexException, IOException{
 		MatchAllDocsQuery query = new MatchAllDocsQuery();
-		return searchTopDocs(indexSearcher.search(query, LuceneConstants.MAX_SEARCH), objectsFlag);
+		return searchTopDocs(indexSearcher.search(query, LuceneConstants.MAX_SEARCH), objectsFlag, stats);
 	}
 	
 	
-	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag) throws CorruptIndexException, IOException{
+	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag, SearchStats stats) throws CorruptIndexException, IOException{
 		Collection<Node[]> triples = new HashSet<Node[]>();
+		
 		for (ScoreDoc scoreDoc : docs.scoreDocs) {
 			Document doc;
 			doc = getDocument(scoreDoc);
@@ -209,6 +236,9 @@ public class LuceneSearcher {
 			}
 			triples.add(triple.toArray(new Node[] {}));
 		}
+		stats.setLastDoc(docs.scoreDocs[docs.scoreDocs.length]);
+		stats.setLastHit(docs.scoreDocs.length);
+		stats.setTotalHits(docs.totalHits);
 		return triples;
 	}
 

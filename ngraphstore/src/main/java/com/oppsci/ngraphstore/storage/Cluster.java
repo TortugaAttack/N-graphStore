@@ -17,6 +17,7 @@ import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
@@ -42,39 +43,57 @@ public class Cluster implements Callable<Object> {
 	private LuceneIndexer indexer;
 	private LuceneSpec spec;
 	private int methodIdentifier;
-
+	private SearchStats stats;
+	
 	@Autowired
 	private boolean ignoreErrors;
 
-	public Cluster(LuceneSpec spec, LuceneSearcher searcher, LuceneIndexer indexer, int methodIdentifier) {
+	public Cluster(LuceneSpec spec, LuceneSearcher searcher, LuceneIndexer indexer, int methodIdentifier, SearchStats stats) {
 		this.spec = spec;
 		this.searcher = searcher;
 		this.indexer = indexer;
 		this.methodIdentifier = methodIdentifier;
+		this.stats = stats;
 	}
 
 	public SimpleResultSet select() throws CorruptIndexException, IOException {
 		LuceneSearchSpec spec = (LuceneSearchSpec) this.spec;
 		// check if Lucene spec is simple
+		
 		if (spec.isSimple()) {
-			return convertLuceneResults(
-					searcher.searchRelation(spec.getUris()[0], spec.getObjectsFlags(), spec.getSearchFields()[0]));
+
+			return convertLuceneResults(searcher.searchRelation(spec.getUris()[0], spec.getObjectsFlags(),
+					spec.getSearchFields()[0], stats), stats);
 		}
 		return convertLuceneResults(
-				searcher.searchRelation(spec.getUris(), spec.getObjectsFlags(), spec.getSearchFields()));
+				searcher.searchRelation(spec.getUris(), spec.getObjectsFlags(), spec.getSearchFields(), stats), stats);
 	}
 
 	public SimpleResultSet selectAll() throws CorruptIndexException, IOException {
 		LuceneSearchSpec spec = (LuceneSearchSpec) this.spec;
-		return convertLuceneResults(searcher.getAllRecords(spec.getObjectsFlags()));
+
+		return convertLuceneResults(searcher.getAllRecords(spec.getObjectsFlags(), stats), stats);
 	}
 
 	public boolean add() {
 		int i = 0;
 		LuceneUpdateSpec spec = (LuceneUpdateSpec) this.spec;
-
+		boolean[] flags = new boolean[] { true, false, false, false };
+		String[] fields = new String[] { LuceneConstants.SUBJECT, LuceneConstants.PREDICATE, LuceneConstants.OBJECT,
+				LuceneConstants.GRAPH };
 		for (Triple<String> triple : spec.getTriples()) {
 			try {
+				indexer.close();
+				searcher.reopen();
+				String[] quad = new String[] { triple.getSubject(), triple.getPredicate(), triple.getObject(),
+						spec.getGraph() };
+				if (!searcher.searchRelation(quad, flags, fields, stats).isEmpty()) {
+					// already exists
+					searcher.close();
+					continue;
+				}
+				searcher.close();
+				indexer.reopen();
 				indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), spec.getGraph());
 			} catch (IOException e) {
 				if (!ignoreErrors)
@@ -104,6 +123,7 @@ public class Cluster implements Callable<Object> {
 		LuceneUpdateSpec spec = (LuceneUpdateSpec) this.spec;
 
 		try {
+
 			indexer.delete(new String[] { spec.getGraph() }, new String[] { LuceneConstants.GRAPH });
 		} catch (IOException e) {
 			if (!ignoreErrors)
@@ -138,7 +158,7 @@ public class Cluster implements Callable<Object> {
 		return true;
 	}
 
-	private SimpleResultSet convertLuceneResults(Collection<Node[]> results) {
+	private SimpleResultSet convertLuceneResults(Collection<Node[]> results, SearchStats stats) {
 		LuceneSearchSpec spec = (LuceneSearchSpec) this.spec;
 
 		SimpleResultSet resultSet = new SimpleResultSet();
@@ -151,7 +171,22 @@ public class Cluster implements Callable<Object> {
 		if (spec.getObjectsFlags()[2])
 			vars.add("object");
 		resultSet.setVars(vars);
+		resultSet.setStats(stats);
 		return resultSet;
+	}
+
+	/**
+	 * @return the stats
+	 */
+	public SearchStats getStats() {
+		return stats;
+	}
+
+	/**
+	 * @param stats the stats to set
+	 */
+	public void setStats(SearchStats stats) {
+		this.stats = stats;
 	}
 
 	@Override

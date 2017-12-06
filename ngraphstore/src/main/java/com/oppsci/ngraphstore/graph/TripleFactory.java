@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,12 +29,14 @@ public class TripleFactory {
 			if (stmt.getSubject().isURIResource()) {
 				triple.setSubject("<" + stmt.getSubject().getURI() + ">");
 			} else if (stmt.getSubject().isAnon()) {
-				triple.setSubject(stmt.getSubject().toString());
+				// make bnode unique but usable
+				triple.setSubject("_:"+stmt.getSubject().toString());
 			}
 			if (stmt.getPredicate().isURIResource()) {
 				triple.setPredicate("<" + stmt.getPredicate().getURI() + ">");
 			} else if (stmt.getPredicate().isAnon()) {
-				triple.setPredicate(stmt.getPredicate().toString());
+				// make bnode unique but usable
+				triple.setPredicate("_:"+stmt.getPredicate().toString());
 			}
 			String object;
 			if (stmt.getObject().isLiteral()) {
@@ -43,8 +46,10 @@ public class TripleFactory {
 						&& !literal.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
 					object = object.substring(0, object.lastIndexOf("^^") + 2) + "<" + literal.getDatatypeURI() + ">";
 				}
+			} else if (stmt.getObject().isAnon()) {
+				object = "_:"+stmt.getObject().asNode().toString();
 			} else {
-				object = stmt.getObject().asNode().toString(true);
+				object = "<" + stmt.getObject().asNode().getURI() + ">";
 			}
 			triple.setObject(object);
 		}

@@ -30,18 +30,30 @@ table {
 	table-layout: fixed;
 }
 
-.error-icon{
-	float:right;
-	text-decoration:none;
+.error-icon {
+	float: right;
+	text-decoration: none;
 	color: white;
 }
 
-.error-icon:hover{
+.error-icon:hover {
 	color: #AAA;
 }
 
 .error {
 	background-color: #FF4444;
+	font-family: 'Advent Pro';
+	padding: 1em;
+	margin-top: 1em;
+	border-radius: 10px;
+	font-size: 1.2em;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+}
+
+.info {
+	background-color: #8ae234;
 	font-family: 'Advent Pro';
 	padding: 1em;
 	margin-top: 1em;

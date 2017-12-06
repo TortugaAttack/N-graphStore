@@ -11,12 +11,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.oppsci.ngraphstore.graph.Triple;
-import com.oppsci.ngraphstore.query.Query;
-import com.oppsci.ngraphstore.query.QueryParser;
+import com.oppsci.ngraphstore.query.parser.Query;
+import com.oppsci.ngraphstore.query.parser.QueryParser;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
@@ -52,18 +53,18 @@ public class ClusterOverseer extends ExecutionOverseer {
 	 * @return
 	 * @throws Exception
 	 */
-	public SimpleResultSet search(LuceneSpec spec) throws Exception {
+	public SimpleResultSet search(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
-		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_METHOD, SimpleResultSet.class)
+		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
 		closeSearcher();
 		return mergeSyncedResults(results);
 	}
 	
-	public SimpleResultSet searchAll(LuceneSpec spec) throws Exception {
+	public SimpleResultSet searchAll(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
-		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class)
+		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
 		closeSearcher();
@@ -74,14 +75,15 @@ public class ClusterOverseer extends ExecutionOverseer {
 	 * Adds triples to index cluster
 	 * 
 	 * @param triples
+	 * @param graph 
 	 * @return
 	 */
 	public boolean add(Triple<String>[] triples, String graph) {
 		reopenIndexer();
-		LuceneSpec spec = new LuceneUpdateSpec();
+		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.INSERT_METHOD, boolean.class)
+			success = super.execute(spec, Cluster.INSERT_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException e1) {
 			e1.printStackTrace();
@@ -111,7 +113,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.LOAD_METHOD, boolean.class)
+			success = super.execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException e1) {
 			e1.printStackTrace();
@@ -134,7 +136,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec();
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.DROP_ALL_METHOD, boolean.class)
+			success = super.execute(spec, Cluster.DROP_ALL_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException e1) {
 			e1.printStackTrace();
@@ -159,7 +161,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.DROP_METHOD, boolean.class)
+			success = super.execute(spec, Cluster.DROP_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException e1) {
 			e1.printStackTrace();
@@ -183,7 +185,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.DELETE_METHOD, boolean.class)
+			success = super.execute(spec, Cluster.DELETE_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException e1) {
 			e1.printStackTrace();

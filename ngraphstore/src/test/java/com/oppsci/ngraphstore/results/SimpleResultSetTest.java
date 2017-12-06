@@ -2,15 +2,25 @@ package com.oppsci.ngraphstore.results;
 
 import java.io.File;
 import java.net.MalformedURLException;
+
+import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.junit.Test;
 
 public class SimpleResultSetTest {
-
+	
 	@Test
+	public void sandbox() {
+		Resource r = ModelFactory.createDefaultModel().createResource(AnonId.create());
+		System.out.println(r.toString());
+		System.out.println(r.asNode().getBlankNodeId());
+	}
+
+//	@Test
 	public void jsonTest() throws MalformedURLException {
 		Model m = ModelFactory.createDefaultModel();
 		m.read(new File("data.nt").toURI().toURL().toString());

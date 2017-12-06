@@ -19,16 +19,22 @@
 						$scope.time = 0.0;
 						$scope.error = false;
 						$scope.errormsg = '';
+						$scope.info=false;
+						$scope.infomsg = 'Update was successfull';
 						$scope.sparqlForm = {
 							triples : '',
-							graph='';
+							graph: ''
 						}
 						$scope.errorClear = function() {
 							console.log("test");
 							$scope.error = false;
 							$scope.errormsg = '';
 						};
+						$scope.infoClear = function(){
+							$scope.info=false;
+						}
 						$scope.sparqlSubmit = function() {
+							$scope.error=false;
 							var startDate = new Date();
 							var startTime = startDate.getTime();
 							$http(
@@ -50,9 +56,9 @@
 												var endTime = endDate.getTime();
 												$scope.data = response.data;
 												$scope.time = (endTime - startTime) / 1000.0;
+												$scope.info=true;											
 											},
 											function errorCallback(response) {
-												console.log(response);
 												$scope.error = true;
 												$scope.errormsg = response.status
 														+ ": "
@@ -105,6 +111,10 @@
 			<div class=".col-md-12 itxt time">Query took {{time}} seconds</div>
 			<div class="itxt error" ng-show="error">
 				{{errormsg}}<a ng-href='#' ng-click='errorClear()'><i
+					class="error-icon fa fa-window-close"></i></a>
+			</div>
+			<div class="itxt info" ng-show="info">
+				{{infomsg}}<a ng-href='#' ng-click='infoClear()'><i
 					class="error-icon fa fa-window-close"></i></a>
 			</div>
 		</div>

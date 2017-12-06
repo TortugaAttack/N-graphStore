@@ -164,13 +164,13 @@ public class LuceneBulkLoader {
 				subject = "<" + stmt.getSubject().getURI() + ">";
 			}
 			else if(stmt.getSubject().isAnon()) {
-				subject = stmt.getSubject().toString();
+				subject = "_:"+stmt.getSubject().toString();
 			}
 			if(stmt.getPredicate().isURIResource()) {
 				predicate = "<" + stmt.getPredicate().getURI() + ">";
 			}
 			else if(stmt.getPredicate().isAnon()) {
-				predicate = stmt.getPredicate().toString();
+				predicate = "_:"+stmt.getPredicate().toString();
 			}
 			String object;
 			if (stmt.getObject().isLiteral()) {
@@ -180,8 +180,10 @@ public class LuceneBulkLoader {
 						&& !literal.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
 					object = object.substring(0, object.lastIndexOf("^^") + 2) + "<" + literal.getDatatypeURI() + ">";
 				}
+			} else if (stmt.getObject().isAnon()) {
+				object = "_:"+stmt.getObject().asNode().toString();
 			} else {
-				object = stmt.getObject().asNode().toString(true);
+				object = "<" + stmt.getObject().asNode().getURI() + ">";
 			}
 			
 			try {

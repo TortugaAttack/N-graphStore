@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.query;
+package com.oppsci.ngraphstore.query.parser;
 
 import java.util.HashMap;
 import java.util.LinkedList;

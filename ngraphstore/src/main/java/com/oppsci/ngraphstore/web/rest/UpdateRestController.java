@@ -17,6 +17,8 @@ public class UpdateRestController {
 	 */
 	public Boolean processUpdate(String query, boolean isPost) {
 		// TODO Auto-generated method stub
+		
+		//TODO do not forget to set graph in query if no default is
 		return null;
 	}
 
