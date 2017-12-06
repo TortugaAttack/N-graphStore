@@ -1,12 +1,12 @@
-package com.oppsci.ngraphstore.storage;
+package com.oppsci.ngraphstore.storage.lucene.spec;
 
-public class LuceneSpec {
+public class LuceneSearchSpec implements LuceneSpec {
 
 	private String[] uris;
 	private boolean[] objectsFlags;
 	private String[] searchFields;
 	
-	public LuceneSpec(String[] uris, boolean[] objectFlags, String[] searchFields) {
+	public LuceneSearchSpec(String[] uris, boolean[] objectFlags, String[] searchFields) {
 		this.setUris(uris);
 		this.setObjectsFlags(objectFlags);
 		this.setSearchFields(searchFields);
@@ -60,5 +60,4 @@ public class LuceneSpec {
 	public void setSearchFields(String[] searchFields) {
 		this.searchFields = searchFields;
 	}
-	
 }

@@ -16,6 +16,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
@@ -25,6 +26,14 @@ import org.apache.lucene.store.FSDirectory;
 import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.graph.elements.NodeFactory;
 
+/**
+ * The Lucene Searcher to find records in the lucene segments.
+ * 
+ * TODO add methods using sortation
+ * 
+ * @author f.conrads
+ *
+ */
 public class LuceneSearcher {
 
 	private IndexSearcher indexSearcher;
@@ -33,32 +42,55 @@ public class LuceneSearcher {
 	private String path;
 
 	/**
-	 * 
-	 * @param indexDirectoryPath
-	 * @param searchField
-	 *            SUBJECT, PROPERTY, OBJECT
+	 * Creates and opens a Lucene Searcher according to the given path
+	 * @param indexDirectoryPath the path in which the indexing files should be.
 	 * @throws IOException
 	 */
 	public LuceneSearcher(String indexDirectoryPath) throws IOException {
 		open(indexDirectoryPath);
 	}
 	
+	/**
+	 * Will open the Lucene Searcher at the given path
+	 * @param indexDirectoryPath the path in which the indexing files should be.
+	 * @throws IOException
+	 */
 	public void open(String indexDirectoryPath) throws IOException {
 		this.path  = indexDirectoryPath;
 		indexDirectory = FSDirectory.open(new File(indexDirectoryPath));
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
-
+	
+	/**
+	 * Will reopen the previously opened searcher
+	 * @throws IOException
+	 */
 	public void reopen() throws IOException {
 		open(path);
 	}
 	
-	public TopDocs searchTops(String searchQuery, String searchField) throws IOException {
+	/**
+	 * Will search the docs in which the searchQuery term will occur at the searchField
+	 * 
+	 * @param searchQuery
+	 * @param searchField
+	 * @return
+	 * @throws IOException
+	 */
+	private TopDocs searchTops(String searchQuery, String searchField) throws IOException {
 		return searchTerm(searchQuery, searchField);
 	}
 	
-	public TopDocs searchTops(String[] searchQueries, String[] searchFields) throws IOException {
+	/**
+	 * Will search the docs in which the searchQueries term will occur at the according searchFields
+	 * 
+	 * @param searchQueries
+	 * @param searchFields
+	 * @return
+	 * @throws IOException
+	 */
+	private TopDocs searchTops(String[] searchQueries, String[] searchFields) throws IOException {
 		return searchTerms(searchQueries, searchFields);
 	}
 
@@ -78,23 +110,44 @@ public class LuceneSearcher {
 		return indexSearcher.search(query, LuceneConstants.MAX_SEARCH);
 	}
 
-	public Document getDocument(ScoreDoc scoreDoc) throws CorruptIndexException, IOException {
+	private Document getDocument(ScoreDoc scoreDoc) throws CorruptIndexException, IOException {
 		return indexSearcher.doc(scoreDoc.doc);
 	}
 
+	/**
+	 * Will close the searcher quietly
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		IOUtils.closeQuietly(indexReader);
 		IOUtils.closeQuietly(indexDirectory);
 	}
 
+	/**
+	 * Will search the term (uri) in the searchField and returns the 4 values (subject, predicate, object, graph)
+	 * according to the objectsFlag.<br/><br/>
+	 * F.e. objectFlag: (true, false, false, true)
+	 * will return subject, graph
+	 * 
+	 * @param uri the term to search 
+	 * @param objectsFlag
+	 * @param searchField the searchField to search in
+	 * @return
+	 * @throws IOException
+	 */
 	public Collection<Node[]> search(String uri, boolean[] objectsFlag, String searchField) throws IOException {
 		return searchRelation(uri, objectsFlag, searchField);
 	}
 
 	/**
+	 * Will search the term (uri) in the searchField and returns the 4 values (subject, predicate, object, graph)
+	 * according to the objectsFlag.<br/><br/>
+	 * F.e. objectFlag: (true, false, false, true)
+	 * will return subject, graph
 	 * 
-	 * @param uri
-	 * @param getObjectsFlag
+	 * @param uri the term to search 
+	 * @param objectsFlag
+	 * @param searchField the searchField to search in
 	 * @return
 	 * @throws IOException
 	 */
@@ -104,11 +157,40 @@ public class LuceneSearcher {
 		return searchTopDocs(docs, objectsFlag);
 	}
 	
+	/**
+	 * Will search the terms (uris) in the searchFields and returns the 4 values (subject, predicate, object, graph)
+	 * according to the objectsFlag.<br/><br/>
+	 * F.e. objectFlag: (true, false, false, true)
+	 * will return subject, graph
+	 * 
+	 * @param uris the terms to search 
+	 * @param objectsFlag
+	 * @param searchFields the searchFields to search in
+	 * @return
+	 * @throws CorruptIndexException 
+	 * @throws IOException
+	 */
 	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields) throws CorruptIndexException, IOException {
 			TopDocs docs; 
 			docs = searchTops(uris, searchFields);
 			return searchTopDocs(docs, objectsFlag);
 	}
+	
+	/**
+	 * Gets the 4 values (subject, predicate, object, graph) of all records 
+	 * <br/><br/>
+	 * F.e. objectFlag: (true, false, false, true)
+	 * will return subject, graph
+	 * @param objectsFlag
+	 * @return
+	 * @throws CorruptIndexException
+	 * @throws IOException
+	 */
+	public Collection<Node[]> getAllRecords(boolean[] objectsFlag) throws CorruptIndexException, IOException{
+		MatchAllDocsQuery query = new MatchAllDocsQuery();
+		return searchTopDocs(indexSearcher.search(query, LuceneConstants.MAX_SEARCH), objectsFlag);
+	}
+	
 	
 	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag) throws CorruptIndexException, IOException{
 		Collection<Node[]> triples = new HashSet<Node[]>();
@@ -123,7 +205,7 @@ public class LuceneSearcher {
 			if (objectsFlag[2])
 				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.OBJECT)));
 			if (objectsFlag[3]) {
-				//TODO set Graph
+				triple.add(NodeFactory.parseNode(doc.get(LuceneConstants.GRAPH)));
 			}
 			triples.add(triple.toArray(new Node[] {}));
 		}

@@ -81,7 +81,7 @@ public class RootController {
 	}
 	
 	public static @Bean ClusterOverseer clusterOverseer() throws IOException {
-		ClusterOverseer overseer = new ClusterOverseer(1, "lucene_test", 180);
+		ClusterOverseer overseer = new ClusterOverseer("lucene_test", 1, 180);
 		return overseer;
 	}
 

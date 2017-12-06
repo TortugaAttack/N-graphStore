@@ -12,9 +12,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.MergePolicy.OneMerge;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
@@ -23,6 +21,12 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Lucene Indexer. Will update and load data into the provided path
+ * 
+ * @author f.conrads
+ *
+ */
 public class LuceneIndexer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LuceneIndexer.class);
 
@@ -30,10 +34,20 @@ public class LuceneIndexer {
 	private Directory dir;
 	private String path;
 
+	/**
+	 * Creates and opens a LuceneIndexer according to the given path
+	 * @param path the path in which the indexing files should be.
+	 * @throws IOException
+	 */
 	public LuceneIndexer(String path) throws IOException {
 		open(path);
 	}
 	
+	/**
+	 * Will open the Lucene Indexer at the given path
+	 * @param path the path in which the indexing files should be.
+	 * @throws IOException
+	 */
 	public void open(String path) throws IOException {
 		this.path = path;
 		dir = FSDirectory.open(new File(path));
@@ -44,11 +58,17 @@ public class LuceneIndexer {
 		writer = new IndexWriter(dir, config);
 	}
 
-	//TODO update existin segments instead of creating new ones
+	/**
+	 * Will reopen the previously opened indexer
+	 * @throws IOException
+	 */
 	public void reopen() throws IOException {
 		open(path);
 	}
 	
+	/**
+	 * Will commit and close the Indexer
+	 */
 	public void close() {
 		try {
 			writer.commit();
@@ -59,32 +79,53 @@ public class LuceneIndexer {
 		}
 	}
 
+	/**
+	 * Will only commit the current changes.
+	 * @throws IOException
+	 */
 	public void commit() throws IOException {
-		try {
 			writer.commit();
-			writer.close(true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (IndexWriter.isLocked(dir)) {
-				IndexWriter.unlock(dir);
-			}
-
-		}
-
 	}
 
+	/**
+	 * Will add the triple (quad) into the indexing segments. 
+	 * 
+	 * @param subject 
+	 * @param predicate
+	 * @param object
+	 * @param graph
+	 * @throws IOException
+	 */
 	public void index(String subject, String predicate, String object, String graph) throws IOException {
 		indexTriple(subject, predicate, object, graph);
 	}
 
+	/**
+	 * Will add the triple (quad) into the indexing segments. 
+	 * 
+	 * @param subject 
+	 * @param predicate
+	 * @param object
+	 * @param graph
+	 * @throws IOException
+	 */
 	public void indexTriple(String subject, String predicate, String object, String graph) throws IOException {
 		Document doc = convertTerm(subject, predicate, object, graph);
 		//check before adding if already existent
 		writer.addDocument(doc);
 	}
 
+	
+	/**
+	 * Shortcut for {@link #delete(String[], String[])}. 
+	 * Will delete only the occurrences which fits all terms 
+	 * 
+	 * @param subject The subject term 
+	 * @param predicate The predicate term
+	 * @param object the object term
+	 * @param graph the graph term
+	 * @throws IOException
+	 */
 	public void delete(String subject, String predicate, String object, String graph) throws IOException {
 		BooleanQuery finalQuery = new BooleanQuery();
 		TermQuery query = new TermQuery(new Term(LuceneConstants.SUBJECT, subject));
@@ -98,6 +139,31 @@ public class LuceneIndexer {
 		writer.deleteDocuments(finalQuery);
 	}
 
+	
+	/**
+	 * Will delete each record with the occurrence of the specific nodes at the search fields.
+	 * <br/>
+	 * F.e.: DROP graphURI:
+	 * <br/>
+	 * luceneIndexer.delete(new String[]{graphURI}, new String[]{LuceneConstants.GRAPH});
+	 * 
+	 * @param nodes
+	 * @param searchFields
+	 * @throws IOException
+	 */
+	public void delete(String[] nodes, String[] searchFields) throws IOException {
+		BooleanQuery finalQuery = new BooleanQuery();
+		for(int i=0;i<nodes.length;i++) {
+			TermQuery query = new TermQuery(new Term(searchFields[i], nodes[i]));
+			finalQuery.add(query, Occur.MUST);
+		}
+		writer.deleteDocuments(finalQuery);
+	}
+	
+	/**
+	 * Will delete every record (same as DROP)
+	 * @throws IOException
+	 */
 	public void deleteAll() throws IOException {
 		writer.deleteAll();
 	}
@@ -114,6 +180,14 @@ public class LuceneIndexer {
 		document.add(objectField);
 		document.add(graphField);
 		return document;
+	}
+
+	/**
+	 * Will roll back every change since the last commit
+	 * @throws IOException
+	 */
+	public void rollback() throws IOException {
+		writer.rollback();
 	}
 
 }
