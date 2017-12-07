@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class MainController {
+	
+	@Autowired
+	public String authMethod;
 
 	private void addCredentialInfo(ModelAndView model) {
 		Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
@@ -26,6 +30,7 @@ public class MainController {
 		boolean authenticated = roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER");
 		model.addObject("authenticated", authenticated);
 		model.addObject("isAdmin", roles.contains("ROLE_ADMIN"));
+		model.addObject("authMethod", authMethod);
 	}
 
 	@RequestMapping(value = { "/", "index**" }, method = RequestMethod.GET)

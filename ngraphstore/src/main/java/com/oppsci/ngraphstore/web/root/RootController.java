@@ -48,17 +48,16 @@ public class RootController {
 		context.close();
 		return dataSource;
 	}
-	
-	public static @Bean CustomAuthenticationSuccessHandler successHandler() {
-		CustomAuthenticationSuccessHandler successHandler = new CustomAuthenticationSuccessHandler();
-		return successHandler;
-	}
-	 
+
 	
 	public static @Bean String authMethod() {
-		return "basic";
+		return "form";
 	}
 	 
+	public static @Bean String[] protectionPattern() {
+		return new String[] {"/auth/**", "/api/auth/**"};
+	}
+	
 	public static @Bean RoleDAO roleDAO(DataSource dataSource) {
 		return new RoleDAO(dataSource);
 	}

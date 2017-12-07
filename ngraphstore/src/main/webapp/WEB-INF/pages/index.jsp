@@ -29,19 +29,21 @@
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
 					<li><c:if test="${!authenticated}">
 							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
-						</c:if> <c:if test="${authenticated}">
-							<c:url value="/logout" var="logoutUrl" />
-							<form action="${logoutUrl}" method="post">
-								<c:if test="${isAdmin}">
-									<a href="/ngraphstore/auth/admin"><i
-										class="fa fa-address-book"></i> <span>Admin</span></a>
-								</c:if>
-								<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
-									<span>Settings</span></a> <a href="javascript:;"
-									onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a>
-								<input type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" />
-							</form>
+						</c:if> <c:if test="${authMethod != 'none'}">
+							<c:if test="${authenticated}">
+								<c:url value="/logout" var="logoutUrl" />
+								<form action="${logoutUrl}" method="post">
+									<c:if test="${isAdmin}">
+										<a href="/ngraphstore/auth/admin"><i
+											class="fa fa-address-book"></i> <span>Admin</span></a>
+									</c:if>
+									<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
+										<span>Settings</span></a> <a href="javascript:;"
+										onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a>
+									<input type="hidden" name="${_csrf.parameterName}"
+										value="${_csrf.token}" />
+								</form>
+							</c:if>
 						</c:if></li>
 				</ul>
 			</div>

@@ -68,7 +68,8 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
-					<li><c:if test="${!authenticated}">
+					<li>					<c:if test="${authMethod != 'none'}">
+					<c:if test="${!authenticated}">
 							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
 						</c:if> <c:if test="${authenticated}">
 
@@ -84,7 +85,7 @@
 									type="hidden" name="${_csrf.parameterName}"
 									value="${_csrf.token}" />
 							</form>
-						</c:if></li>
+						</c:if></c:if></li>
 				</ul>
 			</div>
 			<div class="divider"></div>
