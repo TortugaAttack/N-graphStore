@@ -49,7 +49,7 @@ public class QueryRestController {
 	 * @param query
 	 * @return true if succeeded, otherwise false
 	 */
-	@RequestMapping(value = {"/update", "/sparql"}, method = RequestMethod.POST, headers = "Accept=text/plain")
+	@RequestMapping(value = {"/auth/update"}, method = RequestMethod.POST, headers = "Accept=text/plain")
 	public Boolean postUpdateQuery(@RequestParam(value="update") String query) {
 		Boolean updateSucceeded =  updateRestController.processUpdate(query, true);
 		return updateSucceeded;
@@ -62,7 +62,7 @@ public class QueryRestController {
 	 * @param query
 	 * @return true if succeeded, otherwise false
 	 */
-	@RequestMapping(value = {"/update", "/sparql"}, method = RequestMethod.PUT, headers = "Accept=text/plain")
+	@RequestMapping(value = {"/auth/update"}, method = RequestMethod.PUT, headers = "Accept=text/plain")
 	public Boolean putUpdateQuery(@RequestParam(value="update") String query) {
 		Boolean updateSucceeded =  updateRestController.processUpdate(query, false);
 		return updateSucceeded;
@@ -77,7 +77,7 @@ public class QueryRestController {
 	 * @param method 
 	 * @return true if succeeded, false otherwise
 	 */
-	@RequestMapping(value = "/data", method = RequestMethod.POST, headers = "Accept=text/plain")
+	@RequestMapping(value = "/auth/data", method = RequestMethod.POST, headers = "Accept=text/plain")
 	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph, @RequestParam(value="method") String method) {
 		String graphURI =graph;
 		if(defaultGraph.isEmpty()) {
@@ -95,7 +95,7 @@ public class QueryRestController {
 	 * @param data
 	 * @return true if succeeded, false otherwise
 	 */
-	@RequestMapping(value = "/data", method = RequestMethod.PUT, headers = "Accept=text/plain")
+	@RequestMapping(value = "/auth/data", method = RequestMethod.PUT, headers = "Accept=text/plain")
 	public Boolean putTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph) {
 		String graphURI =graph;
 		if(defaultGraph.isEmpty()) {

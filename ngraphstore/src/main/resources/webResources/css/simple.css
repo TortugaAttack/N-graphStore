@@ -20,6 +20,18 @@
 	text-decoration: none;
 }
 
+label {
+	font-family: 'Advent Pro';
+	color: #3F3F3F;
+	font-size: 1.5em;
+}
+
+.fullinput {
+	width: 97%;
+	margin-bottom: 5px;
+	
+}
+
 .itxt {
 	width: 50%;
 	position: relative;

@@ -38,24 +38,31 @@
 
 		<div id="content" class="content">
 			<form action="${loginUrl}" method="post">
-				
+
 				<c:if test="${param.error != null}">
 					<p>Invalid username and password.</p>
 				</c:if>
 				<c:if test="${param.logout != null}">
 					<p>You have been logged out.</p>
 				</c:if>
-				<p>
-					<label for="username">Username</label> <input type="text"
-						id="username" name="username" />
-				</p>
-				<p>
-					<label for="password">Password</label> <input type="password"
-						id="password" name="password" />
-				</p>
-				<input type="hidden" name="${_csrf.parameterName}"
-					value="${_csrf.token}" />
-				<button type="submit" class="btn">Log in</button>
+				<div class=" itxt">
+					<div class="itxt">
+						<div>
+							<label for="username">Username: </label>
+						</div>
+						<input class="fullinput" type="text" id="username" name="username" />
+					</div>
+					<div class="itxt">
+						<div>
+							<label for="password">Password: </label>
+						</div>
+						<input class="fullinput" type="password" id="password" name="password" />
+					</div>
+					<input type="hidden" name="${_csrf.parameterName}"
+						value="${_csrf.token}" />
+					<button type="submit" class="btn">Log in</button>
+				</div>
+
 			</form>
 
 			<div class="divider"></div>

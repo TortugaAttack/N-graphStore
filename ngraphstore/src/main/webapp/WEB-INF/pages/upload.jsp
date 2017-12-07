@@ -42,7 +42,7 @@
 							$http(
 									{
 										method : 'POST',
-										url : 'http://localhost:9098/ngraphstore/data',
+										url : 'http://localhost:9098/ngraphstore/auth/data',
 										data : $.param({
 											data : $scope.sparqlForm.triples,
 											method : 'insert',
