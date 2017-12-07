@@ -78,52 +78,6 @@
 
 			</form>
 
-
-			<div class="divider"></div>
-
-			<form name='userForm' method='POST'>
-				<!--  ADD NEW -->
-				<table>
-					<tr>
-						<td>User Name:</td>
-						<td><input type='text' name='oldPassword'></td>
-					</tr>
-					<tr>
-						<td>Password:</td>
-						<td><input type='password' name='password' /></td>
-					</tr>
-					<tr>
-						<td>Confirm:</td>
-						<td><input type='password' name='passwordConfirm' /></td>
-					</tr>
-					<tr>
-						<td>Admin:</td>
-						<td><input type='checkbox' name='isAdmin' /></td>
-					</tr>
-					<tr>
-						<td colspan='2'><input name="submit" type="submit"
-							value="submit" /></td>
-					</tr>
-				</table>
-
-				<div class="divider"></div>
-
-				<form name='userForm' method='POST'>
-					<!--  ADD NEW -->
-					<table>
-						<tr>
-							<td>User Name:</td>
-							<td><select type='select' name='userName' /></td>
-						</tr>
-
-						<tr>
-							<td colspan='2'><input name="delete" type="submit"
-								value="submit" /></td>
-						</tr>
-					</table>
-
-
-				</form>
 		</div>
 		<div id="footer" class="footer">
 			<div class="copyright">Copyright (c) Public Domain - 2017</div>

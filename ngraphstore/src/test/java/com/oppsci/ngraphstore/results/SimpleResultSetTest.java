@@ -3,21 +3,38 @@ package com.oppsci.ngraphstore.results;
 import java.io.File;
 import java.net.MalformedURLException;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 import org.junit.Test;
 
 public class SimpleResultSetTest {
 	
 	@Test
 	public void sandbox() {
-		Resource r = ModelFactory.createDefaultModel().createResource(AnonId.create());
-		System.out.println(r.toString());
-		System.out.println(r.asNode().getBlankNodeId());
+		Query q = QueryFactory.create("SELECT * {?s ?p ?o}");
+		QueryExecution qexec = QueryExecutionFactory.createServiceRequest("http://localhost:9098/ngraphstore/api/sparql", q);
+		ResultSet res = qexec.execSelect();
+		while(res.hasNext()) {
+			System.out.println(res.next().toString());
+		}
+		
+		UpdateRequest request = new UpdateRequest();
+		request.add("INSERT DATA { <http://example/egbook3> <dc:title>  \"This is an example title\" }" );
+		
+		UpdateProcessor exec = UpdateExecutionFactory.createRemote(request, "http://localhost:9098/ngraphstore/api/auth/update");
+		exec.execute();
 	}
 
 //	@Test

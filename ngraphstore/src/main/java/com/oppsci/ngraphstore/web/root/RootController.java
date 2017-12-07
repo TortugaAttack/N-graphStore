@@ -48,7 +48,16 @@ public class RootController {
 		context.close();
 		return dataSource;
 	}
+	
+	public static @Bean CustomAuthenticationSuccessHandler successHandler() {
+		CustomAuthenticationSuccessHandler successHandler = new CustomAuthenticationSuccessHandler();
+		return successHandler;
+	}
 	 
+	
+	public static @Bean String authMethod() {
+		return "basic";
+	}
 	 
 	public static @Bean RoleDAO roleDAO(DataSource dataSource) {
 		return new RoleDAO(dataSource);
@@ -60,6 +69,10 @@ public class RootController {
 	
 	public static @Bean PasswordEncoder encoder() {
 		return new BCryptPasswordEncoder(11);
+	}
+	
+	public static @Bean String defaultGraph() {
+		return "<http://ngraphstore.com>";
 	}
 	
 	/**

@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/api")
 public class ManagmentRestController {
-
 	
+	@RequestMapping(value = "/auth/user", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String getSPARQLresults(@RequestParam(value = "query") String query) {
+		return "true";
+	}
+
 }

@@ -20,6 +20,7 @@
 						$scope.data = [];
 						$scope.time = 0.0;
 						$scope.error = false;
+						$scope.csrf = "${_csrf.token}";
 						$scope.errormsg = '';
 						$scope.info = false;
 						$scope.infomsg = 'Update was successfull';
@@ -42,11 +43,12 @@
 							$http(
 									{
 										method : 'POST',
-										url : 'http://localhost:9098/ngraphstore/auth/data',
+										url : 'http://localhost:9098/ngraphstore/api/auth/data',
 										data : $.param({
 											data : $scope.sparqlForm.triples,
 											method : 'insert',
-											graph : $scope.sparqlForm.graph
+											graph : $scope.sparqlForm.graph,
+											_csrf : $scope.csrf
 										}),
 										headers : {
 											'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
@@ -61,6 +63,7 @@
 												$scope.info = true;
 											},
 											function errorCallback(response) {
+												console.log(response.data);
 												$scope.error = true;
 												$scope.errormsg = response.status
 														+ ": "
@@ -121,9 +124,11 @@
 				<div class=".col-md-12">
 					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples"></textarea>
 				</div>
+				<input type="hidden" name="csrf" value="${_csrf.token}" />
 				<div class=".col-md-12">
 					<input type="submit" class="btn" value="Submit" />
 				</div>
+
 			</form>
 			<div class="divider"></div>
 			<div class=".col-md-12 itxt time">Query took {{time}} seconds</div>

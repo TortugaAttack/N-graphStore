@@ -27,6 +27,7 @@ public class RDFRestController {
 	@Autowired
 	private TripleRestController tripleRestController;
 	
+	@Autowired
 	private String defaultGraph;
 	
 	/**

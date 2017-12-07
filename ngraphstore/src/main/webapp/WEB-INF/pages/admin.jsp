@@ -53,34 +53,6 @@
 
 		<div id="content" class="content">
 
-			<form name='loginForm'
-				action="<c:url value='/j_spring_security_check' />" method='POST'>
-
-				<table>
-					<tr>
-						<td>Old Password:</td>
-						<td><input type='password' name='oldPassword'></td>
-					</tr>
-					<tr>
-						<td>New Password:</td>
-						<td><input type='password' name='password' /></td>
-					</tr>
-					<tr>
-						<td>Confirm:</td>
-						<td><input type='password' name='passwordConfirm' /></td>
-					</tr>
-					<tr>
-						<td colspan='2'><input name="submit" type="submit"
-							value="submit" /></td>
-					</tr>
-				</table>
-
-
-
-			</form>
-
-
-			<div class="divider"></div>
 
 			<form name='userForm' method='POST'>
 				<!--  ADD NEW -->

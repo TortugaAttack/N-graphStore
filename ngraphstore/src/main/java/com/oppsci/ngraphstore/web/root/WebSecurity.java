@@ -38,22 +38,34 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(userService).passwordEncoder(encoder);
 	}
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll().antMatchers("/auth/**")
-				.authenticated().anyRequest().permitAll().and().formLogin().loginPage("/login").permitAll().and()
-				.logout().permitAll().logoutSuccessUrl("/login?logout").permitAll().logoutUrl("/logout");
-	}
+	@Configuration
+	@Order(1)
+	public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-	// @Configuration
-	// @Order(2)
-	// public static class ApiWebSecurityConfig extends WebSecurityConfigurerAdapter
-	// {
-	// @Override
-	// protected void configure(HttpSecurity http) throws Exception {
-	// http.authorizeRequests().antMatchers("/api/auth/**").authenticated().anyRequest().permitAll().and()
-	// .httpBasic();
-	// }
-	// }
+		@Autowired
+		private String authMethod = "form";
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			//TODO either NONE, BASIC or FORM Login, depending on what user wants
+			switch(authMethod) {
+			case "form":
+				http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll().antMatchers("/auth/**", "/api/auth/**")
+					.authenticated().antMatchers("/auth/admin").hasAuthority("ROLE_ADMIN").anyRequest().permitAll()
+					.and().formLogin().loginPage("/login").permitAll().and().logout().permitAll()
+					.logoutSuccessUrl("/login?logout").permitAll().logoutUrl("/logout");
+						break;
+			case "basic":
+				http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll().antMatchers("/auth/**", "/api/auth/**")
+				.authenticated().antMatchers("/auth/admin").hasAuthority("ROLE_ADMIN").anyRequest().permitAll()
+				.and().httpBasic().and().logout().permitAll()
+				.logoutSuccessUrl("/login?logout").permitAll().logoutUrl("/logout").and().csrf().disable();
+					break;
+			case "none":
+				http.authorizeRequests().anyRequest().permitAll().and().formLogin().loginPage("/login").permitAll().and().logout().permitAll()
+				.logoutSuccessUrl("/login?logout").permitAll().logoutUrl("/logout").and().csrf().disable();
+			}
+		}
+	}
 
 }
