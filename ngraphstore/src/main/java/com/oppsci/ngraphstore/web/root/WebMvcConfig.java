@@ -21,42 +21,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
-/**
- * This {@link Configuration} class handles the initialization of the MVC
- * elements.
- * 
- * @author Michael R&ouml;der (roeder@informatik.uni-leipzig.de)
- * @author Lars Wesemann
- * @author Didier Cherix
- * 
- */
+
 @Configuration
 @EnableWebMvc
-public class WebMvcConfig extends WebMvcConfigurerAdapter{
+//@ComponentScan(basePackages = {"com.oppsci.ngraphstore.web.root", "com.oppsci.ngraphstore.web.rest"})
+public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(WebMvcConfig.class);
 
-	/**
-	 * @return the view resolver
-	 */
-//	@Bean
-//	public ViewResolver viewResolver() {
-//		logger.debug("setting up view resolver");
-//		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-//		viewResolver.setPrefix("/WEB-INF/views/");
-//		viewResolver.setSuffix(".jsp");
-//		return viewResolver;
-//	}
 
-
+	@Bean
+	public InternalResourceViewResolver viewResolver() {
+		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+		viewResolver.setViewClass(JstlView.class);
+		viewResolver.setPrefix("/WEB-INF/pages/");
+		viewResolver.setSuffix(".jsp");
+		return viewResolver;
+	}
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {

@@ -25,19 +25,14 @@
 			$scope.errormsg = '';
 		};
 		$scope.sparqlSubmit = function() {
-			$scope.error=false;
+			$scope.error = false;
 			var startDate = new Date();
 			var startTime = startDate.getTime();
 			$http(
 					{
-						method : 'POST',
-						url : 'http://localhost:9098/ngraphstore/update',
-							data : $.param({
-								update : $scope.sparqlForm.triples,
-							}),
-							headers : {
-								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
-							}
+						method : 'GET',
+						url : 'http://localhost:9098/ngraphstore/sparql?query='
+								+ $scope.sparqlForm.query
 					}).then(function successCallback(response) {
 				var endDate = new Date();
 				var endTime = endDate.getTime();
@@ -45,9 +40,7 @@
 				$scope.time = (endTime - startTime) / 1000.0;
 			}, function errorCallback(response) {
 				$scope.error = true;
-				$scope.errormsg = response.status
-						+ ": "
-						+ response.statusText;
+				$scope.errormsg = response.status + ": " + response.statusText;
 			});
 		};
 	});
@@ -65,19 +58,21 @@
 					<li><a href="https://github.com/TortugaAttack/N-graphStore">
 							<span class="navlogo">N-graphStore</span>
 					</a></li>
-					<li><a href="/ngraphstore/index.jsp"><i class="fa fa-home"></i>
+					<li><a href="/ngraphstore/index"><i class="fa fa-home"></i>
 							<span>Home</span></a></li>
-					<li><a  href="/ngraphstore/sparql.jsp"><i
+					<li><a class="active" href="/ngraphstore/sparql-view"><i
 							class="fa fa-search"></i> <span>Query</span></a></li>
-					<li><a class="active" href="/ngraphstore/update.jsp"><i
+					<li><a href="/ngraphstore/auth/update"><i
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
-					<li><a href="/ngraphstore/upload.jsp"><i
+					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
+					<li><a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
 				</ul>
 			</div>
 			<div class="divider"></div>
-			
+
 		</div>
+
 		<div id="content" class="content" ng-app="table"
 			ng-controller="TableController">
 
@@ -90,13 +85,36 @@
 				</div>
 			</form>
 			<div class="divider"></div>
-			<div class=".col-md-12 itxt time">Update took {{time}} seconds</div>
+			<div class=".col-md-12 itxt time">Query took {{time}} seconds</div>
 			<div class="divider"></div>
 			<div class="itxt error" ng-show="error">
 				{{errormsg}}<a ng-href='#' ng-click='errorClear()'><i
 					class="error-icon fa fa-window-close"></i></a>
 			</div>
+			<div style="overflow-x: auto;">
 
+				<table class="itxt fancytable">
+					<tr>
+
+						<th ng-repeat="var in data.head.vars">{{ var }}</th>
+
+					</tr>
+
+					<tr ng-repeat="binding in data.results.bindings">
+
+						<td ng-repeat="var in data.head.vars">
+							<div ng-if="binding[var].type == 'uri'">
+								<a class="fancylink" href="{{ binding[var].value}}">{{
+									binding[var].value}}</a>
+							</div>
+							<div ng-if="binding[var].type != 'uri'">{{
+								binding[var].value}}</div>
+						</td>
+					</tr>
+
+				</table>
+			</div>
+			<div class="divider"></div>
 		</div>
 		<div id="footer" class="footer">
 			<div class="copyright">Copyright (c) Public Domain - 2017</div>

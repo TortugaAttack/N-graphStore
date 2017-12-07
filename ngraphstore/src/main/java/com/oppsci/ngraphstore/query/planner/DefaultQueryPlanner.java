@@ -15,7 +15,7 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 public class DefaultQueryPlanner implements QueryPlanner {
 
-	@Autowired
+//	@Autowired
 	private QueryParser parser;
 
 	@Autowired

@@ -158,6 +158,10 @@ table {
 	color: white;
 }
 
+.nav li:last-child {
+	float:right;
+}
+
 .active {
 	color: white !important;
 }

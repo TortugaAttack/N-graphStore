@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page session="true"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -19,32 +21,24 @@
 						$scope.time = 0.0;
 						$scope.error = false;
 						$scope.errormsg = '';
-						$scope.info=false;
-						$scope.infomsg = 'Update was successfull';
 						$scope.sparqlForm = {
-							triples : '',
-							graph: ''
+							query : 'SELECT * WHERE {?s ?p ?o}'
 						}
 						$scope.errorClear = function() {
 							console.log("test");
 							$scope.error = false;
 							$scope.errormsg = '';
 						};
-						$scope.infoClear = function(){
-							$scope.info=false;
-						}
 						$scope.sparqlSubmit = function() {
-							$scope.error=false;
+							$scope.error = false;
 							var startDate = new Date();
 							var startTime = startDate.getTime();
 							$http(
 									{
 										method : 'POST',
-										url : 'http://localhost:9098/ngraphstore/data',
+										url : 'http://localhost:9098/ngraphstore/update',
 										data : $.param({
-											data : $scope.sparqlForm.triples,
-											method : 'insert',
-											graph : $scope.sparqlForm.graph
+											update : $scope.sparqlForm.triples,
 										}),
 										headers : {
 											'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
@@ -56,7 +50,6 @@
 												var endTime = endDate.getTime();
 												$scope.data = response.data;
 												$scope.time = (endTime - startTime) / 1000.0;
-												$scope.info=true;											
 											},
 											function errorCallback(response) {
 												$scope.error = true;
@@ -80,14 +73,15 @@
 					<li><a href="https://github.com/TortugaAttack/N-graphStore">
 							<span class="navlogo">N-graphStore</span>
 					</a></li>
-					<li><a href="/ngraphstore/index.jsp"><i class="fa fa-home"></i>
+					<li><a href="/ngraphstore/index"><i class="fa fa-home"></i>
 							<span>Home</span></a></li>
-					<li><a href="/ngraphstore/sparql.jsp"><i
+					<li><a href="/ngraphstore/sparql-view"><i
 							class="fa fa-search"></i> <span>Query</span></a></li>
-					<li><a href="/ngraphstore/update.jsp"><i
+					<li><a class="active" href="/ngraphstore/auth/update"><i
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
-					<li><a class="active" href="/ngraphstore/upload.jsp"><i
+					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
+					<li><a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
 				</ul>
 			</div>
 			<div class="divider"></div>
@@ -98,25 +92,20 @@
 
 			<form id="myform" ng-submit="sparqlSubmit()">
 				<div class=".col-md-12">
-					<input type="text" class="itxt" ng-model="sparqlForm.graph"></input>
+					<textarea class="itxt" rows="10" ng-model="sparqlForm.query"></textarea>
 				</div>
 				<div class=".col-md-12">
-					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples"></textarea>
-				</div>
-				<div class=".col-md-12">
-					<input type="submit" class="btn" value="Submit"/>
+					<input type="submit" class="btn" value="Submit">
 				</div>
 			</form>
 			<div class="divider"></div>
-			<div class=".col-md-12 itxt time">Query took {{time}} seconds</div>
+			<div class=".col-md-12 itxt time">Update took {{time}} seconds</div>
+			<div class="divider"></div>
 			<div class="itxt error" ng-show="error">
 				{{errormsg}}<a ng-href='#' ng-click='errorClear()'><i
 					class="error-icon fa fa-window-close"></i></a>
 			</div>
-			<div class="itxt info" ng-show="info">
-				{{infomsg}}<a ng-href='#' ng-click='infoClear()'><i
-					class="error-icon fa fa-window-close"></i></a>
-			</div>
+
 		</div>
 		<div id="footer" class="footer">
 			<div class="copyright">Copyright (c) Public Domain - 2017</div>

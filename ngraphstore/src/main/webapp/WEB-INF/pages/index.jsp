@@ -18,18 +18,20 @@
 					<li><a href="https://github.com/TortugaAttack/N-graphStore">
 							<span class="navlogo">N-graphStore</span>
 					</a></li>
-					<li><a class="active" href="/ngraphstore/index.jsp"><i
+					<li><a class="active" href="/ngraphstore/index"><i
 							class="fa fa-home"></i> <span>Home</span></a></li>
-					<li><a href="/ngraphstore/sparql.jsp"><i
+					<li><a href="/ngraphstore/sparql-view"><i
 							class="fa fa-search"></i> <span>Query</span></a></li>
-					<li><a href="/ngraphstore/update.jsp"><i
+					<li><a href="/ngraphstore/auth/update"><i
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
-					<li><a href="/ngraphstore/upload.jsp"><i
+					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
+					<li><a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
+					</li>
 				</ul>
 			</div>
 		</div>
-
+		
 		<div id="content" class="content">
 			<img class="logo" src="/ngraphstore/webResources/images/logo.png" />
 			<div class="divider"></div>
