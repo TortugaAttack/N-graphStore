@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.web.rest;
+package com.oppsci.ngraphstore.web.rest.rdf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;

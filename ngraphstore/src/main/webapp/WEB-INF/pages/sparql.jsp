@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page session="true"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -31,7 +33,7 @@
 			$http(
 					{
 						method : 'GET',
-						url : 'http://localhost:9098/ngraphstore/sparql?query='
+						url : 'http://localhost:9098/ngraphstore/api/sparql?query='
 								+ $scope.sparqlForm.query
 					}).then(function successCallback(response) {
 				var endDate = new Date();
@@ -66,7 +68,23 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
-					<li><a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
+					<li><c:if test="${!authenticated}">
+							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
+						</c:if> <c:if test="${authenticated}">
+
+							<c:url value="/logout" var="logoutUrl" />
+							<form action="${logoutUrl}" method="post">
+								<c:if test="${isAdmin}">
+									<a href="/ngraphstore/auth/admin"><i
+										class="fa fa-address-book"></i> <span>Admin</span></a>
+								</c:if>
+								<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
+									<span>Settings</span></a> <a href="javascript:;"
+									onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a><input
+									type="hidden" name="${_csrf.parameterName}"
+									value="${_csrf.token}" />
+							</form>
+						</c:if></li>
 				</ul>
 			</div>
 			<div class="divider"></div>

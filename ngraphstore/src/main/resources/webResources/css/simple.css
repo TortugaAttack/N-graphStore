@@ -29,7 +29,6 @@ label {
 .fullinput {
 	width: 97%;
 	margin-bottom: 5px;
-	
 }
 
 .itxt {
@@ -171,7 +170,11 @@ table {
 }
 
 .nav li:last-child {
-	float:right;
+	float: right;
+}
+
+.nav li:last-child a{
+	display: inline-block;
 }
 
 .active {

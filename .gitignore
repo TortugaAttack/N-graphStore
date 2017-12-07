@@ -5,3 +5,5 @@
 data.nt
 /home
 /target
+/ngraphstore/database
+/ngraphstore/lucene*

@@ -30,23 +30,8 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
-					<li><c:if test="${!authenticated}">
-							<a class="active" href="/ngraphstore/login"><i
-								class="fa fa-sign-in"></i><span>Login</span></a>
-						</c:if> <c:if test="${authenticated}">
-							<c:url value="/logout" var="logoutUrl" />
-							<form action="${logoutUrl}" method="post">
-								<c:if test="${isAdmin}">
-									<a href="/ngraphstore/auth/admin"><i
-										class="fa fa-address-book"></i> <span>Admin</span></a>
-								</c:if>
-								<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
-									<span>Settings</span></a> <a href="javascript:;"
-									onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a>
-								<input type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" />
-							</form>
-						</c:if></li>
+					<li><a class="active" href="/ngraphstore/login"><i
+							class="fa fa-sign-in"></i><span>Login</span></a></li>
 				</ul>
 			</div>
 		</div>
@@ -55,9 +40,10 @@
 			<form action="${loginUrl}" method="post">
 
 				<c:if test="${param.error != null}">
-					<div class="error">Invalid username and/or password.</div>
+					<div info="error">Invalid username and password.</div>
 				</c:if>
 				<c:if test="${param.logout != null}">
+					j_spring_security_logout
 					<div class="info">You have been logged out.</div>
 				</c:if>
 				<div class=" itxt">
@@ -71,8 +57,7 @@
 						<div>
 							<label for="password">Password: </label>
 						</div>
-						<input class="fullinput" type="password" id="password"
-							name="password" />
+						<input class="fullinput" type="password" id="password" name="password" />
 					</div>
 					<input type="hidden" name="${_csrf.parameterName}"
 						value="${_csrf.token}" />

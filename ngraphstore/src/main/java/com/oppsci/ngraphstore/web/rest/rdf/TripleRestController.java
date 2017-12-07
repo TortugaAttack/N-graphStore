@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.web.rest;
+package com.oppsci.ngraphstore.web.rest.rdf;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

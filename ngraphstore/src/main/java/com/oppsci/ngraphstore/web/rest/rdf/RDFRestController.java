@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.web.rest;
+package com.oppsci.ngraphstore.web.rest.rdf;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  */
 @RestController
-@RequestMapping(value = "/")
-public class QueryRestController {
+@RequestMapping(value = "/api")
+public class RDFRestController {
 	
 	@Autowired
 	private SPARQLRestController sparqlRestController;

@@ -35,10 +35,11 @@
 							<c:url value="/logout" var="logoutUrl" />
 							<form action="${logoutUrl}" method="post">
 								<c:if test="${isAdmin}">
-									<a href="/ngraphstore/auth/admin"><i
+									<a class="active" href="/ngraphstore/auth/admin"><i
 										class="fa fa-address-book"></i> <span>Admin</span></a>
 								</c:if>
-								<a class="active" href="/ngraphstore/auth/settings"><i
+
+								<a  href="/ngraphstore/auth/settings"><i
 									class="fa fa-gear"></i> <span>Settings</span></a> <a
 									href="javascript:;" onclick="parentNode.submit();"><i
 									class="fa fa-sign-out"></i><span>Logout</span></a> <input
