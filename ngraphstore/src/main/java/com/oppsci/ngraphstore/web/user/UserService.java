@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,19 +25,13 @@ public class UserService implements UserDetailsService{
 	@Autowired
 	private RoleDAO roleDAO;
 
-	@Transactional
-	public void updateUser(User user) {
-		userDAO.updateUser(user);
+	
+	public int updateUser(User user) {
+		return userDAO.updateUser(user);
 	}
 
-	@Transactional
-	public void deleteUser(int id) {
-		userDAO.deleteUser(id);
-	}
-
-	@Transactional
-	public void addUser(User user) {
-		userDAO.addUser(user);
+	public int deleteUser(int id) {
+		return userDAO.deleteUser(id);
 	}
 
 	
@@ -44,12 +39,10 @@ public class UserService implements UserDetailsService{
 		return userDAO.getUserByName(name);
 	}
 
-	@Transactional
 	public User getUserByID(int id) {
 		return userDAO.getUserByID(id);
 	}
 
-	@Transactional
 	public List<User> getAllUsers() {
 		return userDAO.getAllUsers();
 	}
@@ -65,5 +58,9 @@ public class UserService implements UserDetailsService{
 		}
 		return new org.springframework.security.core.userdetails.User(username, user.getPassword(),
 				authorities);
+	}
+
+	public int addUser(String userName, String rawPassword, PasswordEncoder encoder) {
+		return userDAO.addUser(userName, encoder.encode(rawPassword));
 	}
 }

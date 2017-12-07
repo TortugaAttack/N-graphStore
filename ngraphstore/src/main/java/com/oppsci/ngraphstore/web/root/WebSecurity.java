@@ -49,14 +49,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		switch (authMethod) {
 		case "form":
 			http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll()
-					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin")
+					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin**")
 					.hasAuthority("ROLE_ADMIN").anyRequest().permitAll().and().formLogin().loginPage("/login")
 					.permitAll().and().logout().permitAll().logoutSuccessUrl("/login?logout").permitAll()
 					.logoutUrl("/logout");
 			break;
 		case "basic":
 			http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll()
-					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin")
+					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin**")
 					.hasAuthority("ROLE_ADMIN").anyRequest().permitAll().and().httpBasic().and().logout().permitAll()
 					.logoutSuccessUrl("/login?logout").permitAll().logoutUrl("/logout").and().csrf().disable();
 			break;

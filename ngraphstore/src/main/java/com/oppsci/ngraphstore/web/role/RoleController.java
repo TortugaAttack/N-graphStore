@@ -5,18 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.oppsci.ngraphstore.web.user.User;
+
 @Controller
 public class RoleController {
 	
 	@Autowired
 	RoleService roleService;
 	
-	public List<Role> getRole() {
-		
-		List<Role> roles = roleService.getAllRoles();
-		return roles;
-	}
- 
 	public Role getRoleByID(int id) {
 		return roleService.getRoleByID(id);
 	}
@@ -25,24 +21,19 @@ public class RoleController {
 		return roleService.getRoleByName(name);
 	}
 	
+	public int addRoleToUser(int userID, Role role) {
+		return roleService.addRoleToUser(userID, role);
+	}
 	
-	public void addRole(Role role) {	
-		if(role.getId()==0)
-		{
-			roleService.addRole(role);
-		}
-		else
-		{	
-			roleService.updateRole(role);
-		}
+	public int deleteRoleFromUser(User user, Role role) {
+		return roleService.deleteRoleFromUser(user, role);
 	}
- 
-	public void updateRole(Role role) {
-		 roleService.updateRole(role);
+	
+	public int setUserAsAdmin(int userID) {
+		return roleService.setUserAsAdmin(userID);
 	}
- 
-	public void deleteRole(int id) {
-		roleService.deleteRole(id);
- 
-	}	
+	
+	public List<Role> getUserRoles(int id) {
+		return roleService.getUserRoles(id);
+	}
 }

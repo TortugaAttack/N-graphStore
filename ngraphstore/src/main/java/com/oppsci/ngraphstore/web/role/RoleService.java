@@ -6,40 +6,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.oppsci.ngraphstore.web.user.User;
+
 @Service("roleService")
 public class RoleService {
 
 	@Autowired
 	private RoleDAO dao;
 
-	@Transactional
-	public void updateRole(Role role) {
-		dao.updateRole(role);
-	}
-
-	@Transactional
-	public void deleteRole(int id) {
-		dao.deleteRole(id);
-	}
-
-	@Transactional
-	public void addRole(Role role) {
-		dao.addRole(role);
-	}
-
-	@Transactional
+	
 	public Role getRoleByName(String name) {
 		return dao.getRoleByName(name);
 	}
 
-	@Transactional
+	
 	public Role getRoleByID(int id) {
 		return dao.getRoleByID(id);
 	}
 
-	@Transactional
-	public List<Role> getAllRoles() {
-		return dao.getAllRoles();
+	public int addRoleToUser(int userID, Role role) {
+		return dao.addRoleToUser(userID, role);
+	}
+	
+	public int deleteRoleFromUser(User user, Role role) {
+		return dao.deleteRoleFromUser(user, role);
+	}
+	
+	public int setUserAsAdmin(int userID) {
+		Role role = dao.getRoleByName("ROLE_ADMIN");
+		return dao.addRoleToUser(userID, role);
+	}
+	
+	public List<Role> getUserRoles(int id) {
+		return dao.getUserRoles(id);
 	}
 
 }

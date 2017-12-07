@@ -39,11 +39,10 @@
 										class="fa fa-address-book"></i> <span>Admin</span></a>
 								</c:if>
 
-								<a  href="/ngraphstore/auth/settings"><i
-									class="fa fa-gear"></i> <span>Settings</span></a> <a
-									href="javascript:;" onclick="parentNode.submit();"><i
-									class="fa fa-sign-out"></i><span>Logout</span></a> <input
-									type="hidden" name="${_csrf.parameterName}"
+								<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
+									<span>Settings</span></a> <a href="javascript:;"
+									onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a>
+								<input type="hidden" name="${_csrf.parameterName}"
 									value="${_csrf.token}" />
 							</form>
 						</c:if></li>
@@ -86,12 +85,14 @@
 					<table>
 						<tr>
 							<td>User Name:</td>
-							<td><select type='select' name='userName' /></td>
+							<td><input type='select' name='userName' /></td>
 						</tr>
 
 						<tr>
 							<td colspan='2'><input name="delete" type="submit"
 								value="submit" /></td>
+							<td colspan='2'><input name="setAdmin" type="checkbox"
+								value="isAdmin" /></td>
 						</tr>
 					</table>
 
