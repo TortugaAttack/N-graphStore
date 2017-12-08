@@ -7,9 +7,70 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>N-graphStore - Home</title>
+<title>N-graphStore - Settings</title>
 <link rel="stylesheet"
 	href="/ngraphstore/webResources/font-awesome/css/font-awesome.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+<script type="text/javascript">
+	var app = angular.module('passwordform', []);
+	app
+			.controller(
+					"UserController",
+					function($scope, $http) {
+						$scope.error = false;
+						$scope.csrf = "${_csrf.token}";
+						$scope.errormsg = '';
+						$scope.info = false;
+						$scope.infomsg = 'Update was successfull';
+						$scope.updateForm = {
+							opassword : '',
+							password : '',
+							cpassword : ''
+						}
+						$scope.errorClear = function() {
+							$scope.error = false;
+							$scope.errormsg = '';
+						};
+						$scope.infoClear = function() {
+							$scope.info = false;
+						}
+						$scope.update = function() {
+							$scope.error = false;
+							if ($scope.updateForm.password != $scope.updateForm.cpassword) {
+								$scope.error = true;
+								$scope.errormsg = "Passwords does not match";
+								return;
+							}
+							$http(
+									{
+										method : 'POST',
+										url : 'http://localhost:9098/ngraphstore/auth/admin/api/updatepwd',
+										data : $
+												.param({
+													oldpassword : $scope.updateForm.opassword,
+													password : $scope.updateForm.password,
+													_csrf : $scope.csrf
+												}),
+										headers : {
+											'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+										}
+									}).then(
+									function successCallback(response) {
+
+										$scope.data = response.data;
+
+										$scope.info = true;
+									},
+									function errorCallback(response) {
+
+										$scope.error = true;
+										$scope.errormsg = "Password could not be verified.";
+									});
+						};
+					});
+</script>
 <link rel="stylesheet" type="text/css"
 	href="/ngraphstore/webResources/css/simple.css">
 </head>
@@ -50,33 +111,47 @@
 			</div>
 		</div>
 
-		<div id="content" class="content">
+		<div id="content" class="content" ng-app="passwordform"
+			ng-controller="UserController">
 
-			<form name='loginForm'
-				action="<c:url value='/j_spring_security_check' />" method='POST'>
+			<form id="passwordform" ng-submit="update()">
 
-				<table>
-					<tr>
-						<td>Old Password:</td>
-						<td><input type='password' name='oldPassword'></td>
-					</tr>
-					<tr>
-						<td>New Password:</td>
-						<td><input type='password' name='password' /></td>
-					</tr>
-					<tr>
-						<td>Confirm:</td>
-						<td><input type='password' name='passwordConfirm' /></td>
-					</tr>
-					<tr>
-						<td colspan='2'><input name="submit" type="submit"
-							value="submit" /></td>
-					</tr>
-				</table>
-
-
+				<div class="itxt error" ng-show="error">
+					{{errormsg}}<a ng-href='#' ng-click='errorClear()'><i
+						class="error-icon fa fa-window-close"></i></a>
+				</div>
+				<div class="itxt info" ng-show="info">
+					{{infomsg}}<a ng-href='#' ng-click='infoClear()'><i
+						class="error-icon fa fa-window-close"></i></a>
+				</div>
+				<div class=" itxt">
+					<div class="itxt">
+						<div>
+							<label for="oldpassword">Old Password: </label>
+						</div>
+						<input class="fullinput" type="password" id="oldpassword"
+							ng-model="updateForm.opassword" required />
+					</div>
+					<div class="itxt">
+						<div>
+							<label for="password">Password: </label>
+						</div>
+						<input class="fullinput" type="password" id="password"
+							ng-model="updateForm.password" required />
+					</div>
+					<div class="itxt">
+						<div>
+							<label for="cpassword">Password: </label>
+						</div>
+						<input class="fullinput" type="password" id="cpassword"
+							ng-model="updateForm.cpassword" required />
+					</div>
+					<input type="hidden" name="_csrf" value="${_csrf.token}" />
+					<button type="submit" class="btn">Update</button>
+				</div>
 
 			</form>
+
 
 		</div>
 		<div id="footer" class="footer">

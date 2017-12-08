@@ -7,6 +7,10 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationFactory.PropertiesConfigurationFactory;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,6 +26,7 @@ import com.oppsci.ngraphstore.processor.UpdateProcessor;
 import com.oppsci.ngraphstore.processor.impl.DirectUpdateProcessor;
 import com.oppsci.ngraphstore.storage.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.MemoryStorage;
+import com.oppsci.ngraphstore.web.config.NgraphStoreConfiguration;
 import com.oppsci.ngraphstore.web.rest.rdf.SPARQLRestController;
 import com.oppsci.ngraphstore.web.rest.rdf.TripleRestController;
 import com.oppsci.ngraphstore.web.rest.rdf.UpdateRestController;
@@ -41,6 +46,11 @@ import com.oppsci.ngraphstore.web.user.UserDAO;
 @ComponentScan(basePackages = {"com.oppsci.ngraphstore.web.root", "com.oppsci.ngraphstore.web.rest", "com.oppsci.ngraphstore.web.user","com.oppsci.ngraphstore.web.role"})
 public class RootController {
 	
+	private static final String IGNORE_LOAD_ERRORS = "ngraphstorage.rdf.cluster.ignoreErrors";
+	private static final String LUCENE_BASE = "ngraphstorage.rdf.cluster.lucenBase";
+	private static final String CLUSTER_TIMEOUT = "ngraphstorage.rdf.cluster.timeout";
+	private static final String CLUSTER_SIZE = "ngraphstorage.rdf.cluster.size";
+
 	public static @Bean DataSource dataSource(){
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
 	             "database/spring-database.xml");
@@ -50,18 +60,12 @@ public class RootController {
 	}
 
 	
-	public static @Bean String authMethod() {
-		return "form";
-	}
-	public static @Bean boolean ignoreErrors() {
-		//TODO get parameter from properties file
-		return true;
-	}
 
 	 
-	public static @Bean String[] protectionPattern() {
-		return new String[] {"/auth/**", "/api/auth/**"};
+	public static @Bean CompositeConfiguration configuration() {
+		return NgraphStoreConfiguration.getInstance();
 	}
+	
 	
 	public static @Bean RoleDAO roleDAO(DataSource dataSource) {
 		return new RoleDAO(dataSource);
@@ -75,10 +79,7 @@ public class RootController {
 		return new BCryptPasswordEncoder(11);
 	}
 	
-	public static @Bean String defaultGraph() {
-		return "<http://ngraphstore.com>";
-	}
-	
+
 	/**
 	 * Creates the default sparql processor to use
 	 * @return a DefaultSPARQLProcessor object
@@ -134,9 +135,13 @@ public class RootController {
 		return processor;
 	}
 	
-	public static @Bean ClusterOverseer clusterOverseer(boolean ignoreErrors) throws IOException {
-		//TODO get parameter from properties file
-		ClusterOverseer overseer = new ClusterOverseer("lucene_test", 1, 180, ignoreErrors);
+	public static @Bean ClusterOverseer clusterOverseer(CompositeConfiguration config) throws IOException {
+		
+		int clusterSize = config.getInt(CLUSTER_SIZE);
+		int timeout = config.getInt(CLUSTER_TIMEOUT);
+		String luceneBase = config.getString(LUCENE_BASE);
+		boolean ignoreErrors = config.getBoolean(IGNORE_LOAD_ERRORS);
+		ClusterOverseer overseer = new ClusterOverseer(luceneBase, clusterSize, timeout, ignoreErrors);
 		return overseer;
 	}
 	

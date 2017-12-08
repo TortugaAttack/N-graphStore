@@ -9,7 +9,7 @@
 	href="/ngraphstore/webResources/font-awesome/css/font-awesome.min.css">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
-<title>N-graphStore - SPARQL</title>
+<title>N-graphStore - UPLOAD</title>
 <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
 <script type="text/javascript">
 	var app = angular.module('table', []);
@@ -122,7 +122,7 @@
 
 			<form id="myform" ng-submit="sparqlSubmit()">
 				<div class=".col-md-12">
-					<input type="text" class="itxt" ng-model="sparqlForm.graph"></input>
+					<input type="text" class="itxt" ng-model="sparqlForm.graph" value="<http://ngraphstore.com/default-graph>"></input>
 				</div>
 				<div class=".col-md-12">
 					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples"></textarea>

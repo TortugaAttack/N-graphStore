@@ -1,3 +1,12 @@
+.fancyselect {
+	width: 100%;
+	margin: 1em 0em 1em 0em;
+	color: #3f3f3f;
+	font-size: 1.1em;
+	font-family: Advent Pro;
+	font-weight: bold;
+}
+
 .btn {
 	-webkit-border-radius: 15;
 	-moz-border-radius: 15;
@@ -18,6 +27,11 @@
 .btn:hover {
 	background: #3cb0fd;
 	text-decoration: none;
+}
+
+.doublebtn {
+	width: 49%;
+	left: 0%;
 }
 
 label {
@@ -173,7 +187,7 @@ table {
 	float: right;
 }
 
-.nav li:last-child a{
+.nav li:last-child a {
 	display: inline-block;
 }
 

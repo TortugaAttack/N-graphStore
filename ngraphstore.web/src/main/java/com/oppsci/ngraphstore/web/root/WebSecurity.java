@@ -1,5 +1,6 @@
 package com.oppsci.ngraphstore.web.root;
 
+import org.apache.commons.configuration.CompositeConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,33 +20,31 @@ import com.oppsci.ngraphstore.web.user.UserService;
 @ComponentScan(basePackages = { "com.oppsci.ngraphstore.web.root" })
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
+	private static final String PROTECTION_PATTERN = "nraphstore.security.protectionPattern";
+	protected static final String AUTH_METHOD = "ngraphstore.security.authMethod";
+
 	@Autowired
 	private PasswordEncoder encoder;
 
 	@Autowired
 	private UserService userService;
 
-	// @Override
-	// protected void configure(HttpSecurity http) throws Exception {
-	// http.authorizeRequests().antMatchers("/resources/**",
-	// "/registration").permitAll().antMatchers("/auth/**")
-	// .authenticated().anyRequest().permitAll().and().formLogin().loginPage("/login").permitAll().and()
-	// .logout().permitAll();
-	// }
 
+	@Autowired
+	private CompositeConfiguration config;
+	
+
+	
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userService).passwordEncoder(encoder);
 	}
 
-	@Autowired
-	private String authMethod;
-
-	@Autowired
-	private String[] protectionPattern;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		String authMethod = config.getString(AUTH_METHOD);
+		String[] protectionPattern=config.getStringArray(PROTECTION_PATTERN);
 		switch (authMethod) {
 		case "form":
 			http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll()

@@ -44,4 +44,12 @@ public class Role {
 	}
 
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Role) {
+			return this.roleName.equals(((Role) obj).getRoleName());
+		}
+		return false;
+	}
+	
 }

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS USER_ROLES (
 );
 
 INSERT INTO USER(userName, password) 
-SELECT * FROM (VALUES('admin', '$2a$11$H9SOgevdCGQV8qznkag.2OP0s9FoXLTVmuhJNePANLLoOOFspJbli') )
+SELECT * FROM (VALUES('admin', '$2a$11$Hr6dooAjHtSx74MzOdwmAuotceW5ElWH9JoHamUc.ByRfpfU/T3qu') )
 WHERE NOT EXISTS ( SELECT userName FROM USER 
                    WHERE userName='admin');
 

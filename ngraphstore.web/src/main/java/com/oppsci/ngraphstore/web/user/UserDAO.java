@@ -65,7 +65,7 @@ public class UserDAO {
 	public int addUser(String userName, String encode) {
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("userName", userName);
-		parameters.addValue(encode, encode);
+		parameters.addValue("password", encode);
 		return this.template.update(INSERT_USER, parameters);
 	}
 

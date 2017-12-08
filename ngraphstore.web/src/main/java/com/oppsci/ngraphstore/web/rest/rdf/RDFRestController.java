@@ -1,5 +1,6 @@
 package com.oppsci.ngraphstore.web.rest.rdf;
 
+import org.apache.commons.configuration.CompositeConfiguration;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api")
 public class RDFRestController {
 	
+	private static final String DEFAULT_GRAPH = "ngraphstore.rdf.sparql.defaultGraph";
 	@Autowired
 	private SPARQLRestController sparqlRestController;
 	@Autowired
@@ -28,7 +30,8 @@ public class RDFRestController {
 	private TripleRestController tripleRestController;
 	
 	@Autowired
-	private String defaultGraph;
+	private CompositeConfiguration config;
+	
 	
 	/**
 	 * 
@@ -80,9 +83,10 @@ public class RDFRestController {
 	 */
 	@RequestMapping(value = "/auth/data", method = RequestMethod.POST, headers = "Accept=text/plain")
 	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph, @RequestParam(value="method") String method) {
+		
 		String graphURI =graph;
-		if(defaultGraph.isEmpty()) {
-			graphURI = defaultGraph;
+		if(graphURI.isEmpty()) {
+			graphURI = config.getString(DEFAULT_GRAPH);
 		}
 		Boolean updateSucceeded =  tripleRestController.processTriple(data, graphURI, method);
 		return updateSucceeded;
@@ -99,8 +103,8 @@ public class RDFRestController {
 	@RequestMapping(value = "/auth/data", method = RequestMethod.PUT, headers = "Accept=text/plain")
 	public Boolean putTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph) {
 		String graphURI =graph;
-		if(defaultGraph.isEmpty()) {
-			graphURI = defaultGraph;
+		if(graphURI.isEmpty()) {
+			graphURI = config.getString(DEFAULT_GRAPH);;
 		}
 		Boolean updateSucceeded =  tripleRestController.processTriple(data, graphURI);
 		return updateSucceeded;

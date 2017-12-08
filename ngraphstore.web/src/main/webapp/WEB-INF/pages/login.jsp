@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>N-graphStore - Home</title>
+<title>N-graphStore - Login</title>
 <link rel="stylesheet"
 	href="/ngraphstore/webResources/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css"

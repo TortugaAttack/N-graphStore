@@ -1,3 +1,4 @@
+ngraphstore/
 .classpath
 .project
 .settings
@@ -5,5 +6,6 @@
 data.nt
 /home
 /target
-/ngraphstore/database
-/ngraphstore/lucene*
+/ngraphstore.web/database
+/ngraphstore.web/lucene*
+/ngraphstore.web/null

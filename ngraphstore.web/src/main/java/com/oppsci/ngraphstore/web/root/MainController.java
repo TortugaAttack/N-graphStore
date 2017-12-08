@@ -3,8 +3,12 @@ package com.oppsci.ngraphstore.web.root;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.jena.atlas.json.JsonArray;
+import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,23 +18,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.oppsci.ngraphstore.web.role.Role;
+import com.oppsci.ngraphstore.web.role.RoleController;
+import com.oppsci.ngraphstore.web.user.User;
+import com.oppsci.ngraphstore.web.user.UserController;
+
 @Controller
 public class MainController {
-	
+
 	@Autowired
-	public String authMethod;
+	public CompositeConfiguration config;
+
+	@Autowired
+	private UserController userController;
+
+	@Autowired
+	private RoleController roleController;
 
 	private void addCredentialInfo(ModelAndView model) {
-		Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+		Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication()
+				.getAuthorities();
 		Set<String> roles = new HashSet<String>();
-		for(GrantedAuthority authority : authorities) {
+		for (GrantedAuthority authority : authorities) {
 			roles.add(authority.getAuthority());
 		}
-		
+
 		boolean authenticated = roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER");
 		model.addObject("authenticated", authenticated);
 		model.addObject("isAdmin", roles.contains("ROLE_ADMIN"));
-		model.addObject("authMethod", authMethod);
+		model.addObject("authMethod", config.getString(WebSecurity.AUTH_METHOD));
 	}
 
 	@RequestMapping(value = { "/", "index**" }, method = RequestMethod.GET)
@@ -65,6 +81,16 @@ public class MainController {
 	public ModelAndView adminPage(ModelMap model2, Principal principal) {
 		ModelAndView model = new ModelAndView();
 		addCredentialInfo(model);
+		JSONArray userList = new JSONArray();
+		String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+		Role role = roleController.getRoleByName("ROLE_ADMIN");
+		for (User user : userController.getUser()) {
+			if (!user.getUserName().equals(currentUser)&& !roleController.getUserRoles(user.getId()).contains(role)) {
+					userList.add(user.getUserName());
+
+			}
+		}
+		model.addObject("names", userList);
 		model.setViewName("admin");
 		return model;
 	}
