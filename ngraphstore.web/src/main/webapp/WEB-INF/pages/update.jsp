@@ -22,7 +22,7 @@
 						$scope.error = false;
 						$scope.errormsg = '';
 						$scope.sparqlForm = {
-							query : 'SELECT * WHERE {?s ?p ?o}'
+							query : 'INSERT DATA {\n<http://ngraphstore/res/test> <http://ngraphstore/prop/test> \"woop woop\".\n}'
 						}
 						$scope.errorClear = function() {
 							console.log("test");

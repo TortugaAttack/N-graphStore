@@ -25,8 +25,8 @@
 						$scope.info = false;
 						$scope.infomsg = 'Update was successfull';
 						$scope.sparqlForm = {
-							triples : '',
-							graph : ''
+							triples : 'Put your RDF here...',
+							graph : '<http://ngraphstore.com/default-graph>'
 						}
 						$scope.errorClear = function() {
 							console.log("test");
@@ -122,10 +122,10 @@
 
 			<form id="myform" ng-submit="sparqlSubmit()">
 				<div class=".col-md-12">
-					<input type="text" class="itxt" ng-model="sparqlForm.graph" value="<http://ngraphstore.com/default-graph>"></input>
+					<input type="text" class="itxt textarea" ng-model="sparqlForm.graph" value="&lt;http://ngraphstore.com/default-graph&gt;"></input>
 				</div>
 				<div class=".col-md-12">
-					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples"></textarea>
+					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples" value="Put your RDF here"></textarea>
 				</div>
 				<input type="hidden" name="csrf" value="${_csrf.token}" />
 				<div class=".col-md-12">
