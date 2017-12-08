@@ -1,4 +1,4 @@
-[![logo.png](https://github.com/TortugaAttack/N-graphStore/blob/master/ngraphstore/src/main/resources/webResources/images/logo.png)](#)
+[![logo.png](https://github.com/TortugaAttack/N-graphStore/blob/master/ngraphstore.web/src/main/resources/webResources/images/logo.png)](#)
 
 ## Web Frontend
 
