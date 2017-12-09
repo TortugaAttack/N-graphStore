@@ -2,10 +2,10 @@ package com.oppsci.ngraphstore.query.planner.impl;
 
 import java.util.List;
 
-import com.oppsci.ngraphstore.graph.Graph;
-import com.oppsci.ngraphstore.query.parser.Query;
-import com.oppsci.ngraphstore.query.parser.QueryParser;
-import com.oppsci.ngraphstore.query.parser.impl.QueryParserImpl;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Model;
+
 import com.oppsci.ngraphstore.query.planner.QueryPlanner;
 import com.oppsci.ngraphstore.query.planner.Step;
 import com.oppsci.ngraphstore.query.planner.merger.Merger;
@@ -14,9 +14,9 @@ import com.oppsci.ngraphstore.query.sparql.elements.impl.Filter;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
+//TODO use Jena Query (make own parser sometime else)
 public class QueryPlannerImpl implements QueryPlanner {
 
-	private QueryParser parser = new QueryParserImpl();
 
 	private ClusterOverseer<SimpleResultSet> overseer;
 
@@ -28,7 +28,7 @@ public class QueryPlannerImpl implements QueryPlanner {
 	}
 
 	public SimpleResultSet select(String queryString) throws Exception {
-		return select(parser.parse(queryString));
+		return select(QueryFactory.create(queryString));
 	}
 
 	public SimpleResultSet select(Query query) throws Exception {
@@ -72,7 +72,7 @@ public class QueryPlannerImpl implements QueryPlanner {
 	}
 
 	public boolean ask(String queryString) throws Exception {
-		return ask(parser.parse(queryString));
+		return ask(QueryFactory.create(queryString));
 	}
 
 	public boolean ask(Query query) {
@@ -83,19 +83,19 @@ public class QueryPlannerImpl implements QueryPlanner {
 		return !currentResults.getRows().isEmpty();
 	}
 
-	public Graph describe(String queryString) throws Exception {
-		return describe(parser.parse(queryString));
+	public Model describe(String queryString) throws Exception {
+		return describe(QueryFactory.create(queryString));
 	}
 
-	public Graph describe(Query query) {
+	public Model describe(Query query) {
 		return null;
 	}
 
-	public Graph construct(String queryString) throws Exception {
-		return construct(parser.parse(queryString));
+	public Model construct(String queryString) throws Exception {
+		return construct(QueryFactory.create(queryString));
 	}
 
-	public Graph construct(Query query) {
+	public Model construct(Query query) {
 		return null;
 	}
 
@@ -116,5 +116,6 @@ public class QueryPlannerImpl implements QueryPlanner {
 	public SimpleResultSet applyFilter(SimpleResultSet currentResults, List<Filter> filter) {
 		return null;
 	}
+
 
 }

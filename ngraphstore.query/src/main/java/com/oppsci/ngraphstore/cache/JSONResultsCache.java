@@ -4,7 +4,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.oppsci.ngraphstore.query.parser.Query;
+import org.apache.jena.query.Query;
+
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 //TODO set semaphore and mutex!
@@ -25,9 +26,10 @@ public class JSONResultsCache {
 	public boolean add(Query q, SimpleResultSet results) {
 		String serializable = results.asJSON().toJSONString();
 		int objectSize = serializable.getBytes().length;
-		String key = q.createCacheKey();
+		//TODO expand and serialize
+		String key = q.serialize().hashCode()+"";
 		
-		if(isCached(q)) {
+		if(isCached(key)) {
 			//already contains it
 			return updateCacheObject(key, serializable, objectSize);
 		}
@@ -98,16 +100,14 @@ public class JSONResultsCache {
 	}
 	
 	@SuppressWarnings("unlikely-arg-type")
-	public String search(Query query) {
-		String key = query.createCacheKey();
+	public String search(String key) {
 		return cacheList.get(cacheList.indexOf(key)).getJSONString();
 	}
 	
 
 	
 	@SuppressWarnings("unlikely-arg-type")
-	public boolean isCached(Query query) {
-		String key = query.createCacheKey();
+	public boolean isCached(String key) {
 		return cacheList.contains(key);
 	}
 	

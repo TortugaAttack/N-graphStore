@@ -5,6 +5,7 @@ public class Triple<T> {
 	private T subject;
 	private T predicate;
 	private T object;
+	private T graph;
 	/**
 	 * @return the subject
 	 */
@@ -40,6 +41,27 @@ public class Triple<T> {
 	 */
 	public void setObject(T object) {
 		this.object = object;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Triple<?>) {
+			Triple<T> objTriple = (Triple<T>)obj;
+			boolean equals = subject.equals(objTriple.getSubject());
+			equals = equals && predicate.equals(objTriple.getPredicate());
+			equals = equals && object.equals(objTriple.getObject());
+			equals = equals && graph.equals(objTriple.getGraph());
+			return equals;
+		}
+		return false; 
+	}
+	
+	public T getGraph() {
+		return graph;
+	}
+	
+	public void setGraph(T graph) {
+		this.graph = graph;
 	}
 	
 }

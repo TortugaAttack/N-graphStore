@@ -1,10 +1,12 @@
 package com.oppsci.ngraphstore.processor.impl;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import com.oppsci.ngraphstore.graph.Model2JSONConverter;
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
-import com.oppsci.ngraphstore.query.parser.Query;
-import com.oppsci.ngraphstore.query.parser.impl.QueryParserImpl;
 import com.oppsci.ngraphstore.query.planner.QueryPlanner;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
@@ -22,7 +24,6 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 	private ClusterOverseer<SimpleResultSet> overseer;
 
 	private QueryPlanner planner;
-	private QueryParserImpl parser;
 
 	/**
 	 * Creates the Default Sparql Processor. <br/>
@@ -35,7 +36,7 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 	}
 
 	public JSONObject select(String queryString) throws Exception {
-		Query query = parser.parse(queryString);
+		Query query = QueryFactory.create(queryString);
 		return planner.select(query).asJSON();
 	}
 
@@ -60,8 +61,7 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject ask(String queryString) throws Exception {
-		Query query = parser.parse(queryString);
-
+		Query query = QueryFactory.create(queryString);
 		boolean askResult = planner.ask(query);
 		JSONObject result = new JSONObject();
 		result.put("boolean", askResult);
@@ -73,14 +73,14 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 
 	@Override
 	public JSONObject construct(String queryString) throws Exception {
-		Query query = parser.parse(queryString);
-		return planner.construct(query).asJSON();
+		Query query = QueryFactory.create(queryString);
+		return Model2JSONConverter.convert(planner.construct(query));
 	}
 
 	@Override
 	public JSONObject describe(String queryString) throws Exception {
-		Query query = parser.parse(queryString);
-		return planner.describe(query).asJSON();
+		Query query = QueryFactory.create(queryString);
+		return Model2JSONConverter.convert(planner.describe(query));
 	}
 
 }

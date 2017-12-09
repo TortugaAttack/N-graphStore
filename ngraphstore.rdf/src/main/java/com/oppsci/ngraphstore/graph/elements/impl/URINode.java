@@ -29,10 +29,10 @@ public class URINode implements Node {
 
 	@Override
 	public JSONObject asJSON() {
-		JSONObject uri = new JSONObject();
-		uri.put("type", "uri");
-		uri.put("value", uri);
-		return uri;
+		JSONObject uriJSON = new JSONObject();
+		uriJSON.put("type", "uri");
+		uriJSON.put("value", "<" +uri+">");
+		return uriJSON;
 	}
 
 	@Override

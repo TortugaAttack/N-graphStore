@@ -1,7 +1,8 @@
 package com.oppsci.ngraphstore.query.planner;
 
-import com.oppsci.ngraphstore.graph.Graph;
-import com.oppsci.ngraphstore.query.parser.Query;
+import org.apache.jena.query.Query;
+import org.apache.jena.rdf.model.Model;
+
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 public interface QueryPlanner {
@@ -12,8 +13,8 @@ public interface QueryPlanner {
 
 	public boolean ask(Query query) throws Exception;
 	
-	public Graph construct(Query query) throws Exception;
+	public Model construct(Query query) throws Exception;
 	
-	public Graph describe(Query query) throws Exception;
+	public Model describe(Query query) throws Exception;
 	
 }

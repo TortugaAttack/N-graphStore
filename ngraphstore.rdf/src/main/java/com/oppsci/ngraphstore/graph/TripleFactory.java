@@ -15,6 +15,10 @@ import org.apache.jena.rdf.model.StmtIterator;
 public class TripleFactory {
 
 	public static Triple<String>[] parseTriples(String triples) throws IOException {
+		return parseTriples(triples, null);
+	}
+
+	public static Triple<String>[] parseTriples(String triples, String graph) throws IOException {
 		BufferedReader reader = new BufferedReader(new StringReader(triples));
 
 		Model m = ModelFactory.createDefaultModel();
@@ -26,16 +30,13 @@ public class TripleFactory {
 			Triple<String> triple = new Triple<String>();
 			if (stmt.getSubject().isURIResource()) {
 				triple.setSubject("<" + stmt.getSubject().getURI() + ">");
-			} else if (stmt.getSubject().isAnon()) {
+			} else {
 				// make bnode unique but usable
-				triple.setSubject("_:"+stmt.getSubject().toString());
+				triple.setSubject("_:" + stmt.getSubject().toString()); 
 			}
-			if (stmt.getPredicate().isURIResource()) {
-				triple.setPredicate("<" + stmt.getPredicate().getURI() + ">");
-			} else if (stmt.getPredicate().isAnon()) {
-				// make bnode unique but usable
-				triple.setPredicate("_:"+stmt.getPredicate().toString());
-			}
+			
+			triple.setPredicate("<" + stmt.getPredicate().getURI() + ">");
+
 			String object;
 			if (stmt.getObject().isLiteral()) {
 				Literal literal = stmt.getObject().asLiteral();
@@ -45,11 +46,12 @@ public class TripleFactory {
 					object = object.substring(0, object.lastIndexOf("^^") + 2) + "<" + literal.getDatatypeURI() + ">";
 				}
 			} else if (stmt.getObject().isAnon()) {
-				object = "_:"+stmt.getObject().asNode().toString();
+				object = "_:" + stmt.getObject().asNode().toString();
 			} else {
 				object = "<" + stmt.getObject().asNode().getURI() + ">";
 			}
 			triple.setObject(object);
+			triple.setGraph(graph);
 			tripleList.add(triple);
 		}
 		return tripleList.toArray(new Triple[] {});
