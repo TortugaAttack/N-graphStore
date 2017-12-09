@@ -152,12 +152,12 @@
 							<span>Home</span></a></li>
 					<li><a href="/ngraphstore/sparql-view"><i
 							class="fa fa-search"></i> <span>Query</span></a></li>
-					<li><a  href="/ngraphstore/auth/update"><i
+					<li><a href="/ngraphstore/auth/update"><i
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
-					<li><a  class="active" href="/ngraphstore/explore"><i class="fa fa-eye"></i>
-							<span>Explore</span></a></li>
+					<li><a class="active" href="/ngraphstore/explore"><i
+							class="fa fa-eye"></i> <span>Explore</span></a></li>
 					<li><c:if test="${authMethod != 'none'}">
 							<c:if test="${!authenticated}">
 								<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
@@ -218,16 +218,23 @@
 							</tr>
 
 							<tr ng-repeat="binding in data.graph">
-
-								<td class="inputtd"><input data-ng-model="binding.subject"
-									class="inputintd" type="text" value="{{binding.subject}}" /></td>
-								<td class="inputtd"><input
-									data-ng-model="binding.predicate" class="inputintd" type="text"
-									value="{{binding.predicate}}" /></td>
-								<td class="inputtd"><input data-ng-model="binding.object"
-									class="inputintd" type="text" value="{{binding.object}}" /></td>
-								<td class="inputtd"><input data-ng-model="binding.graph"
-									class="inputintd" type="text" value="{{binding.graph}}" /></td>
+								<c:if test="${authenticated}">
+									<td class="inputtd"><input data-ng-model="binding.subject"
+										class="inputintd" type="text" value="{{binding.subject}}" /></td>
+									<td class="inputtd"><input
+										data-ng-model="binding.predicate" class="inputintd"
+										type="text" value="{{binding.predicate}}" /></td>
+									<td class="inputtd"><input data-ng-model="binding.object"
+										class="inputintd" type="text" value="{{binding.object}}" /></td>
+									<td class="inputtd"><input data-ng-model="binding.graph"
+										class="inputintd" type="text" value="{{binding.graph}}" /></td>
+								</c:if>
+								<c:if test="${!authenticated}">
+									<td class="inputtd"><div>{{binding.subject}}</div></td>
+									<td class="inputtd"><div>{{binding.predicate}}</div></td>
+									<td class="inputtd"><div>{{binding.object}}</div></td>
+									<td class="inputtd"><div>{{binding.graph}}</div></td>
+								</c:if>
 							</tr>
 
 						</table>

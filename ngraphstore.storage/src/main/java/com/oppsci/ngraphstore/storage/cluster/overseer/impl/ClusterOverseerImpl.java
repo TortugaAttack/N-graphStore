@@ -1,37 +1,27 @@
-package com.oppsci.ngraphstore.storage;
+package com.oppsci.ngraphstore.storage.cluster.overseer.impl;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.oppsci.ngraphstore.graph.Triple;
-
-import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
-import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneQuadUpdateSpec;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
+import com.oppsci.ngraphstore.storage.cluster.Cluster;
+import com.oppsci.ngraphstore.storage.cluster.overseer.AbstractClusterOverseer;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
+import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneQuadUpdateSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneSearchSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneUpdateSpec;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
- * TODO: make code more lucid, updates into Cluster, add Triples as subarray The
- * overseer of the n cluster. will execute a provided query on N Cluster
  * 
  * @author f.conrads
  *
  */
-public class ClusterOverseer extends ExecutionOverseer {
+public class ClusterOverseerImpl extends AbstractClusterOverseer {
 
-	public ClusterOverseer(String rootFolder, int clusterSize, long timeout, boolean ignoreErrors) throws IOException {
+	public ClusterOverseerImpl(String rootFolder, int clusterSize, long timeout, boolean ignoreErrors) throws IOException {
 		super(rootFolder, clusterSize, timeout, ignoreErrors);
 
 	}
@@ -55,6 +45,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public SimpleResultSet search(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
 		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
@@ -64,6 +55,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		return mergeSyncedResults(results);
 	}
 	
+	@Override
 	public SimpleResultSet searchAll(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
 		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
@@ -79,8 +71,10 @@ public class ClusterOverseer extends ExecutionOverseer {
 	 * @param triples
 	 * @param graph 
 	 * @return
+	 * @throws Exception 
 	 */
-	public boolean add(Triple<String>[] triples, String graph) {
+	@Override
+	public boolean add(Triple<String>[] triples, String graph) throws Exception {
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
@@ -89,6 +83,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
+			throw e1;
 		}
 		for(boolean singleSuccess : success) {
 			if(!singleSuccess) {
@@ -96,6 +91,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					rollback();
 				} catch (IOException e) {
 					e.printStackTrace();
+					throw e;
 				}
 			}
 		}
@@ -109,8 +105,10 @@ public class ClusterOverseer extends ExecutionOverseer {
 	 * @param triples
 	 * @param graph 
 	 * @return
+	 * @throws Exception 
 	 */
-	public boolean load(Triple<String>[] triples, String graph) {
+	@Override
+	public boolean load(Triple<String>[] triples, String graph) throws Exception {
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
@@ -118,7 +116,9 @@ public class ClusterOverseer extends ExecutionOverseer {
 			success = super.execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
+			//Logging purpose
 			e1.printStackTrace();
+			throw e1;
 		}
 		for(boolean singleSuccess : success) {
 			if(!singleSuccess) {
@@ -126,6 +126,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					rollback();
 				} catch (IOException e) {
 					e.printStackTrace();
+					throw e;
 				}
 			}
 		}
@@ -133,7 +134,8 @@ public class ClusterOverseer extends ExecutionOverseer {
 		return true;
 	}
 
-	public boolean dropAll() {
+	@Override
+	public boolean dropAll() throws Exception {
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec();
 		Boolean[] success = new Boolean[] {false};
@@ -142,6 +144,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
+			throw e1;
 		}
 		for(boolean singleSuccess : success) {
 			if(!singleSuccess) {
@@ -149,6 +152,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					rollback();
 				} catch (IOException e) {
 					e.printStackTrace();
+					throw e;
 				}
 			}
 		}
@@ -157,7 +161,8 @@ public class ClusterOverseer extends ExecutionOverseer {
 		return true;
 	}
 
-	public boolean drop(String graph) {
+	@Override
+	public boolean drop(String graph) throws Exception {
 		// delete all triples with graph
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec(graph);
@@ -167,6 +172,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
+			throw e1;
 		}
 		for(boolean singleSuccess : success) {
 			if(!singleSuccess) {
@@ -174,6 +180,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					rollback();
 				} catch (IOException e) {
 					e.printStackTrace();
+					throw e;
 				}
 			}
 		}
@@ -182,7 +189,8 @@ public class ClusterOverseer extends ExecutionOverseer {
 
 	}
 
-	public boolean delete(Triple<String>[] triples, String graph) {
+	@Override
+	public boolean delete(Triple<String>[] triples, String graph) throws Exception {
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
@@ -191,6 +199,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
+			throw e1;
 		}
 		for(boolean singleSuccess : success) {
 			if(!singleSuccess) {
@@ -198,6 +207,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 					rollback();
 				} catch (IOException e) {
 					e.printStackTrace();
+					throw e;
 				}
 			}
 		}
@@ -206,12 +216,12 @@ public class ClusterOverseer extends ExecutionOverseer {
 		return true;
 	}
 	
+	@Override
 	public String[][] explore(String term) throws InterruptedException, ExecutionException, TimeoutException {
 		reopenSearcher();
 		LuceneSpec spec= new LuceneSearchSpec(new String[] {term}, null, null);
 		String[][][] unmergedResults =  super.execute(spec, Cluster.EXPLORE_METHOD, String[][][].class, new SearchStats())
 				.toArray(new String[][][] {});
-		//TODO mergeResults
 		String[][] mergedResults=mergeExploreResults(unmergedResults);
 		closeSearcher();
 		return mergedResults;
@@ -232,13 +242,14 @@ public class ClusterOverseer extends ExecutionOverseer {
 		return merged;
 	}
 	
-	public boolean quadUpdate(String[] oldTerms, String[] newTerms) {
+	@Override
+	public boolean quadUpdate(String[] oldTerms, String[] newTerms) throws Exception {
 		LuceneSpec spec = new LuceneQuadUpdateSpec(oldTerms, newTerms);
 		try {
 			super.execute(spec, Cluster.QUAD_UPDATE, boolean.class, new SearchStats());
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
-			return false;
+			throw e;
 		}
 		return true;
 	}

@@ -1,31 +1,21 @@
 package com.oppsci.ngraphstore.web.root;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Properties;
-
 import javax.sql.DataSource;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationFactory.PropertiesConfigurationFactory;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import com.oppsci.ngraphstore.processor.ProcessorFactory;
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
-import com.oppsci.ngraphstore.processor.SPARQLProcessorFactory;
 import com.oppsci.ngraphstore.processor.UpdateProcessor;
 import com.oppsci.ngraphstore.processor.impl.DirectUpdateProcessor;
-import com.oppsci.ngraphstore.storage.ClusterOverseer;
-import com.oppsci.ngraphstore.storage.MemoryStorage;
+import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
+import com.oppsci.ngraphstore.storage.cluster.overseer.impl.ClusterOverseerImpl;
+import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 import com.oppsci.ngraphstore.web.config.NgraphStoreConfiguration;
 import com.oppsci.ngraphstore.web.rest.rdf.SPARQLRestController;
 import com.oppsci.ngraphstore.web.rest.rdf.TripleRestController;
@@ -84,17 +74,11 @@ public class RootController {
 	 * Creates the default sparql processor to use
 	 * @return a DefaultSPARQLProcessor object
 	 */
-	public static @Bean SPARQLProcessor createSPARQLProcessor() {
-		SPARQLProcessor processor = SPARQLProcessorFactory.createDefaultProcessor();
+	public static @Bean SPARQLProcessor createSPARQLProcessor(ClusterOverseer<SimpleResultSet> clusterOverseer) {
+		SPARQLProcessor processor = ProcessorFactory.createDefaultProcessor(clusterOverseer);
 		return processor;
 	}
 	
-	public static @Bean MemoryStorage createMemoryStorage() throws MalformedURLException {
-		File f = new File("data.nt");
-		String ntFile = f.toURI().toURL().toString();
-		MemoryStorage mem = new MemoryStorage(ntFile);
-		return mem;
-	}
 //	
 //	public static @Bean DataSource dataSource(ServletConfig servlet) {
 //		WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(servlet.getServletContext());
@@ -130,18 +114,18 @@ public class RootController {
 		return tripleRestController;
 	}
 	
-	public static @Bean UpdateProcessor directProcessor() {
-		DirectUpdateProcessor processor = new DirectUpdateProcessor();
+	public static @Bean UpdateProcessor directProcessor(ClusterOverseer<SimpleResultSet> clusterOverseer) {
+		DirectUpdateProcessor processor = new DirectUpdateProcessor(clusterOverseer);
 		return processor;
 	}
 	
-	public static @Bean ClusterOverseer clusterOverseer(CompositeConfiguration config) throws IOException {
+	public static @Bean ClusterOverseer<SimpleResultSet> clusterOverseer(CompositeConfiguration config) throws IOException {
 		
 		int clusterSize = config.getInt(CLUSTER_SIZE);
 		int timeout = config.getInt(CLUSTER_TIMEOUT);
 		String luceneBase = config.getString(LUCENE_BASE);
 		boolean ignoreErrors = config.getBoolean(IGNORE_LOAD_ERRORS);
-		ClusterOverseer overseer = new ClusterOverseer(luceneBase, clusterSize, timeout, ignoreErrors);
+		ClusterOverseerImpl overseer = new ClusterOverseerImpl(luceneBase, clusterSize, timeout, ignoreErrors);
 		return overseer;
 	}
 	

@@ -1,4 +1,6 @@
-package com.oppsci.ngraphstore.storage.lucene.spec;
+package com.oppsci.ngraphstore.storage.lucene.spec.impl;
+
+import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 
 public class LuceneSearchSpec implements LuceneSpec {
 

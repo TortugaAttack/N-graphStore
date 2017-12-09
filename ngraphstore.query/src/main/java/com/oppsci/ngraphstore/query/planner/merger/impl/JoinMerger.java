@@ -1,5 +1,6 @@
-package com.oppsci.ngraphstore.query.planner.merger;
+package com.oppsci.ngraphstore.query.planner.merger.impl;
 
+import com.oppsci.ngraphstore.query.planner.merger.Merger;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**

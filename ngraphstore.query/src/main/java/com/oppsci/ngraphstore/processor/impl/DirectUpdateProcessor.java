@@ -2,19 +2,35 @@ package com.oppsci.ngraphstore.processor.impl;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.oppsci.ngraphstore.graph.TripleFactory;
 import com.oppsci.ngraphstore.processor.UpdateProcessor;
-import com.oppsci.ngraphstore.storage.ClusterOverseer;
+import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
+import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
+/**
+ * Processor for direct updates. (E.g. loading an RDF File, direct changes in the database...)
+ * 
+ * @author f.conrads
+ *
+ */
 public class DirectUpdateProcessor implements UpdateProcessor {
 
-	@Autowired
-	ClusterOverseer clusterOverseer;
+	
+	private ClusterOverseer<SimpleResultSet> clusterOverseer;
+	 
+	/**
+	 * Creates the DirectUpdateProcessor using the clusterOverseer for the updates
+	 * 
+	 * @param clusterOverseer
+	 */
+	public DirectUpdateProcessor(ClusterOverseer<SimpleResultSet> clusterOverseer) {
+		this.clusterOverseer = clusterOverseer;
+	}
+	
 
 	@Override
-	public boolean insert(String triples, String graph) {
+	public boolean insert(String triples, String graph) throws Exception {
 		try {
 			return clusterOverseer.add(TripleFactory.parseTriples(triples), graph);
 		} catch (IOException e) {
@@ -23,7 +39,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	}
 
 	@Override
-	public boolean delete(String triples, String graph) {
+	public boolean delete(String triples, String graph) throws Exception {
 		try {
 			return clusterOverseer.delete(TripleFactory.parseTriples(triples), graph);
 		} catch (IOException e) {
@@ -32,7 +48,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	}
 
 	@Override
-	public boolean load(String triples, String graph) {
+	public boolean load(String triples, String graph) throws Exception {
 		try {
 			return clusterOverseer.load(TripleFactory.parseTriples(triples), graph);
 		} catch (IOException e) {
@@ -41,7 +57,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	}
 
 	@Override
-	public void quadUpdate(String[] oldTerms, String[] newTerms) {
+	public void quadUpdate(String[] oldTerms, String[] newTerms) throws Exception {
 		clusterOverseer.quadUpdate(oldTerms, newTerms);
 	}
 

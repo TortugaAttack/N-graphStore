@@ -1,10 +1,11 @@
-package com.oppsci.ngraphstore.storage.lucene.spec;
+package com.oppsci.ngraphstore.storage.lucene.spec.impl;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.oppsci.ngraphstore.graph.Triple;
+import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 
 public class LuceneUpdateSpec implements LuceneSpec {
 

@@ -1,7 +1,5 @@
 package com.oppsci.ngraphstore.web.rest.rdf;
 
-import java.io.StringReader;
-
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -42,9 +40,10 @@ public class RDFRestController {
 	 * 
 	 * @param query
 	 * @return Results as JSON String
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/sparql", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String getSPARQLresults(@RequestParam(value="query") String query) {
+	public String getSPARQLresults(@RequestParam(value="query") String query) throws Exception {
 		JSONObject results =  sparqlRestController.processQuery(query);
 		return results.toJSONString();
 	}
@@ -105,9 +104,10 @@ public class RDFRestController {
 	 * @param data
 	 * @param method 
 	 * @return true if succeeded, false otherwise
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/auth/data", method = RequestMethod.POST, headers = "Accept=text/plain")
-	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph, @RequestParam(value="method") String method) {
+	public Boolean postTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph, @RequestParam(value="method") String method) throws Exception {
 		
 		String graphURI =graph;
 		if(graphURI.isEmpty()) {
@@ -124,9 +124,10 @@ public class RDFRestController {
 	 * 
 	 * @param data
 	 * @return true if succeeded, false otherwise
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/auth/data", method = RequestMethod.PUT, headers = "Accept=text/plain")
-	public Boolean putTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph) {
+	public Boolean putTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph) throws Exception {
 		String graphURI =graph;
 		if(graphURI.isEmpty()) {
 			graphURI = config.getString(DEFAULT_GRAPH);;

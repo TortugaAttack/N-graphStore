@@ -1,6 +1,5 @@
 package com.oppsci.ngraphstore.processor;
 
-import org.apache.jena.query.ResultSet;
 import org.json.simple.JSONObject;
 
 /**
@@ -11,7 +10,12 @@ import org.json.simple.JSONObject;
  */
 public interface SPARQLProcessor {
 
-	public JSONObject select(String query);
+	public JSONObject select(String query) throws Exception;
+	
+	public JSONObject ask(String query) throws Exception;
+	
+	public JSONObject construct(String query) throws Exception;
+	public JSONObject describe (String query) throws Exception;
 
 	public JSONObject explore(String uri) throws Exception;
 

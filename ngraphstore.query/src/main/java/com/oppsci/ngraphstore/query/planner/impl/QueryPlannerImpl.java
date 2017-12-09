@@ -1,28 +1,31 @@
-package com.oppsci.ngraphstore.query.planner;
+package com.oppsci.ngraphstore.query.planner.impl;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.oppsci.ngraphstore.graph.Graph;
 import com.oppsci.ngraphstore.query.parser.Query;
 import com.oppsci.ngraphstore.query.parser.QueryParser;
+import com.oppsci.ngraphstore.query.parser.impl.QueryParserImpl;
+import com.oppsci.ngraphstore.query.planner.QueryPlanner;
+import com.oppsci.ngraphstore.query.planner.Step;
 import com.oppsci.ngraphstore.query.planner.merger.Merger;
-import com.oppsci.ngraphstore.query.sparql.elements.BGPElement;
-import com.oppsci.ngraphstore.query.sparql.elements.Filter;
-import com.oppsci.ngraphstore.storage.ClusterOverseer;
+import com.oppsci.ngraphstore.query.sparql.elements.impl.BGPElement;
+import com.oppsci.ngraphstore.query.sparql.elements.impl.Filter;
+import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
-public class DefaultQueryPlanner implements QueryPlanner {
+public class QueryPlannerImpl implements QueryPlanner {
 
-//	@Autowired
-	private QueryParser parser;
+	private QueryParser parser = new QueryParserImpl();
 
-	@Autowired
-	private ClusterOverseer overseer;
+	private ClusterOverseer<SimpleResultSet> overseer;
 
 	private Step[] steps;
 	private Merger[] merger;
+	
+	public QueryPlannerImpl(ClusterOverseer<SimpleResultSet> overseer) {
+		this.overseer = overseer;
+	}
 
 	public SimpleResultSet select(String queryString) throws Exception {
 		return select(parser.parse(queryString));

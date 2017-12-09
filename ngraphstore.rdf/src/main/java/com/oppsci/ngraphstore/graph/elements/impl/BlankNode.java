@@ -1,12 +1,14 @@
-package com.oppsci.ngraphstore.graph.elements;
+package com.oppsci.ngraphstore.graph.elements.impl;
 
 import org.json.simple.JSONObject;
+
+import com.oppsci.ngraphstore.graph.elements.Node;
 
 public class BlankNode implements Node {
 
 	private String value;
 	
-	protected BlankNode(String value) {
+	public BlankNode(String value) {
 		this.value = value;
 	}
 	

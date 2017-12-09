@@ -20,13 +20,14 @@ public class TripleRestController {
 	 * 
 	 * @param data the triple data
 	 * @return true if succeeded, otherwise false
+	 * @throws Exception 
 	 */
-	public Boolean processTriple(String data, String graphURI) {
+	public Boolean processTriple(String data, String graphURI) throws Exception {
 			return directProcessor.load(data, graphURI);
 		
 	}
 
-	public Boolean processTriple(String triple, String method, String graphURI) {
+	public Boolean processTriple(String triple, String method, String graphURI) throws Exception {
 		if(method.equals("insert")) {
 			directProcessor.insert(triple, graphURI);
 		}		

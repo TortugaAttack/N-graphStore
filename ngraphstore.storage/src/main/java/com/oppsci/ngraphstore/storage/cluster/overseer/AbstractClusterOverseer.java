@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.storage;
+package com.oppsci.ngraphstore.storage.cluster.overseer;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,16 +11,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.oppsci.ngraphstore.storage.cluster.Cluster;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
+import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
  * @author f.conrads
  *
  */
-public class ExecutionOverseer {
+public abstract class AbstractClusterOverseer implements ClusterOverseer<SimpleResultSet>{
 
 	private long timeout = 180;
 	private int clusterSize;
@@ -28,7 +30,7 @@ public class ExecutionOverseer {
 	private LuceneIndexer[] indexer;
 	private boolean ignoreErrors;
 
-	public ExecutionOverseer(String rootFolder, int clusterSize, long timeout, boolean ignoreErrors) throws IOException {
+	public AbstractClusterOverseer(String rootFolder, int clusterSize, long timeout, boolean ignoreErrors) throws IOException {
 		this.timeout = timeout;
 		this.clusterSize=clusterSize;
 		this.indexer = createIndexerOnTheFly(rootFolder);
@@ -38,7 +40,7 @@ public class ExecutionOverseer {
 		this.ignoreErrors=ignoreErrors;
 	}
 	
-	public ExecutionOverseer(LuceneIndexer[] indexer, LuceneSearcher[] searcher, long timeout) {
+	public AbstractClusterOverseer(LuceneIndexer[] indexer, LuceneSearcher[] searcher, long timeout) {
 		this.timeout = timeout;
 		this.indexer = indexer;
 		this.searcher = searcher;
@@ -112,6 +114,7 @@ public class ExecutionOverseer {
 		}
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> execute(LuceneSpec spec, int methodIdentifier, Class T, SearchStats stats)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -142,4 +145,5 @@ public class ExecutionOverseer {
 			index.rollback();
 		}
 	}
+
 }

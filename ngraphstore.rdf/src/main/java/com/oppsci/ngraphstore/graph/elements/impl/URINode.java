@@ -1,12 +1,14 @@
-package com.oppsci.ngraphstore.graph.elements;
+package com.oppsci.ngraphstore.graph.elements.impl;
 
 import org.json.simple.JSONObject;
+
+import com.oppsci.ngraphstore.graph.elements.Node;
 
 public class URINode implements Node {
 
 	String uri;
 
-	protected URINode(String uri) {
+	public URINode(String uri) {
 		this.uri=uri;
 	}
 	

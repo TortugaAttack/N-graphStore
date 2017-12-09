@@ -3,11 +3,9 @@ package com.oppsci.ngraphstore.web.root;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.jena.atlas.json.JsonArray;
 import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

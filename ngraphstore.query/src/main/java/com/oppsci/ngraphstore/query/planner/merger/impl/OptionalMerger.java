@@ -1,14 +1,14 @@
-package com.oppsci.ngraphstore.query.planner.merger;
+package com.oppsci.ngraphstore.query.planner.merger.impl;
 
+import com.oppsci.ngraphstore.query.planner.merger.Merger;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
- * Adds second Table to first
- * 
+ * Merger which locates variable and adds Values (in new column) to the row
  * @author f.conrads
  *
  */
-public class AddMerger implements Merger {
+public class OptionalMerger implements Merger{
 
 	@Override
 	public SimpleResultSet merge(SimpleResultSet oldRS, SimpleResultSet newRS) {

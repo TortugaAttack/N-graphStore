@@ -1,23 +1,12 @@
 package com.oppsci.ngraphstore.processor.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
-import com.oppsci.ngraphstore.storage.ClusterOverseer;
-import com.oppsci.ngraphstore.storage.MemoryStorage;
-import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
-import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
+import com.oppsci.ngraphstore.query.parser.Query;
+import com.oppsci.ngraphstore.query.parser.impl.QueryParserImpl;
+import com.oppsci.ngraphstore.query.planner.QueryPlanner;
+import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
@@ -30,35 +19,33 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
  */
 public class DefaultSPARQLProcessor implements SPARQLProcessor {
 
-	//currently only a test using Jena 
-	@Autowired
-	private MemoryStorage storage;
-	
-	@Autowired
-	private ClusterOverseer overseer;
-	
-	public JSONObject select(String query) {
-		ResultSet set = storage.select(query);
-		JSONObject results = new JSONObject();
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		ResultSetFormatter.outputAsJSON(os, set);
-		try {
-			String jsonString = new String(os.toByteArray(),"UTF-8");
-			JSONParser parser = new JSONParser();
-			results = (JSONObject) parser.parse(jsonString);
-		} catch (UnsupportedEncodingException | ParseException  e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		return results;
+	private ClusterOverseer<SimpleResultSet> overseer;
+
+	private QueryPlanner planner;
+	private QueryParserImpl parser;
+
+	/**
+	 * Creates the Default Sparql Processor. <br/>
+	 * Sets the overseer to be used for explore queries.
+	 * 
+	 * @param overseer
+	 */
+	public DefaultSPARQLProcessor(ClusterOverseer<SimpleResultSet> overseer) {
+		this.overseer = overseer;
 	}
 
+	public JSONObject select(String queryString) throws Exception {
+		Query query = parser.parse(queryString);
+		return planner.select(query).asJSON();
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject explore(String uri) throws Exception {
 		JSONObject wrapper = new JSONObject();
 		JSONArray exploreJSON = new JSONArray();
 		String[][] exploreGraph = overseer.explore(uri);
-		for(String[] quad : exploreGraph) {
+		for (String[] quad : exploreGraph) {
 			JSONObject jsonQuad = new JSONObject();
 			jsonQuad.put("subject", quad[0]);
 			jsonQuad.put("predicate", quad[1]);
@@ -68,6 +55,32 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 		}
 		wrapper.put("graph", exploreJSON);
 		return wrapper;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public JSONObject ask(String queryString) throws Exception {
+		Query query = parser.parse(queryString);
+
+		boolean askResult = planner.ask(query);
+		JSONObject result = new JSONObject();
+		result.put("boolean", askResult);
+		// header can be an empty json object
+		result.put("header", new JSONObject());
+
+		return result;
+	}
+
+	@Override
+	public JSONObject construct(String queryString) throws Exception {
+		Query query = parser.parse(queryString);
+		return planner.construct(query).asJSON();
+	}
+
+	@Override
+	public JSONObject describe(String queryString) throws Exception {
+		Query query = parser.parse(queryString);
+		return planner.describe(query).asJSON();
 	}
 
 }

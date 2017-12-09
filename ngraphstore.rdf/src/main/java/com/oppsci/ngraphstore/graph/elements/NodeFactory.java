@@ -1,5 +1,9 @@
 package com.oppsci.ngraphstore.graph.elements;
 
+import com.oppsci.ngraphstore.graph.elements.impl.BlankNode;
+import com.oppsci.ngraphstore.graph.elements.impl.Literal;
+import com.oppsci.ngraphstore.graph.elements.impl.URINode;
+
 public class NodeFactory {
 
 	public static Node parseNode(String node) {

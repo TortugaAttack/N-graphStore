@@ -1,6 +1,8 @@
-package com.oppsci.ngraphstore.graph.elements;
+package com.oppsci.ngraphstore.graph.elements.impl;
 
 import org.json.simple.JSONObject;
+
+import com.oppsci.ngraphstore.graph.elements.Node;
 
 public class Literal implements Node {
 
@@ -11,7 +13,7 @@ public class Literal implements Node {
 	protected Literal(String value) {
 		this.value=value;
 	}
-	protected Literal(String value, String tag, boolean isLang) {
+	public Literal(String value, String tag, boolean isLang) {
 		this.value=value;
 		if(isLang) {
 			this.langTag=tag;

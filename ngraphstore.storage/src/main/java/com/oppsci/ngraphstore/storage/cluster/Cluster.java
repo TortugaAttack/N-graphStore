@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.storage;
+package com.oppsci.ngraphstore.storage.cluster;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -13,11 +13,11 @@ import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneQuadUpdateSpec;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
-import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
+import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneQuadUpdateSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneSearchSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneUpdateSpec;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**

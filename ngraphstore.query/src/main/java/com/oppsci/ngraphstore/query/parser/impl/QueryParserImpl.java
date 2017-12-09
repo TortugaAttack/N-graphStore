@@ -1,4 +1,4 @@
-package com.oppsci.ngraphstore.query.parser;
+package com.oppsci.ngraphstore.query.parser.impl;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.oppsci.ngraphstore.query.sparql.elements.BGPElement;
+import com.oppsci.ngraphstore.query.parser.Query;
+import com.oppsci.ngraphstore.query.parser.QueryParser;
+import com.oppsci.ngraphstore.query.sparql.elements.impl.BGPElement;
 
-public class QueryParser {
+public class QueryParserImpl implements QueryParser {
 
+	@Override
 	public Query parse(String queryString) throws Exception {
 		Query query = new Query();
 		query.setPrefixMapping(retrievePrefixMapping(queryString));

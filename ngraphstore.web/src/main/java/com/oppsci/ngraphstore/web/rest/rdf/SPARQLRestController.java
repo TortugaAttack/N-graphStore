@@ -1,14 +1,6 @@
 package com.oppsci.ngraphstore.web.rest.rdf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
 
 /**
@@ -61,8 +53,9 @@ public class SPARQLRestController {
 	 * 
 	 * @param query
 	 * @return
+	 * @throws Exception 
 	 */
-	public JSONObject processQuery(String query) {
+	public JSONObject processQuery(String query) throws Exception {
 
 		return processor.select(query);
 	}

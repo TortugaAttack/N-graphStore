@@ -32,7 +32,7 @@ public class UpdateRestController {
 	}
 
 
-	public String exchangeTriples(JSONObject parse) {
+	public String exchangeTriples(JSONObject parse) throws Exception {
 		JSONArray updates = (JSONArray) parse.get("update");
 		for(int i=0;i<updates.size();i++) {
 			JSONObject update = (JSONObject) updates.get(i);
@@ -53,7 +53,7 @@ public class UpdateRestController {
 		return "";
 	}
 	
-	public String exchangeTriples(JSONObject old, JSONObject newTriples) {
+	public String exchangeTriples(JSONObject old, JSONObject newTriples) throws Exception {
 		JSONArray olds = (JSONArray) old.get("graph");
 		JSONArray news = (JSONArray) newTriples.get("graph");
 		JSONObject updates = new JSONObject();
