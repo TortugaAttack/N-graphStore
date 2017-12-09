@@ -56,9 +56,9 @@ public class QueryPlannerImpl implements QueryPlanner {
 		return results;
 	}
 
-	private SimpleResultSet startAt(int i) throws Exception {
+	private SimpleResultSet startAt(int j) throws Exception {
 		SimpleResultSet oldRS = null;
-		for (; i < steps.length; i++) {
+		for (int i=j; i < steps.length; i++) {
 			SimpleResultSet newRS = steps[i].execute(overseer);
 			if (oldRS != null)
 				oldRS = merger[i].merge(oldRS, newRS);

@@ -2,7 +2,6 @@ package com.oppsci.ngraphstore.web.rest.db;
 
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,10 +31,10 @@ import com.oppsci.ngraphstore.web.user.UserController;
 public class ManagmentRestController {
 
 	@Autowired
-	UserController userController;
+	private UserController userController;
 
 	@Autowired
-	RoleController roleController;
+	private RoleController roleController;
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -50,7 +49,7 @@ public class ManagmentRestController {
 		User user = userController.getUserByName(username);
 		Role roleU = roleController.getRoleByName("ROLE_USER");
 		roleController.addRoleToUser(user.getId(), roleU);
-		if (isAdmin.equals("true")) {
+		if ("true".equals(isAdmin)) {
 			Role role = roleController.getRoleByName("ROLE_ADMIN");
 			roleController.addRoleToUser(user.getId(), role);
 		}
@@ -72,9 +71,8 @@ public class ManagmentRestController {
 			@RequestParam(value = "isAdmin") String isAdmin) {
 		User user = userController.getUserByName(username);
 		Role role = roleController.getRoleByName("ROLE_ADMIN");
-		if (isAdmin.equals("true")) {
-			if (!roleController.getUserRoles(user.getId()).contains(role))
-				roleController.setUserAsAdmin(user.getId());
+		if ("true".equals(isAdmin) && !roleController.getUserRoles(user.getId()).contains(role)) {
+			roleController.setUserAsAdmin(user.getId());
 		}
 		return "true";
 	}

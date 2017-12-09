@@ -33,8 +33,6 @@ import org.springframework.web.servlet.view.JstlView;
 //@ComponentScan(basePackages = {"com.oppsci.ngraphstore.web.root", "com.oppsci.ngraphstore.web.rest"})
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
-	private static final transient Logger logger = LoggerFactory.getLogger(WebMvcConfig.class);
-
 
 	@Bean
 	public InternalResourceViewResolver viewResolver() {

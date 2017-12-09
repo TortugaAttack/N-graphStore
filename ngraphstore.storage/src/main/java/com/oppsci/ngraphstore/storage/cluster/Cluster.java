@@ -119,7 +119,6 @@ public class Cluster implements Callable<Object> {
 	}
 
 	public boolean load() {
-		int i = 0;
 		LuceneUpdateSpec spec = (LuceneUpdateSpec) this.spec;
 
 		for (Triple<String> triple : spec.getTriples()) {
@@ -232,6 +231,8 @@ public class Cluster implements Callable<Object> {
 			return explore();
 		case QUAD_UPDATE:
 			return quadUpdate();
+		default:
+			//TODO log and throw error 
 		}
 		return null;
 	}

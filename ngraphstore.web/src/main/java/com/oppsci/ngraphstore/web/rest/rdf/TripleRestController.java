@@ -28,10 +28,10 @@ public class TripleRestController {
 	}
 
 	public Boolean processTriple(String triple, String method, String graphURI) throws Exception {
-		if(method.equals("insert")) {
+		if("insert".equals(method)) {
 			directProcessor.insert(triple, graphURI);
 		}		
-		else if(method.equals("delete")) {
+		else if("delete".equals(method)) {
 			directProcessor.delete(triple, graphURI);
 		}
 		return null;

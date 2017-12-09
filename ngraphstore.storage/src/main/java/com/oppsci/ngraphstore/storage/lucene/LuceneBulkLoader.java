@@ -66,6 +66,7 @@ public class LuceneBulkLoader {
 	 */
 	public LuceneBulkLoader(Integer clusterSize, boolean ignoreErrors) {
 		this.clusterSize=clusterSize;
+		this.ignoreErrors=ignoreErrors;
 	}
 
 	private void addIndexer(LuceneIndexer luceneIndexer) {
@@ -158,45 +159,50 @@ public class LuceneBulkLoader {
 		int i=0;
 		while(statements.hasNext()) {
 			Statement stmt = statements.next();
-			String subject="";
-			String predicate="";
-			if(stmt.getSubject().isURIResource()) {
-				subject = "<" + stmt.getSubject().getURI() + ">";
-			}
-			else if(stmt.getSubject().isAnon()) {
-				subject = "_:"+stmt.getSubject().toString();
-			}
-			if(stmt.getPredicate().isURIResource()) {
-				predicate = "<" + stmt.getPredicate().getURI() + ">";
-			}
-			else if(stmt.getPredicate().isAnon()) {
-				predicate = "_:"+stmt.getPredicate().toString();
-			}
-			String object;
-			if (stmt.getObject().isLiteral()) {
-				Literal literal = stmt.getObject().asLiteral();
-				object = stmt.getObject().asNode().toString(true);
-				if (literal.getLanguage().isEmpty()
-						&& !literal.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-					object = object.substring(0, object.lastIndexOf("^^") + 2) + "<" + literal.getDatatypeURI() + ">";
-				}
-			} else if (stmt.getObject().isAnon()) {
-				object = "_:"+stmt.getObject().asNode().toString();
-			} else {
-				object = "<" + stmt.getObject().asNode().getURI() + ">";
-			}
+			String[] triple = getTriple(stmt);
 			
 			try {
-				indexer.get(i++).index(subject, predicate, object, graph);
+				indexer.get(i++).index(triple[0], triple[1], triple[2], graph);
 			} catch (IOException e) {
 				if(!ignoreErrors) {
 					throw e;
 				}
-				LOGGER.info("[ERROR found] will gracefully ignore it. {{}} {{}} {{}} {{}}", subject, predicate, object, graph);
+				LOGGER.info("[ERROR found] will gracefully ignore it. {{}} {{}} {{}} {{}}", triple[0], triple[1], triple[2], graph);
 			}
 			if(i>=clusterSize) {
 				i=0;
 			}
 		}
+	}
+	
+	private String[] getTriple(Statement stmt) {
+		String subject="";
+		String predicate="";
+		if(stmt.getSubject().isURIResource()) {
+			subject = "<" + stmt.getSubject().getURI() + ">";
+		}
+		else if(stmt.getSubject().isAnon()) {
+			subject = "_:"+stmt.getSubject().toString();
+		}
+		if(stmt.getPredicate().isURIResource()) {
+			predicate = "<" + stmt.getPredicate().getURI() + ">";
+		}
+		else if(stmt.getPredicate().isAnon()) {
+			predicate = "_:"+stmt.getPredicate().toString();
+		}
+		String object;
+		if (stmt.getObject().isLiteral()) {
+			Literal literal = stmt.getObject().asLiteral();
+			object = stmt.getObject().asNode().toString(true);
+			if (literal.getLanguage().isEmpty()
+					&& !literal.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+				object = object.substring(0, object.lastIndexOf("^^") + 2) + "<" + literal.getDatatypeURI() + ">";
+			}
+		} else if (stmt.getObject().isAnon()) {
+			object = "_:"+stmt.getObject().asNode().toString();
+		} else {
+			object = "<" + stmt.getObject().asNode().getURI() + ">";
+		}
+		return new String[] {subject, predicate, object};
 	}
 }

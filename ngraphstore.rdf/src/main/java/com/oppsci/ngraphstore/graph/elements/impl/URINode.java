@@ -6,7 +6,7 @@ import com.oppsci.ngraphstore.graph.elements.Node;
 
 public class URINode implements Node {
 
-	String uri;
+	private String uri;
 
 	public URINode(String uri) {
 		this.uri=uri;

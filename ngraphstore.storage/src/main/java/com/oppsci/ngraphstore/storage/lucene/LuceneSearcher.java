@@ -128,7 +128,7 @@ public class LuceneSearcher {
 
 	private TopDocs searchTerm(String searchQuery, String searchField, SearchStats stats) throws IOException {
 		Query query;
-		if (searchQuery.equals("_:")) {
+		if ("_:".equals(searchQuery)) {
 			// bnode
 			query = new RegexpQuery(new Term(searchField, "^_:.+$"));
 		} else {
@@ -267,7 +267,7 @@ public class LuceneSearcher {
 		BooleanQuery finalQuery = new BooleanQuery();
 		BooleanQuery wrapperQuery = new BooleanQuery();
 		for (int i = 0; i < searchFields.length; i++) {
-			if (term.equals("_:")) {
+			if ("_:".equals(term)) {
 				// bnode
 				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "^_:.+$"));
 				finalQuery.add(query, Occur.SHOULD);

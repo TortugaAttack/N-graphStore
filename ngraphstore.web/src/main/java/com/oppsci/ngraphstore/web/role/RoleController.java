@@ -11,7 +11,7 @@ import com.oppsci.ngraphstore.web.user.User;
 public class RoleController {
 	
 	@Autowired
-	RoleService roleService;
+	private RoleService roleService;
 	
 	public Role getRoleByID(int id) {
 		return roleService.getRoleByID(id);

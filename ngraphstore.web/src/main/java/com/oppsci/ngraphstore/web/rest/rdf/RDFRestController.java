@@ -130,7 +130,7 @@ public class RDFRestController {
 	public Boolean putTriples(@RequestParam(value="data") String data, @RequestParam(value="graph", required = false, defaultValue="") String graph) throws Exception {
 		String graphURI =graph;
 		if(graphURI.isEmpty()) {
-			graphURI = config.getString(DEFAULT_GRAPH);;
+			graphURI = config.getString(DEFAULT_GRAPH);
 		}
 		Boolean updateSucceeded =  tripleRestController.processTriple(data, graphURI);
 		return updateSucceeded;

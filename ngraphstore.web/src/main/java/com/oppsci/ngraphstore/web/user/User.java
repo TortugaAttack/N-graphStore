@@ -62,10 +62,7 @@ public class User {
 	}
 
 	public boolean validatePassword(String password) {
-		if (this.password.equals(password)) {
-			return true;
-		}
-		return false;
+		return this.password.equals(password);
 	}
 
 }

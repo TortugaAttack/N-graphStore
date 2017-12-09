@@ -15,10 +15,7 @@ public class LuceneSearchSpec implements LuceneSpec {
 	}
 
 	public boolean isSimple() {
-		if(uris.length==1) {
-			return true;
-		}
-		return false;
+		return uris.length==1;
 	}
 	
 	/**

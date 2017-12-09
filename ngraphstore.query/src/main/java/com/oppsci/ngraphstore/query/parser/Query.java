@@ -13,9 +13,6 @@ public class Query {
 	private List<BGPElement> elements;
 	private Map<String, String> prologue;
 	
-	public Query() {
-		
-	}
 	
 	public void addPrefixMapping(String prefix, String uri) {
 		prologue.put(prefix, uri);

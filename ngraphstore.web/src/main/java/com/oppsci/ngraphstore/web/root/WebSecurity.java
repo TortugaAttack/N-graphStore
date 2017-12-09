@@ -43,13 +43,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		String authMethod = config.getString(AUTH_METHOD);
 		String[] protectionPattern=config.getStringArray(PROTECTION_PATTERN);
 		switch (authMethod) {
-		case "form":
-			http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll()
-					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin**")
-					.hasAuthority("ROLE_ADMIN").anyRequest().permitAll().and().formLogin().loginPage("/login")
-					.permitAll().and().logout().permitAll().logoutSuccessUrl("/login?logout").permitAll()
-					.logoutUrl("/logout");
-			break;
+		
 		case "basic":
 			http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll()
 					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin**")
@@ -59,6 +53,15 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		case "none":
 			http.authorizeRequests().antMatchers("/auth/admin", "/auth/settings", "/login", "/logout").denyAll().anyRequest().permitAll()
 					.and().csrf().disable();
+			break;
+		case "form":
+		default:
+			http.authorizeRequests().antMatchers("/resources/**", "/registration").permitAll()
+					.antMatchers(protectionPattern).authenticated().antMatchers("/auth/admin**")
+					.hasAuthority("ROLE_ADMIN").anyRequest().permitAll().and().formLogin().loginPage("/login")
+					.permitAll().and().logout().permitAll().logoutSuccessUrl("/login?logout").permitAll()
+					.logoutUrl("/logout");
+			break;
 		}
 
 	}

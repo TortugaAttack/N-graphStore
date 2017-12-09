@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.transaction.NotSupportedException;
+
 import com.oppsci.ngraphstore.query.parser.Query;
 import com.oppsci.ngraphstore.query.parser.QueryParser;
 import com.oppsci.ngraphstore.query.sparql.elements.impl.BGPElement;
@@ -97,7 +99,7 @@ public class QueryParserImpl implements QueryParser {
 					index = bgps.indexOf(" ")-1;
 				} else {
 					// ???
-					throw new Exception("Currently not supported");
+					throw new NotSupportedException("Currently not supported");
 				}
 				triple[tripleIndex] = bgps.substring(0, index + 1);
 				bgps = bgps.substring(index + 1).trim();
