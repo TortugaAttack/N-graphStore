@@ -15,12 +15,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.oppsci.ngraphstore.graph.elements.impl.Literal;
 import com.oppsci.ngraphstore.graph.elements.impl.URINode;
 
 @RunWith(Parameterized.class)
 public class NodeFactoryTest {
 
+	private String node;
+	private String json;
+	private int type;
 	
 	@Parameters
 	public static Collection<Object[]> data() {
@@ -38,9 +40,6 @@ public class NodeFactoryTest {
 		return testConfigs;
 	}
 
-	private String node;
-	private String json;
-	private int type;
 	
 	public NodeFactoryTest(String node, String json, int type) {
 		this.node =node;

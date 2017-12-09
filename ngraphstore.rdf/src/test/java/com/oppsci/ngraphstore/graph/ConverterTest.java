@@ -19,26 +19,27 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ConverterTest {
 
+	private String expected;
+	private String nTriples;
+
 	@Parameters
 	public static Collection<Object[]> data() {
 		List<Object[]> testConfigs = new ArrayList<Object[]>();
 
-		testConfigs.add(new Object[] {"{\"@graph\":[{\"@type\":\"http:\\/\\/www.w3.org\\/2002\\/07\\/owl#FunctionalProperty\",\"@id\":\"http:\\/\\/dbpedia.org\\/ontology\\/birthDate\"},{\"@type\":\"http:\\/\\/www.w3.org\\/2002\\/07\\/owl#FunctionalProperty\",\"@id\":\"http:\\/\\/dbpedia.org\\/ontology\\/deathDate\"}]}" 
-				, "<http://dbpedia.org/ontology/birthDate>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://www.w3.org/2002/07/owl#FunctionalProperty> ." + 
-				"<http://dbpedia.org/ontology/deathDate>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://www.w3.org/2002/07/owl#FunctionalProperty> ."});
+		testConfigs.add(new Object[] {
+				"{\"@graph\":[{\"@type\":\"http:\\/\\/www.w3.org\\/2002\\/07\\/owl#FunctionalProperty\",\"@id\":\"http:\\/\\/dbpedia.org\\/ontology\\/birthDate\"},{\"@type\":\"http:\\/\\/www.w3.org\\/2002\\/07\\/owl#FunctionalProperty\",\"@id\":\"http:\\/\\/dbpedia.org\\/ontology\\/deathDate\"}]}",
+				"<http://dbpedia.org/ontology/birthDate>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://www.w3.org/2002/07/owl#FunctionalProperty> ."
+						+ "<http://dbpedia.org/ontology/deathDate>	<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>	<http://www.w3.org/2002/07/owl#FunctionalProperty> ." });
 
 		return testConfigs;
 	}
 
-	private String expected;
-	private String nTriples;
-	
 	public ConverterTest(String expected, String nTriples) {
-		this.expected=expected;
-		this.nTriples =nTriples;
-		
+		this.expected = expected;
+		this.nTriples = nTriples;
+
 	}
-	
+
 	@Test
 	public void checkConversion() throws ParseException {
 		Model model = ModelFactory.createDefaultModel();
@@ -46,5 +47,5 @@ public class ConverterTest {
 		JSONObject actual = Model2JSONConverter.convert(model);
 		assertEquals(expected, actual.toJSONString());
 	}
-	
+
 }
