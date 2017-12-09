@@ -47,35 +47,43 @@ public class LuceneSearcher {
 
 	/**
 	 * Creates and opens a Lucene Searcher according to the given path
-	 * @param indexDirectoryPath the path in which the indexing files should be.
+	 * 
+	 * @param indexDirectoryPath
+	 *            the path in which the indexing files should be.
 	 * @throws IOException
 	 */
 	public LuceneSearcher(String indexDirectoryPath) throws IOException {
 		open(indexDirectoryPath);
 	}
-	
+
 	/**
 	 * Will open the Lucene Searcher at the given path
-	 * @param indexDirectoryPath the path in which the indexing files should be.
+	 * 
+	 * @param indexDirectoryPath
+	 *            the path in which the indexing files should be.
 	 * @throws IOException
 	 */
 	public void open(String indexDirectoryPath) throws IOException {
-		this.path  = indexDirectoryPath;
+		this.path = indexDirectoryPath;
 		indexDirectory = FSDirectory.open(new File(indexDirectoryPath));
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
-	
+
 	/**
 	 * Will reopen the previously opened searcher
+	 * 
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-		open(path);
+		indexDirectory = FSDirectory.open(new File(path));
+		indexReader = DirectoryReader.open(indexDirectory);
+		indexSearcher = new IndexSearcher(indexReader);
 	}
-	
+
 	/**
-	 * Will search the docs in which the searchQuery term will occur at the searchField
+	 * Will search the docs in which the searchQuery term will occur at the
+	 * searchField
 	 * 
 	 * @param searchQuery
 	 * @param searchField
@@ -85,9 +93,10 @@ public class LuceneSearcher {
 	private TopDocs searchTops(String searchQuery, String searchField, SearchStats stats) throws IOException {
 		return searchTerm(searchQuery, searchField, stats);
 	}
-	
+
 	/**
-	 * Will search the docs in which the searchQueries term will occur at the according searchFields
+	 * Will search the docs in which the searchQueries term will occur at the
+	 * according searchFields
 	 * 
 	 * @param searchQueries
 	 * @param searchFields
@@ -100,34 +109,32 @@ public class LuceneSearcher {
 
 	private TopDocs searchTerms(String[] searchQueries, String[] searchFields, SearchStats stats) throws IOException {
 		BooleanQuery finalQuery = new BooleanQuery();
-		
-		for(int i=0;i<searchQueries.length;i++) {
-			if(searchQueries[i].equals("_:")) {
-				//bnode
+
+		for (int i = 0; i < searchQueries.length; i++) {
+			if (searchQueries[i].equals("_:")) {
+				// bnode
 				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "^_:.+$"));
 				finalQuery.add(query, Occur.MUST);
-			}
-			else {
+			} else {
 				TermQuery query = new TermQuery(new Term(searchFields[i], searchQueries[i]));
-				finalQuery.add(query, Occur.MUST); 
+				finalQuery.add(query, Occur.MUST);
 			}
 		}
-		if(stats.getLastDoc()!=null)
+		if (stats.getLastDoc() != null)
 			return indexSearcher.searchAfter(stats.getLastDoc(), finalQuery, LuceneConstants.MAX_SEARCH);
 		return indexSearcher.search(finalQuery, LuceneConstants.MAX_SEARCH);
-		
+
 	}
-	
+
 	private TopDocs searchTerm(String searchQuery, String searchField, SearchStats stats) throws IOException {
 		Query query;
-		if(searchQuery.equals("_:")) {
-			//bnode
+		if (searchQuery.equals("_:")) {
+			// bnode
 			query = new RegexpQuery(new Term(searchField, "^_:.+$"));
-		}
-		else {
+		} else {
 			query = new TermQuery(new Term(searchField, searchQuery));
 		}
-		if(stats.getLastDoc()!=null)
+		if (stats.getLastDoc() != null)
 			return indexSearcher.searchAfter(stats.getLastDoc(), query, LuceneConstants.MAX_SEARCH);
 		return indexSearcher.search(query, LuceneConstants.MAX_SEARCH);
 	}
@@ -138,6 +145,7 @@ public class LuceneSearcher {
 
 	/**
 	 * Will close the searcher quietly
+	 * 
 	 * @throws IOException
 	 */
 	public void close() throws IOException {
@@ -146,81 +154,91 @@ public class LuceneSearcher {
 	}
 
 	/**
-	 * Will search the term (uri) in the searchField and returns the 4 values (subject, predicate, object, graph)
-	 * according to the objectsFlag.<br/><br/>
-	 * F.e. objectFlag: (true, false, false, true)
-	 * will return subject, graph
+	 * Will search the term (uri) in the searchField and returns the 4 values
+	 * (subject, predicate, object, graph) according to the objectsFlag.<br/>
+	 * <br/>
+	 * F.e. objectFlag: (true, false, false, true) will return subject, graph
 	 * 
-	 * @param uri the term to search 
+	 * @param uri
+	 *            the term to search
 	 * @param objectsFlag
-	 * @param searchField the searchField to search in
-	 * @param stats 
+	 * @param searchField
+	 *            the searchField to search in
+	 * @param stats
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Node[]> search(String uri, boolean[] objectsFlag, String searchField, SearchStats stats) throws IOException {
+	public Collection<Node[]> search(String uri, boolean[] objectsFlag, String searchField, SearchStats stats)
+			throws IOException {
 		return searchRelation(uri, objectsFlag, searchField, stats);
 	}
 
 	/**
-	 * Will search the term (uri) in the searchField and returns the 4 values (subject, predicate, object, graph)
-	 * according to the objectsFlag.<br/><br/>
-	 * F.e. objectFlag: (true, false, false, true)
-	 * will return subject, graph
+	 * Will search the term (uri) in the searchField and returns the 4 values
+	 * (subject, predicate, object, graph) according to the objectsFlag.<br/>
+	 * <br/>
+	 * F.e. objectFlag: (true, false, false, true) will return subject, graph
 	 * 
-	 * @param uri the term to search 
+	 * @param uri
+	 *            the term to search
 	 * @param objectsFlag
-	 * @param searchField the searchField to search in
-	 * @param stats 
+	 * @param searchField
+	 *            the searchField to search in
+	 * @param stats
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Node[]> searchRelation(String uri, boolean[] objectsFlag, String searchField, SearchStats stats) throws IOException {
+	public Collection<Node[]> searchRelation(String uri, boolean[] objectsFlag, String searchField, SearchStats stats)
+			throws IOException {
 		TopDocs docs;
 		docs = searchTops(uri, searchField, stats);
 		return searchTopDocs(docs, objectsFlag, stats);
 	}
-	
+
 	/**
-	 * Will search the terms (uris) in the searchFields and returns the 4 values (subject, predicate, object, graph)
-	 * according to the objectsFlag.<br/><br/>
-	 * F.e. objectFlag: (true, false, false, true)
-	 * will return subject, graph
+	 * Will search the terms (uris) in the searchFields and returns the 4 values
+	 * (subject, predicate, object, graph) according to the objectsFlag.<br/>
+	 * <br/>
+	 * F.e. objectFlag: (true, false, false, true) will return subject, graph
 	 * 
-	 * @param uris the terms to search 
+	 * @param uris
+	 *            the terms to search
 	 * @param objectsFlag
-	 * @param searchFields the searchFields to search in
-	 * @param stats 
-	 * @return
-	 * @throws CorruptIndexException 
-	 * @throws IOException
-	 */
-	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields, SearchStats stats) throws CorruptIndexException, IOException {
-			TopDocs docs; 
-			docs = searchTops(uris, searchFields, stats);
-			return searchTopDocs(docs, objectsFlag, stats);
-	}
-	
-	/**
-	 * Gets the 4 values (subject, predicate, object, graph) of all records 
-	 * <br/><br/>
-	 * F.e. objectFlag: (true, false, false, true)
-	 * will return subject, graph
-	 * @param objectsFlag
-	 * @param stats 
+	 * @param searchFields
+	 *            the searchFields to search in
+	 * @param stats
 	 * @return
 	 * @throws CorruptIndexException
 	 * @throws IOException
 	 */
-	public Collection<Node[]> getAllRecords(boolean[] objectsFlag, SearchStats stats) throws CorruptIndexException, IOException{
+	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields,
+			SearchStats stats) throws CorruptIndexException, IOException {
+		TopDocs docs;
+		docs = searchTops(uris, searchFields, stats);
+		return searchTopDocs(docs, objectsFlag, stats);
+	}
+
+	/**
+	 * Gets the 4 values (subject, predicate, object, graph) of all records <br/>
+	 * <br/>
+	 * F.e. objectFlag: (true, false, false, true) will return subject, graph
+	 * 
+	 * @param objectsFlag
+	 * @param stats
+	 * @return
+	 * @throws CorruptIndexException
+	 * @throws IOException
+	 */
+	public Collection<Node[]> getAllRecords(boolean[] objectsFlag, SearchStats stats)
+			throws CorruptIndexException, IOException {
 		MatchAllDocsQuery query = new MatchAllDocsQuery();
 		return searchTopDocs(indexSearcher.search(query, LuceneConstants.MAX_SEARCH), objectsFlag, stats);
 	}
-	
-	
-	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag, SearchStats stats) throws CorruptIndexException, IOException{
+
+	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag, SearchStats stats)
+			throws CorruptIndexException, IOException {
 		Collection<Node[]> triples = new HashSet<Node[]>();
-		
+
 		for (ScoreDoc scoreDoc : docs.scoreDocs) {
 			Document doc;
 			doc = getDocument(scoreDoc);
@@ -236,10 +254,48 @@ public class LuceneSearcher {
 			}
 			triples.add(triple.toArray(new Node[] {}));
 		}
-		stats.setLastDoc(docs.scoreDocs[docs.scoreDocs.length]);
+		if (docs.scoreDocs.length > 0) {
+			stats.setLastDoc(docs.scoreDocs[docs.scoreDocs.length-1]);
+		}
 		stats.setLastHit(docs.scoreDocs.length);
 		stats.setTotalHits(docs.totalHits);
+
 		return triples;
+	}
+
+	public TopDocs searchORFields(String term, String[] searchFields) throws IOException {
+		BooleanQuery finalQuery = new BooleanQuery();
+		BooleanQuery wrapperQuery = new BooleanQuery();
+		for (int i = 0; i < searchFields.length; i++) {
+			if (term.equals("_:")) {
+				// bnode
+				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "^_:.+$"));
+				finalQuery.add(query, Occur.SHOULD);
+			} else {
+				TermQuery query = new TermQuery(new Term(searchFields[i], term));
+				finalQuery.add(query, Occur.SHOULD);
+			}
+		}
+		wrapperQuery.add(finalQuery, Occur.MUST);
+		return indexSearcher.search(wrapperQuery, LuceneConstants.MAX_SEARCH);
+	}
+
+	public String[][] explore(String term) throws IOException {
+		String[] searchFields = new String[] { LuceneConstants.SUBJECT, LuceneConstants.PREDICATE,
+				LuceneConstants.OBJECT };
+		TopDocs docs = searchORFields(term, searchFields);
+		int i = 0;
+		String[][] exploreGraph = new String[docs.scoreDocs.length][];
+		for (ScoreDoc scoreDoc : docs.scoreDocs) {
+			String[] quad = new String[4];
+			Document doc = getDocument(scoreDoc);
+			quad[0] = doc.get(LuceneConstants.SUBJECT);
+			quad[1] = doc.get(LuceneConstants.PREDICATE);
+			quad[2] = doc.get(LuceneConstants.OBJECT);
+			quad[3] = doc.get(LuceneConstants.GRAPH);
+			exploreGraph[i++] = quad;
+		}
+		return exploreGraph;
 	}
 
 }

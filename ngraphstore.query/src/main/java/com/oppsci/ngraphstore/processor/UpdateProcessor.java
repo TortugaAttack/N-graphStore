@@ -7,5 +7,7 @@ public interface UpdateProcessor {
 	public boolean delete(String triple, String graph);
 
 	public boolean load(String data, String graph);
+
+	public void quadUpdate(String[] currentTerms, String[] newTerms);
 	
 }

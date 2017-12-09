@@ -23,6 +23,7 @@ import com.oppsci.ngraphstore.web.role.RoleController;
 import com.oppsci.ngraphstore.web.user.User;
 import com.oppsci.ngraphstore.web.user.UserController;
 
+//TODO remove jsp specific and use only headless
 @Controller
 public class MainController {
 
@@ -74,6 +75,15 @@ public class MainController {
 		addCredentialInfo(model);
 
 		model.setViewName("update");
+		return model;
+	}
+	
+	@RequestMapping(value = "/explore", method = RequestMethod.GET)
+	public ModelAndView explorePage() {
+		ModelAndView model = new ModelAndView();
+		addCredentialInfo(model);
+
+		model.setViewName("explore");
 		return model;
 	}
 

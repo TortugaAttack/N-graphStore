@@ -1,7 +1,10 @@
 package com.oppsci.ngraphstore.web.rest.rdf;
 
+import java.io.StringReader;
+
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,6 +49,28 @@ public class RDFRestController {
 		return results.toJSONString();
 	}
 	
+	
+	@RequestMapping(value = "/explore", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String getExploreResults(@RequestParam(value="uri") String uri) throws Exception {
+		JSONObject results =  sparqlRestController.explore(uri);
+		return results.toJSONString();
+	}
+	
+	@RequestMapping(value = "/auth/directupdate", method = RequestMethod.POST, headers = "Accept=application/json")
+	public String directUpdate(@RequestParam(value="jsonUpdate") String jsonUpdate) throws Exception {
+		JSONParser jsonParser = new JSONParser();
+		return updateRestController.exchangeTriples((JSONObject)jsonParser.parse(jsonUpdate));
+		
+	}
+
+	@RequestMapping(value = "/auth/exchange", method = RequestMethod.POST, headers = "Accept=application/json")
+	public String exchangeData(@RequestParam String old, @RequestParam String newTriples) throws Exception {
+		JSONParser jsonParser = new JSONParser();
+		//TODO create json
+		return updateRestController.exchangeTriples((JSONObject)jsonParser.parse(old), (JSONObject)jsonParser.parse(newTriples));
+		
+	}
+	
 	/**
 	 * POST method for SPARQL update queries. <br/>
 	 * Will add data (f.e. INSERT)
@@ -88,7 +113,7 @@ public class RDFRestController {
 		if(graphURI.isEmpty()) {
 			graphURI = config.getString(DEFAULT_GRAPH);
 		}
-		Boolean updateSucceeded =  tripleRestController.processTriple(data, graphURI, method);
+		Boolean updateSucceeded =  tripleRestController.processTriple(data, method, graphURI);
 		return updateSucceeded;
 	}
 	

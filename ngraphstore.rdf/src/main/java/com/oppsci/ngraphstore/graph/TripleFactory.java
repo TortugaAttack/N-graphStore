@@ -20,7 +20,7 @@ public class TripleFactory {
 		BufferedReader reader = new BufferedReader(new StringReader(triples));
 
 		Model m = ModelFactory.createDefaultModel();
-		m.read(reader, null);
+		m.read(reader, null, "TTL");
 		StmtIterator statements = m.listStatements();
 		List<Triple<String>> tripleList = new LinkedList<Triple<String>>();
 		while (statements.hasNext()) {
@@ -52,6 +52,7 @@ public class TripleFactory {
 				object = "<" + stmt.getObject().asNode().getURI() + ">";
 			}
 			triple.setObject(object);
+			tripleList.add(triple);
 		}
 		return tripleList.toArray(new Triple[] {});
 	}

@@ -6,6 +6,18 @@
 	font-family: Advent Pro;
 	font-weight: bold;
 }
+.tablebtn {
+	width:85% !important;
+	left:10% !important;
+}
+
+.inputtd{
+	padding:0.4em;
+}
+
+.inputintd{
+	width:95%;
+}
 
 .btn {
 	-webkit-border-radius: 15;
@@ -274,7 +286,7 @@ html, body {
 }
 
 textarea {
-	font-size: 1.5em;
+	font-size: 1.2em;
 	font-family: 'Advent Pro';
 	resize: none;
 	border-radius: 10px 10px 0px 0px;

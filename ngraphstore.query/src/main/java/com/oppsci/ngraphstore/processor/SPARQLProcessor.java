@@ -13,6 +13,8 @@ public interface SPARQLProcessor {
 
 	public JSONObject select(String query);
 
+	public JSONObject explore(String uri) throws Exception;
+
 
 	
 }

@@ -56,18 +56,19 @@
 										headers : {
 											'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
 										}
-									}).then(
-									function successCallback(response) {
+									})
+									.then(
+											function successCallback(response) {
 
-										$scope.data = response.data;
+												$scope.data = response.data;
 
-										$scope.info = true;
-									},
-									function errorCallback(response) {
+												$scope.info = true;
+											},
+											function errorCallback(response) {
 
-										$scope.error = true;
-										$scope.errormsg = "Password could not be verified.";
-									});
+												$scope.error = true;
+												$scope.errormsg = "Password could not be verified.";
+											});
 						};
 					});
 </script>
@@ -90,6 +91,8 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
+					<li><a href="/ngraphstore/explore"><i class="fa fa-eye"></i>
+							<span>Explore</span></a></li>
 					<li><c:if test="${!authenticated}">
 							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
 						</c:if> <c:if test="${authenticated}">

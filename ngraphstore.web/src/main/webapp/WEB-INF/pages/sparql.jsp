@@ -13,39 +13,47 @@
 <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
 <script type="text/javascript">
 	var app = angular.module('table', []);
-	app.controller("TableController", function($scope, $http) {
-		$scope.data = [];
-		$scope.time = 0.0;
-		$scope.error = false;
-		$scope.errormsg = '';
-		$scope.sparqlForm = {
-			query : 'SELECT * WHERE {?s ?p ?o}'
-		}
-		$scope.errorClear = function() {
-			console.log("test");
-			$scope.error = false;
-			$scope.errormsg = '';
-		};
-		$scope.sparqlSubmit = function() {
-			$scope.error = false;
-			var startDate = new Date();
-			var startTime = startDate.getTime();
-			$http(
-					{
-						method : 'GET',
-						url : 'http://localhost:9098/ngraphstore/api/sparql?query='
-								+ $scope.sparqlForm.query
-					}).then(function successCallback(response) {
-				var endDate = new Date();
-				var endTime = endDate.getTime();
-				$scope.data = response.data;
-				$scope.time = (endTime - startTime) / 1000.0;
-			}, function errorCallback(response) {
-				$scope.error = true;
-				$scope.errormsg = response.status + ": " + response.statusText;
-			});
-		};
-	});
+	app
+			.controller(
+					"TableController",
+					function($scope, $http) {
+						$scope.data = [];
+						$scope.time = 0.0;
+						$scope.error = false;
+						$scope.errormsg = '';
+						$scope.sparqlForm = {
+							query : 'SELECT * WHERE {?s ?p ?o}'
+						}
+						$scope.errorClear = function() {
+							console.log("test");
+							$scope.error = false;
+							$scope.errormsg = '';
+						};
+						$scope.sparqlSubmit = function() {
+							$scope.error = false;
+							var startDate = new Date();
+							var startTime = startDate.getTime();
+							$http(
+									{
+										method : 'GET',
+										url : 'http://localhost:9098/ngraphstore/api/sparql?query='
+												+ encodeURIComponent($scope.sparqlForm.query)
+									})
+									.then(
+											function successCallback(response) {
+												var endDate = new Date();
+												var endTime = endDate.getTime();
+												$scope.data = response.data;
+												$scope.time = (endTime - startTime) / 1000.0;
+											},
+											function errorCallback(response) {
+												$scope.error = true;
+												$scope.errormsg = response.status
+														+ ": "
+														+ response.statusText;
+											});
+						};
+					});
 </script>
 <link rel="stylesheet" type="text/css"
 	href="/ngraphstore/webResources/css/simple.css">
@@ -68,24 +76,28 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
-					<li>					<c:if test="${authMethod != 'none'}">
-					<c:if test="${!authenticated}">
-							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
-						</c:if> <c:if test="${authenticated}">
+					<li><a href="/ngraphstore/explore"><i class="fa fa-eye"></i>
+							<span>Explore</span></a></li>
+					<li><c:if test="${authMethod != 'none'}">
+							<c:if test="${!authenticated}">
+								<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
+							</c:if>
+							<c:if test="${authenticated}">
 
-							<c:url value="/logout" var="logoutUrl" />
-							<form action="${logoutUrl}" method="post">
-								<c:if test="${isAdmin}">
-									<a href="/ngraphstore/auth/admin"><i
-										class="fa fa-address-book"></i> <span>Admin</span></a>
-								</c:if>
-								<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
-									<span>Settings</span></a> <a href="javascript:;"
-									onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a><input
-									type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" />
-							</form>
-						</c:if></c:if></li>
+								<c:url value="/logout" var="logoutUrl" />
+								<form action="${logoutUrl}" method="post">
+									<c:if test="${isAdmin}">
+										<a href="/ngraphstore/auth/admin"><i
+											class="fa fa-address-book"></i> <span>Admin</span></a>
+									</c:if>
+									<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
+										<span>Settings</span></a> <a href="javascript:;"
+										onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a><input
+										type="hidden" name="${_csrf.parameterName}"
+										value="${_csrf.token}" />
+								</form>
+							</c:if>
+						</c:if></li>
 				</ul>
 			</div>
 			<div class="divider"></div>

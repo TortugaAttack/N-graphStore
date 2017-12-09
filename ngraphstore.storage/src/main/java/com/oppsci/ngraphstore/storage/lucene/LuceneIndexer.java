@@ -11,13 +11,16 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +68,13 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-		open(path);
+//		open(path);
+		dir = FSDirectory.open(new File(path));
+		Analyzer analyzer = new KeywordAnalyzer();
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
+		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
+		
+		writer = new IndexWriter(dir, config);
 	}
 	
 	/**
@@ -76,7 +85,7 @@ public class LuceneIndexer {
 			writer.commit();
 			writer.close();
 			dir.close();
-		} catch (IOException e) {
+		} catch (AlreadyClosedException | IOException e) {
 			LOGGER.error("Error occured during closing Index Writer", e);
 		}
 	}
@@ -184,6 +193,23 @@ public class LuceneIndexer {
 		return document;
 	}
 
+	
+	public void update(String[] oldTerms, String[] nodes) throws IOException {
+		//delete document according to old Terms 
+		BooleanQuery finalQuery = new BooleanQuery();
+		TermQuery querySubject = new TermQuery(new Term(LuceneConstants.SUBJECT, oldTerms[0]));
+		TermQuery queryPredicate = new TermQuery(new Term(LuceneConstants.PREDICATE, oldTerms[1]));
+		TermQuery queryObject = new TermQuery(new Term(LuceneConstants.OBJECT, oldTerms[2]));
+		TermQuery queryGraph = new TermQuery(new Term(LuceneConstants.GRAPH, oldTerms[3]));
+		finalQuery.add(querySubject, Occur.MUST);
+		finalQuery.add(queryPredicate, Occur.MUST);
+		finalQuery.add(queryObject, Occur.MUST);
+		finalQuery.add(queryGraph, Occur.MUST);
+		writer.deleteDocuments(finalQuery);
+		//adding new Document. 
+		index(nodes[0], nodes[1], nodes[2], nodes[3]);
+	}
+	
 	/**
 	 * Will roll back every change since the last commit
 	 * @throws IOException

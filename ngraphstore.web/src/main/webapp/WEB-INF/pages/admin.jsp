@@ -28,8 +28,12 @@
 						$scope.infoCreate = false;
 						$scope.infoUpdate = false;
 						$scope.infomsg = 'Update was successfull';
-						$scope.names = ${names};
-						
+						$scope.names = $
+						{
+							names
+						}
+						;
+
 						$scope.updateForm = {
 							username : '',
 							isAdmin : false
@@ -42,7 +46,7 @@
 						};
 						$scope.errorClear = function() {
 							$scope.errorUpdate = false;
-							$scope.errorCreate =false;
+							$scope.errorCreate = false;
 							$scope.errormsg = '';
 						};
 						$scope.infoClear = function() {
@@ -134,7 +138,7 @@
 										$scope.infoUpdate = true;
 									},
 									function errorCallback(response) {
-										$scope.errorUpdate=true;
+										$scope.errorUpdate = true;
 										$scope.errormsg = response.status
 												+ ": " + response.statusText;
 									});
@@ -158,6 +162,8 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
+					<li><a href="/ngraphstore/explore"><i class="fa fa-eye"></i>
+							<span>Explore</span></a></li>
 					<li><c:if test="${!authenticated}">
 							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
 						</c:if> <c:if test="${authenticated}">
@@ -245,7 +251,7 @@
 						<div>
 							<label for="select">Select User: </label>
 						</div>
-						<select class="fancyselect"  ng-options="x for x in names"
+						<select class="fancyselect" ng-options="x for x in names"
 							ng-model="updateForm.username">
 						</select>
 					</div>

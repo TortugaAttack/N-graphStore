@@ -67,4 +67,8 @@ public class SPARQLRestController {
 		return processor.select(query);
 	}
 
+	public JSONObject explore(String uri) throws Exception {
+		return processor.explore(uri);
+	}
+
 }

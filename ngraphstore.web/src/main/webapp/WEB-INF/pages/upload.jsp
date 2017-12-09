@@ -93,25 +93,28 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a class="active" href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
-					<li>
-					<c:if test="${authMethod != 'none'}">
-					<c:if test="${!authenticated}">
-							<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
-						</c:if> <c:if test="${authenticated}">
-							<c:url value="/logout" var="logoutUrl" />
-							<form action="${logoutUrl}" method="post">
-								<c:if test="${isAdmin}">
-									<a href="/ngraphstore/auth/admin"><i
-										class="fa fa-address-book"></i> <span>Admin</span></a>
-								</c:if>
-								<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
-									<span>Settings</span></a> <a href="javascript:;"
-									onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a>
-								<input type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" />
-							</form>
-						</c:if></c:if></li>
-						
+					<li><a  href="/ngraphstore/explore"><i
+							class="fa fa-eye"></i> <span>Explore</span></a></li>
+					<li><c:if test="${authMethod != 'none'}">
+							<c:if test="${!authenticated}">
+								<a href="/ngraphstore/login"><i class="fa fa-sign-in"></i><span>Login</span></a>
+							</c:if>
+							<c:if test="${authenticated}">
+								<c:url value="/logout" var="logoutUrl" />
+								<form action="${logoutUrl}" method="post">
+									<c:if test="${isAdmin}">
+										<a href="/ngraphstore/auth/admin"><i
+											class="fa fa-address-book"></i> <span>Admin</span></a>
+									</c:if>
+									<a href="/ngraphstore/auth/settings"><i class="fa fa-gear"></i>
+										<span>Settings</span></a> <a href="javascript:;"
+										onclick="parentNode.submit();"><i class="fa fa-sign-out"></i><span>Logout</span></a>
+									<input type="hidden" name="${_csrf.parameterName}"
+										value="${_csrf.token}" />
+								</form>
+							</c:if>
+						</c:if></li>
+
 				</ul>
 			</div>
 			<div class="divider"></div>
@@ -122,10 +125,13 @@
 
 			<form id="myform" ng-submit="sparqlSubmit()">
 				<div class=".col-md-12">
-					<input type="text" class="itxt textarea" ng-model="sparqlForm.graph" value="&lt;http://ngraphstore.com/default-graph&gt;"></input>
+					<input type="text" class="itxt textarea"
+						ng-model="sparqlForm.graph"
+						value="&lt;http://ngraphstore.com/default-graph&gt;"></input>
 				</div>
 				<div class=".col-md-12">
-					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples" value="Put your RDF here"></textarea>
+					<textarea class="itxt" rows="10" ng-model="sparqlForm.triples"
+						value="Put your RDF here"></textarea>
 				</div>
 				<input type="hidden" name="csrf" value="${_csrf.token}" />
 				<div class=".col-md-12">

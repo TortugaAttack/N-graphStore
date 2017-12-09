@@ -40,4 +40,9 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 		}
 	}
 
+	@Override
+	public void quadUpdate(String[] oldTerms, String[] newTerms) {
+		clusterOverseer.quadUpdate(oldTerms, newTerms);
+	}
+
 }

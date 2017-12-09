@@ -9,11 +9,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.oppsci.ngraphstore.graph.Triple;
 
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
+import com.oppsci.ngraphstore.storage.lucene.spec.LuceneQuadUpdateSpec;
+import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
@@ -33,7 +36,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 
 	}
 
-	private SimpleResultSet mergeSyncedResults(SimpleResultSet[] results) {
+	public SimpleResultSet mergeSyncedResults(SimpleResultSet[] results) {
 		SimpleResultSet merged = new SimpleResultSet();
 		if (results.length > 0) {
 			// as they are synchronized this is okay
@@ -84,7 +87,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		try {
 			success = super.execute(spec, Cluster.INSERT_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
-		} catch (InterruptedException | ExecutionException e1) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
 		}
 		for(boolean singleSuccess : success) {
@@ -114,7 +117,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		try {
 			success = super.execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
-		} catch (InterruptedException | ExecutionException e1) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
 		}
 		for(boolean singleSuccess : success) {
@@ -137,7 +140,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		try {
 			success = super.execute(spec, Cluster.DROP_ALL_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
-		} catch (InterruptedException | ExecutionException e1) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
 		}
 		for(boolean singleSuccess : success) {
@@ -162,7 +165,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		try {
 			success = super.execute(spec, Cluster.DROP_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
-		} catch (InterruptedException | ExecutionException e1) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
 		}
 		for(boolean singleSuccess : success) {
@@ -186,7 +189,7 @@ public class ClusterOverseer extends ExecutionOverseer {
 		try {
 			success = super.execute(spec, Cluster.DELETE_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
-		} catch (InterruptedException | ExecutionException e1) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
 		}
 		for(boolean singleSuccess : success) {
@@ -200,6 +203,43 @@ public class ClusterOverseer extends ExecutionOverseer {
 		}
 		closeIndexer();
 
+		return true;
+	}
+	
+	public String[][] explore(String term) throws InterruptedException, ExecutionException, TimeoutException {
+		reopenSearcher();
+		LuceneSpec spec= new LuceneSearchSpec(new String[] {term}, null, null);
+		String[][][] unmergedResults =  super.execute(spec, Cluster.EXPLORE_METHOD, String[][][].class, new SearchStats())
+				.toArray(new String[][][] {});
+		//TODO mergeResults
+		String[][] mergedResults=mergeExploreResults(unmergedResults);
+		closeSearcher();
+		return mergedResults;
+	}
+	
+	private String[][] mergeExploreResults(String[][][] unmerged){
+		int len = 0;
+		for(String[][] results : unmerged) {
+			len+=results.length;
+		}
+		String[][] merged = new String[len][];
+		int i=0;
+		for(String[][] results : unmerged) {
+			for(String[] result : results) {
+				merged[i++] = result;
+			}
+		}
+		return merged;
+	}
+	
+	public boolean quadUpdate(String[] oldTerms, String[] newTerms) {
+		LuceneSpec spec = new LuceneQuadUpdateSpec(oldTerms, newTerms);
+		try {
+			super.execute(spec, Cluster.QUAD_UPDATE, boolean.class, new SearchStats());
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+			return false;
+		}
 		return true;
 	}
 }

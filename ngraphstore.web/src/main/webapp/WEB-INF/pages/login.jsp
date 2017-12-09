@@ -30,6 +30,8 @@
 							class="fa fa-pencil"></i> <span>Update</span></a></li>
 					<li><a href="/ngraphstore/auth/upload"><i
 							class="fa fa-upload"></i> <span>Upload</span></a></li>
+					<li><a href="/ngraphstore/explore"><i class="fa fa-eye"></i>
+							<span>Explore</span></a></li>
 					<li><c:if test="${!authenticated}">
 							<a class="active" href="/ngraphstore/login"><i
 								class="fa fa-sign-in"></i><span>Login</span></a>

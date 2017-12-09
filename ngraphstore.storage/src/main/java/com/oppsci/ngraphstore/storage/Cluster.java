@@ -13,6 +13,7 @@ import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
 import com.oppsci.ngraphstore.storage.lucene.LuceneIndexer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneSearcher;
+import com.oppsci.ngraphstore.storage.lucene.spec.LuceneQuadUpdateSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSearchSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneSpec;
 import com.oppsci.ngraphstore.storage.lucene.spec.LuceneUpdateSpec;
@@ -37,28 +38,31 @@ public class Cluster implements Callable<Object> {
 	public static final int DROP_METHOD = 4;
 	public static final int LOAD_METHOD = 5;
 	public static final int DROP_ALL_METHOD = 6;
+	public static final int EXPLORE_METHOD = 7;
+	public static final int QUAD_UPDATE = 8;
 
 	private LuceneSearcher searcher;
 	private LuceneIndexer indexer;
 	private LuceneSpec spec;
 	private int methodIdentifier;
 	private SearchStats stats;
-	
+
 	private boolean ignoreErrors;
 
-	public Cluster(LuceneSpec spec, LuceneSearcher searcher, LuceneIndexer indexer, int methodIdentifier, SearchStats stats, boolean ignoreErrors) {
+	public Cluster(LuceneSpec spec, LuceneSearcher searcher, LuceneIndexer indexer, int methodIdentifier,
+			SearchStats stats, boolean ignoreErrors) {
 		this.spec = spec;
 		this.searcher = searcher;
 		this.indexer = indexer;
 		this.methodIdentifier = methodIdentifier;
 		this.stats = stats;
-		this.ignoreErrors=ignoreErrors;
+		this.ignoreErrors = ignoreErrors;
 	}
 
 	public SimpleResultSet select() throws CorruptIndexException, IOException {
 		LuceneSearchSpec spec = (LuceneSearchSpec) this.spec;
 		// check if Lucene spec is simple
-		
+
 		if (spec.isSimple()) {
 
 			return convertLuceneResults(searcher.searchRelation(spec.getUris()[0], spec.getObjectsFlags(),
@@ -75,29 +79,41 @@ public class Cluster implements Callable<Object> {
 	}
 
 	public boolean add() {
-		int i = 0;
 		LuceneUpdateSpec spec = (LuceneUpdateSpec) this.spec;
 		boolean[] flags = new boolean[] { true, false, false, false };
 		String[] fields = new String[] { LuceneConstants.SUBJECT, LuceneConstants.PREDICATE, LuceneConstants.OBJECT,
 				LuceneConstants.GRAPH };
-		for (Triple<String> triple : spec.getTriples()) {
-			try {
-				indexer.close();
-				searcher.reopen();
+		indexer.close();
+		try {
+			searcher.reopen();
+			List<Triple<String>> triples = spec.getTriples();
+			for (int j=0;j<triples.size();j++) {
+				Triple<String> triple = triples.get(j);
 				String[] quad = new String[] { triple.getSubject(), triple.getPredicate(), triple.getObject(),
 						spec.getGraph() };
 				if (!searcher.searchRelation(quad, flags, fields, stats).isEmpty()) {
-					// already exists
-					searcher.close();
+					triples.remove(j);
 					continue;
 				}
-				searcher.close();
-				indexer.reopen();
-				indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), spec.getGraph());
-			} catch (IOException e) {
-				if (!ignoreErrors)
-					return false;
+
 			}
+			searcher.close();
+
+			indexer.reopen();
+			for (Triple<String> triple : triples) {
+				try {
+
+					indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), spec.getGraph());
+				} catch (IOException e) {
+					if (!ignoreErrors)
+						return false;
+				}
+			}
+			indexer.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
 		}
 		return true;
 	}
@@ -157,6 +173,12 @@ public class Cluster implements Callable<Object> {
 		return true;
 	}
 
+	public String[][] explore() throws IOException {
+		LuceneSearchSpec spec = (LuceneSearchSpec) this.spec;
+
+		return searcher.explore(spec.getUris()[0]);
+	}
+
 	private SimpleResultSet convertLuceneResults(Collection<Node[]> results, SearchStats stats) {
 		LuceneSearchSpec spec = (LuceneSearchSpec) this.spec;
 
@@ -182,7 +204,8 @@ public class Cluster implements Callable<Object> {
 	}
 
 	/**
-	 * @param stats the stats to set
+	 * @param stats
+	 *            the stats to set
 	 */
 	public void setStats(SearchStats stats) {
 		this.stats = stats;
@@ -205,9 +228,35 @@ public class Cluster implements Callable<Object> {
 			return load();
 		case DROP_ALL_METHOD:
 			return dropAll();
-
+		case EXPLORE_METHOD:
+			return explore();
+		case QUAD_UPDATE:
+			return quadUpdate();
 		}
 		return null;
+	}
+
+	private boolean quadUpdate() {
+		LuceneQuadUpdateSpec spec = (LuceneQuadUpdateSpec) this.spec;
+		try {
+			// check if exists
+			searcher.reopen();
+			String[] searchFields = new String[] { LuceneConstants.SUBJECT, LuceneConstants.PREDICATE,
+					LuceneConstants.OBJECT, LuceneConstants.GRAPH };
+			if (searcher.searchRelation(spec.getCurrentTerms(), new boolean[] { true, true, true, true }, searchFields,
+					new SearchStats()).isEmpty()) {
+				searcher.close();
+				return false;
+			}
+			searcher.close();
+			indexer.reopen();
+			indexer.update(spec.getCurrentTerms(), spec.getNewTerms());
+			indexer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 }

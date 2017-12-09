@@ -1,5 +1,9 @@
 package com.oppsci.ngraphstore.storage.lucene.spec;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.oppsci.ngraphstore.graph.Triple;
 
 public class LuceneUpdateSpec implements LuceneSpec {
@@ -38,8 +42,8 @@ public class LuceneUpdateSpec implements LuceneSpec {
 	/**
 	 * @return the triples
 	 */
-	public Triple<String>[] getTriples() {
-		return triples;
+	public List<Triple<String>> getTriples() {
+		return new LinkedList<Triple<String>>(Arrays.asList(triples));
 	}
 
 	/**
