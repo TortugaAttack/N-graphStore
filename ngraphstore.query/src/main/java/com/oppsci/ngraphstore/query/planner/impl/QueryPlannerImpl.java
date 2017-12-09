@@ -34,7 +34,7 @@ public class QueryPlannerImpl implements QueryPlanner {
 	public SimpleResultSet select(Query query) throws Exception {
 		boolean constraintsMet = false;
 
-		// 1. create Steps & merger (this is the queryplan)
+		// 1. create Steps & merger (this is the actual queryplan)
 		createSteps(query, steps, merger);
 		SimpleResultSet results = startAt(0);
 		// check if all constraints met (could be LIMIT exceeds, could be no step is
@@ -76,13 +76,11 @@ public class QueryPlannerImpl implements QueryPlanner {
 	}
 
 	public boolean ask(Query query) {
-		// sort BGP according to restrictive first principle
-		List<BGPElement> rfpSortedBGPs = sortToRfp(query.getElements());
-		// apply BGP Lucene Search
-		SimpleResultSet currentResults = applyBGPs(rfpSortedBGPs);
-		// apply in memory Filter search
-		currentResults = applyFilter(currentResults, query.getFilter());
-		return currentResults.getRows().size() > 0;
+		//get where clausev from query
+		SimpleResultSet currentResults =null;
+		//apply plan with limit 1 
+		//check if results is not empty
+		return !currentResults.getRows().isEmpty();
 	}
 
 	public Graph describe(String queryString) throws Exception {

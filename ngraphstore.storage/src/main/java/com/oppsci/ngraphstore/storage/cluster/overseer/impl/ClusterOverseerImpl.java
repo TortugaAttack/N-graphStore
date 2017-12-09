@@ -48,7 +48,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 	@Override
 	public SimpleResultSet search(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
-		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
+		SimpleResultSet[] results = execute(spec, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
 		closeSearcher();
@@ -58,7 +58,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 	@Override
 	public SimpleResultSet searchAll(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
-		SimpleResultSet[] results = super.execute(spec, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
+		SimpleResultSet[] results = execute(spec, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
 		closeSearcher();
@@ -79,7 +79,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.INSERT_METHOD, boolean.class, new SearchStats())
+			success = execute(spec, Cluster.INSERT_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -113,7 +113,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
+			success = execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			//Logging purpose
@@ -140,7 +140,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec();
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.DROP_ALL_METHOD, boolean.class, new SearchStats())
+			success = execute(spec, Cluster.DROP_ALL_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -168,7 +168,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.DROP_METHOD, boolean.class, new SearchStats())
+			success = execute(spec, Cluster.DROP_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -195,7 +195,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = super.execute(spec, Cluster.DELETE_METHOD, boolean.class, new SearchStats())
+			success = execute(spec, Cluster.DELETE_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -220,7 +220,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 	public String[][] explore(String term) throws InterruptedException, ExecutionException, TimeoutException {
 		reopenSearcher();
 		LuceneSpec spec= new LuceneSearchSpec(new String[] {term}, null, null);
-		String[][][] unmergedResults =  super.execute(spec, Cluster.EXPLORE_METHOD, String[][][].class, new SearchStats())
+		String[][][] unmergedResults =  execute(spec, Cluster.EXPLORE_METHOD, String[][][].class, new SearchStats())
 				.toArray(new String[][][] {});
 		String[][] mergedResults=mergeExploreResults(unmergedResults);
 		closeSearcher();
@@ -246,7 +246,7 @@ public class ClusterOverseerImpl extends AbstractClusterOverseer {
 	public boolean quadUpdate(String[] oldTerms, String[] newTerms) throws Exception {
 		LuceneSpec spec = new LuceneQuadUpdateSpec(oldTerms, newTerms);
 		try {
-			super.execute(spec, Cluster.QUAD_UPDATE, boolean.class, new SearchStats());
+			execute(spec, Cluster.QUAD_UPDATE, boolean.class, new SearchStats());
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 			throw e;
