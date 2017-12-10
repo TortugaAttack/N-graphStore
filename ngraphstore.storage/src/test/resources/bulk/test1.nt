@@ -1,0 +1,6 @@
+<urn://a> <urn://b> "abc" .
+<urn://a> <urn://b> <urn://test> .
+<urn://a> <urn://b> "abc"@en .
+<urn://a> <urn://b> "abc"^^<urn://test> .
+_:b1 <urn://b> "test" .
+_:b1 <urn://b> _:b2 .

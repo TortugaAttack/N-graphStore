@@ -68,7 +68,6 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-//		open(path);
 		dir = FSDirectory.open(new File(path));
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);

@@ -10,6 +10,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.LangBuilder;
+import org.apache.jena.riot.RiotException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,19 +76,6 @@ public class LuceneBulkLoader {
 		this.indexer.add(luceneIndexer);
 	}
 
-	/**
-	 * @return the indexer
-	 */
-	public List<LuceneIndexer> getIndexer() {
-		return indexer;
-	}
-
-	/**
-	 * @param indexer the indexer to set
-	 */
-	public void setIndexer(List<LuceneIndexer> indexer) {
-		this.indexer = indexer;
-	}
 	
 	/**
 	 * Will convert arguments to files
@@ -94,9 +84,9 @@ public class LuceneBulkLoader {
 	 * @return
 	 */
 	private static File[] getFiles(String[] args) {
-		File[] files = new File[args.length-1];
+		File[] files = new File[args.length-4];
 		for(int i=4; i<args.length;i++) {
-			files[i-1] = new File(args[i]);
+			files[i-4] = new File(args[i]);
 		}
 		return files;
 	}
@@ -133,7 +123,14 @@ public class LuceneBulkLoader {
 						LOGGER.error("Could not rollback file.", e1);
 					}
 				}
-			}	
+			} catch(RiotException e1) {
+				if(!ignoreErrors) {
+					LOGGER.info("[{{}}] FOUND ERROR. Will abort.", file.getName());
+					return;
+				}
+				LOGGER.info("[{{}}][ERROR found] will gracefully ignore file", file.getName());
+
+			}
 		}
 		for(LuceneIndexer luceneIndexer : indexer) {
 			luceneIndexer.close();
@@ -157,22 +154,34 @@ public class LuceneBulkLoader {
 		m.read(file.toURI().toURL().toString());
 		StmtIterator statements = m.listStatements();
 		int i=0;
+		int savedTriples=0;
+		int errors=0;
+		//for each statment in the file 
+		LOGGER.info("Starting with file {{}}.", file.getName());
 		while(statements.hasNext()) {
 			Statement stmt = statements.next();
 			String[] triple = getTriple(stmt);
 			
 			try {
+				//index one triple(quad)
 				indexer.get(i++).index(triple[0], triple[1], triple[2], graph);
+				//log each 50000th triple
+				savedTriples++;
+				if(savedTriples % 50000 ==0) {
+					LOGGER.info("[{{}}] Wrote {{}} Triples.", file.getName(), savedTriples);
+				}
 			} catch (IOException e) {
 				if(!ignoreErrors) {
 					throw e;
 				}
-				LOGGER.info("[ERROR found] will gracefully ignore it. {{}} {{}} {{}} {{}}", triple[0], triple[1], triple[2], graph);
+				errors++;
+				LOGGER.info("[{{}}][ERROR found] will gracefully ignore it. {{}} {{}} {{}} {{}}", file.getName(),triple[0], triple[1], triple[2], graph);
 			}
 			if(i>=clusterSize) {
 				i=0;
 			}
 		}
+		LOGGER.info("[{{}}] Finished. Saved {{}} Triples. Errors: {{}}", file.getName(), savedTriples, errors);
 	}
 	
 	private String[] getTriple(Statement stmt) {
@@ -184,12 +193,7 @@ public class LuceneBulkLoader {
 		else if(stmt.getSubject().isAnon()) {
 			subject = "_:"+stmt.getSubject().toString();
 		}
-		if(stmt.getPredicate().isURIResource()) {
-			predicate = "<" + stmt.getPredicate().getURI() + ">";
-		}
-		else if(stmt.getPredicate().isAnon()) {
-			predicate = "_:"+stmt.getPredicate().toString();
-		}
+		predicate = "<" + stmt.getPredicate().getURI() + ">";
 		String object;
 		if (stmt.getObject().isLiteral()) {
 			Literal literal = stmt.getObject().asLiteral();

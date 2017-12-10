@@ -28,7 +28,6 @@ import org.springframework.web.servlet.view.JstlView;
 @SuppressWarnings("deprecation")
 @Configuration
 @EnableWebMvc
-//@ComponentScan(basePackages = {"com.oppsci.ngraphstore.web.root", "com.oppsci.ngraphstore.web.rest"})
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 

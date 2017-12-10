@@ -79,11 +79,6 @@ public class RootController {
 		return processor;
 	}
 	
-//	
-//	public static @Bean DataSource dataSource(ServletConfig servlet) {
-//		WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(servlet.getServletContext());
-//		return (DataSource) ctx.getBean("dataSource");
-//	}
 	
 	/**
 	 * Creates a SAPRQLRestController using the specified processor
