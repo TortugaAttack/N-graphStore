@@ -43,7 +43,7 @@ public class NodeFactoryTest {
 	
 	public NodeFactoryTest(String node, String json, int type) {
 		this.node =node;
-		this.json=json;;
+		this.json=json;
 		this.type=type;
 	}
 	

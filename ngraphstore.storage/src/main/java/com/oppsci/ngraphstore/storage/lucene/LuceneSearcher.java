@@ -111,9 +111,9 @@ public class LuceneSearcher {
 		BooleanQuery finalQuery = new BooleanQuery();
 
 		for (int i = 0; i < searchQueries.length; i++) {
-			if (searchQueries[i].equals("_:")) {
-				// bnode
-				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "^_:.+$"));
+			if (searchQueries[i].startsWith("_:")) {
+				// bnode 
+				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "_:[^ ]+"));
 				finalQuery.add(query, Occur.MUST);
 			} else {
 				TermQuery query = new TermQuery(new Term(searchFields[i], searchQueries[i]));
@@ -128,9 +128,9 @@ public class LuceneSearcher {
 
 	private TopDocs searchTerm(String searchQuery, String searchField, SearchStats stats) throws IOException {
 		Query query;
-		if ("_:".equals(searchQuery)) {
+		if(searchQuery.startsWith("_:")) {
 			// bnode
-			query = new RegexpQuery(new Term(searchField, "^_:.+$"));
+			query = new RegexpQuery(new Term(searchField, "_:[^ ]+"));
 		} else {
 			query = new TermQuery(new Term(searchField, searchQuery));
 		}

@@ -158,7 +158,6 @@ public class Cluster implements Callable<Object> {
 	}
 
 	public boolean delete() {
-		int i = 0;
 		LuceneUpdateSpec spec = (LuceneUpdateSpec) this.spec;
 
 		for (Triple<String> triple : spec.getTriples()) {

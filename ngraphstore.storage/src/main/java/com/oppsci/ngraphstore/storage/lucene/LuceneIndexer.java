@@ -13,6 +13,8 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.RegexpQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
@@ -128,6 +130,8 @@ public class LuceneIndexer {
 	/**
 	 * Shortcut for {@link #delete(String[], String[])}. 
 	 * Will delete only the occurrences which fits all terms 
+	 * <br/>
+	 * WILL NOT WORK WITH BLANK NODES!
 	 * 
 	 * @param subject The subject term 
 	 * @param predicate The predicate term
@@ -162,8 +166,14 @@ public class LuceneIndexer {
 	 */
 	public void delete(String[] nodes, String[] searchFields) throws IOException {
 		BooleanQuery finalQuery = new BooleanQuery();
-		for(int i=0;i<nodes.length;i++) {
-			TermQuery query = new TermQuery(new Term(searchFields[i], nodes[i]));
+		for(int i=0;i<nodes.length;i++) { 
+			Query query;
+			if(nodes[i].startsWith("_:")) {
+				// bnode
+				query = new RegexpQuery(new Term(searchFields[i], "_:[^ ]+"));
+			} else {
+				query = new TermQuery(new Term(searchFields[i], nodes[i]));
+			}
 			finalQuery.add(query, Occur.MUST);
 		}
 		writer.deleteDocuments(finalQuery);
