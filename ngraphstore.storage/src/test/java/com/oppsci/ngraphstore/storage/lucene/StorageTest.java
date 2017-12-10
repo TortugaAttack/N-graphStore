@@ -230,6 +230,61 @@ public class StorageTest {
 		FileUtils.deleteDirectory(tmpFolder);
 	}
 	
+	@Test
+	public void searchStatsTest() throws IOException {
+		String uuid = UUID.randomUUID().toString();
+		File tmpFolder = new File(uuid);
+		LuceneIndexer indexer = new LuceneIndexer(tmpFolder.getAbsolutePath());
+		String[] quad1 = new String[] { "<urn://O>", "<urn://P>", "<urn://S>", "<urn://G1>" };
+		String[] quad2 = new String[] { "<urn://O>", "<urn://P>", "<urn://Q>", "<urn://G1>" };
+		indexer.index(quad1[0], quad1[1], quad1[2], quad1[3]);
+		indexer.index(quad2[0], quad2[1], quad2[2], quad2[3]);
+		indexer.close();
+		boolean[] objectsFlag = new boolean[] { true, true, true, true };
+		//check if SearchStats can provide insights
+		LuceneConstants.MAX_SEARCH=1;
+		LuceneSearcher searcher = new LuceneSearcher(tmpFolder.getAbsolutePath());
+		SearchStats stats = new SearchStats();
+		Collection<Node[]> nodes1 = searcher.search(quad1[0], objectsFlag, LuceneConstants.SUBJECT, stats);
+		assertTrue(nodes1.size()==1);
+		assertTrue(stats.getTotalHits()==2);
+		assertTrue(stats.getLastHit()==1);
+		Collection<Node[]> nodes2 = searcher.search(quad1[0], objectsFlag, LuceneConstants.SUBJECT, stats);
+		assertTrue(nodes2.size()==1);
+		nodes1.addAll(nodes2);
+		assertTrue(checkQuad(quad1, nodes1));
+		assertTrue(checkQuad(quad2, nodes1));
+		searcher.close();
+		FileUtils.deleteDirectory(tmpFolder);
+		LuceneConstants.MAX_SEARCH=20000;	
+	}
+	
+	@Test
+	public void exploreTest() throws IOException {
+		String uuid = UUID.randomUUID().toString();
+		File tmpFolder = new File(uuid);
+		LuceneIndexer indexer = new LuceneIndexer(tmpFolder.getAbsolutePath());
+		String[] quad1 = new String[] { "<urn://O>", "<urn://P>", "<urn://S>", "<urn://G1>" };
+		String[] quad2 = new String[] { "<urn://S>", "<urn://P>", "<urn://Q>", "<urn://G1>" };
+		String[] quad3 = new String[] { "<urn://S1>", "<urn://S>", "<urn://Q>", "<urn://G1>" };
+		String[] quad4 = new String[] { "<urn://S2>", "<urn://P>", "<urn://Q>", "<urn://G1>" };
+		indexer.index(quad1[0], quad1[1], quad1[2], quad1[3]);
+		indexer.index(quad2[0], quad2[1], quad2[2], quad2[3]);
+		indexer.index(quad3[0], quad3[1], quad3[2], quad3[3]);
+		indexer.index(quad4[0], quad4[1], quad4[2], quad4[3]);
+		indexer.close();
+		boolean[] objectsFlag = new boolean[] { true, true, true, true };
+		LuceneSearcher searcher = new LuceneSearcher(tmpFolder.getAbsolutePath());
+		String[][] nodes = searcher.explore(quad1[2]);
+		assertTrue(nodes.length == 3);
+		assertTrue(checkQuadStr(quad1, nodes));
+		assertTrue(checkQuadStr(quad2, nodes));
+		assertTrue(checkQuadStr(quad3, nodes));
+		
+		searcher.close();
+		FileUtils.deleteDirectory(tmpFolder);
+	}
+	
 
 	private boolean checkQuad(String[] expected, Collection<Node[]> actual) {
 		for (Node[] node : actual) {
@@ -237,6 +292,19 @@ public class StorageTest {
 			equals &= expected[1].equals(node[1].getNode());
 			equals &= expected[2].equals(node[2].getNode());
 			equals &= expected[3].equals(node[3].getNode());
+			if (equals) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkQuadStr(String[] expected, String[][] actual) {
+		for (String[] node : actual) {
+			boolean equals = expected[0].equals(node[0]);
+			equals &= expected[1].equals(node[1]);
+			equals &= expected[2].equals(node[2]);
+			equals &= expected[3].equals(node[3]);
 			if (equals) {
 				return true;
 			}

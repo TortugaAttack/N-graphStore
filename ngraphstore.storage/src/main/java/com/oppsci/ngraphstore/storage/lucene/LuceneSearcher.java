@@ -112,7 +112,7 @@ public class LuceneSearcher {
 
 		for (int i = 0; i < searchQueries.length; i++) {
 			if (searchQueries[i].startsWith("_:")) {
-				// bnode 
+				// bnode
 				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "_:[^ ]+"));
 				finalQuery.add(query, Occur.MUST);
 			} else {
@@ -128,7 +128,7 @@ public class LuceneSearcher {
 
 	private TopDocs searchTerm(String searchQuery, String searchField, SearchStats stats) throws IOException {
 		Query query;
-		if(searchQuery.startsWith("_:")) {
+		if (searchQuery.startsWith("_:")) {
 			// bnode
 			query = new RegexpQuery(new Term(searchField, "_:[^ ]+"));
 		} else {
@@ -255,7 +255,7 @@ public class LuceneSearcher {
 			triples.add(triple.toArray(new Node[] {}));
 		}
 		if (docs.scoreDocs.length > 0) {
-			stats.setLastDoc(docs.scoreDocs[docs.scoreDocs.length-1]);
+			stats.setLastDoc(docs.scoreDocs[docs.scoreDocs.length - 1]);
 		}
 		stats.setLastHit(docs.scoreDocs.length);
 		stats.setTotalHits(docs.totalHits);
@@ -267,14 +267,9 @@ public class LuceneSearcher {
 		BooleanQuery finalQuery = new BooleanQuery();
 		BooleanQuery wrapperQuery = new BooleanQuery();
 		for (int i = 0; i < searchFields.length; i++) {
-			if ("_:".equals(term)) {
-				// bnode
-				RegexpQuery query = new RegexpQuery(new Term(searchFields[i], "^_:.+$"));
-				finalQuery.add(query, Occur.SHOULD);
-			} else {
-				TermQuery query = new TermQuery(new Term(searchFields[i], term));
-				finalQuery.add(query, Occur.SHOULD);
-			}
+			TermQuery query = new TermQuery(new Term(searchFields[i], term));
+			finalQuery.add(query, Occur.SHOULD);
+
 		}
 		wrapperQuery.add(finalQuery, Occur.MUST);
 		return indexSearcher.search(wrapperQuery, LuceneConstants.MAX_SEARCH);
