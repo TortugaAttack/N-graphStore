@@ -1,6 +1,5 @@
 package com.oppsci.ngraphstore.query.planner;
 
-import com.oppsci.ngraphstore.query.sparql.elements.impl.Aggregation;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneSearchSpec;
@@ -14,14 +13,6 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
  */
 public class Step {
 
-	// basic BGP
-	private boolean isBasic;
-
-	//
-	private boolean isFilter;
-
-	private Aggregation[] aggregations;
-
 	private SearchStats stats = new SearchStats();
 
 	private boolean isRemembered = false;
@@ -29,18 +20,16 @@ public class Step {
 	private LuceneSearchSpec spec;
 
 	public SimpleResultSet execute(ClusterOverseer<SimpleResultSet> overseer) throws Exception {
-		if (isBasic) {
 
-			SimpleResultSet results = overseer.search(spec, stats);
-			this.stats = results.getStats();
-			if (stats.hasMoreResults()) {
-				this.setRemembered(true);
-			} else {
-				this.setRemembered(false);
-			}
-			return results;
+		SimpleResultSet results = overseer.search(spec, stats);
+		this.stats = results.getStats();
+		if (stats.hasMoreResults()) {
+			this.setRemembered(true);
+		} else {
+			this.setRemembered(false);
 		}
-		return null;
+		return results;
+
 	}
 
 	/**

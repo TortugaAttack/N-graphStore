@@ -9,8 +9,6 @@ import org.apache.jena.rdf.model.Model;
 import com.oppsci.ngraphstore.query.planner.QueryPlanner;
 import com.oppsci.ngraphstore.query.planner.Step;
 import com.oppsci.ngraphstore.query.planner.merger.Merger;
-import com.oppsci.ngraphstore.query.sparql.elements.impl.BGPElement;
-import com.oppsci.ngraphstore.query.sparql.elements.impl.Filter;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
@@ -96,24 +94,6 @@ public class QueryPlannerImpl implements QueryPlanner {
 	}
 
 	public Model construct(Query query) {
-		return null;
-	}
-
-	public List<BGPElement> sortToRfp(List<BGPElement> bgps) {
-		return null;
-
-	}
-
-	public SimpleResultSet applyBGPs(List<BGPElement> rfpSortedBGPs) {
-		// create specs for each bgpelement
-
-		// execute spec against overseer
-
-		// use results for next bgps if possible
-		return null;
-	}
-
-	public SimpleResultSet applyFilter(SimpleResultSet currentResults, List<Filter> filter) {
 		return null;
 	}
 
