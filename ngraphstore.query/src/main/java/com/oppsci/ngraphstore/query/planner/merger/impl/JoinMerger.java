@@ -1,7 +1,6 @@
 package com.oppsci.ngraphstore.query.planner.merger.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class JoinMerger implements Merger {
 				boolean nodeDoesMatch = true;
 				// check if match for all index matches
 				for (Integer[] indexMatch : indexMapping) {
-					if (!node1[indexMatch[0]].equals(node2[indexMatch[1]])) {
+					if (!node1[indexMatch[0]].getNode().equals(node2[indexMatch[1]].getNode())) {
 						// as soon as no match break
 						nodeDoesMatch = false;
 						break;
@@ -54,7 +53,7 @@ public class JoinMerger implements Merger {
 	}
 
 	public Node[] joinNodes(Node[] node1, Node[] node2, List<Integer[]> indexMapping) {
-		Node[] join = new Node[indexMapping.size()];
+		Node[] join = new Node[node1.length+node2.length-indexMapping.size()];
 		int i=0;
 		for(;i<node1.length;i++) {
 			//add all from node1
@@ -74,7 +73,7 @@ public class JoinMerger implements Merger {
 				join[i+j] = node2[j];
 		}
 		
-		return null;
+		return join;
 	}
 
 	public List<Integer[]> indexMapping(List<String> vars1, List<String> vars2) {
@@ -97,6 +96,8 @@ public class JoinMerger implements Merger {
 	 */
 	public List<String> joinVars(List<String> vars1, List<String> vars2) {
 		List<String> join = new LinkedList<String>();
+		if(vars1.isEmpty()||vars2.isEmpty())
+			return join;
 		join.addAll(vars1);
 		for (String varIn2 : vars2) {
 			if (!join.contains(varIn2)) {

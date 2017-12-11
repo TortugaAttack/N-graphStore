@@ -1,6 +1,7 @@
 package com.oppsci.ngraphstore.storage.results;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
@@ -52,7 +53,7 @@ public class SimpleResultSetTest {
 		assertEquals("s", head.get(0));
 		assertEquals("p", head.get(1));
 		JSONArray bindings = ((JSONArray)results.get("results"));
-		assertTrue(!bindings.isEmpty());
+		assertFalse(bindings.isEmpty());
 	}
 	
 	
