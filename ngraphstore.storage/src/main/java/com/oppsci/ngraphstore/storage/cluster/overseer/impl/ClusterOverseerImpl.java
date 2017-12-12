@@ -364,7 +364,8 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 			futures.add((Future<T>) service.submit(new Cluster(spec, searcher[i], indexer[i], methodIdentifier, stats, ignoreErrors)));
 		}
 		// shutdown and await termination of threads
-		
+		service.shutdown();
+		service.awaitTermination(timeout, TimeUnit.SECONDS);
 
 		// start cluster as thread using pool
 		for (int i = 0; i < indexer.length; i++) {
