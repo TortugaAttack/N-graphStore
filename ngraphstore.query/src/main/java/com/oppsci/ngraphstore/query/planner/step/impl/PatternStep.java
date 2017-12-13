@@ -5,16 +5,20 @@ import java.util.List;
 
 import org.apache.jena.sparql.core.TriplePath;
 
-import com.oppsci.ngraphstore.graph.elements.NodeFactory;
-import com.oppsci.ngraphstore.query.planner.step.Step;
-import com.oppsci.ngraphstore.storage.cluster.Cluster;
+import com.oppsci.ngraphstore.query.planner.step.AbstractStep;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
 import com.oppsci.ngraphstore.storage.lucene.spec.SearchStats;
 import com.oppsci.ngraphstore.storage.lucene.spec.impl.LuceneSearchSpec;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
-public class PatternStep implements Step {
+/**
+ * The PatternStep which executes one TriplePattern
+ * 
+ * @author f.conrads
+ *
+ */
+public class PatternStep extends AbstractStep {
 
 	private TriplePath pattern;
 	private SearchStats stats = new SearchStats();
@@ -67,6 +71,11 @@ public class PatternStep implements Step {
 		return ret;
 	}
 
+	/**
+	 * Sets the TriplePath for this Step (could be a triple out of variables, iris, literals, bnodes)
+	 * 
+	 * @param pattern
+	 */
 	public void setPattern(TriplePath pattern) {
 		this.pattern = pattern;
 	}

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.oppsci.ngraphstore.graph.elements.Node;
-import com.oppsci.ngraphstore.query.planner.merger.Merger;
+import com.oppsci.ngraphstore.query.planner.merger.AbstractMerger;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
@@ -15,7 +15,7 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
  * @author f.conrads
  *
  */
-public class JoinMerger implements Merger {
+public class JoinMerger extends AbstractMerger {
 
 	@Override
 	public SimpleResultSet merge(SimpleResultSet oldRS, SimpleResultSet newRS) {
@@ -105,24 +105,6 @@ public class JoinMerger implements Merger {
 		return indexMapping;
 	}
 
-	/**
-	 * Joins two variable sets
-	 * 
-	 * @param vars1
-	 * @param vars2
-	 * @return
-	 */
-	public List<String> joinVars(List<String> vars1, List<String> vars2) {
-		List<String> join = new LinkedList<String>();
-		if (vars1.isEmpty() || vars2.isEmpty())
-			return join;
-		join.addAll(vars1);
-		for (String varIn2 : vars2) {
-			if (!join.contains(varIn2)) {
-				join.add(varIn2);
-			}
-		}
-		return join;
-	}
+
 
 }

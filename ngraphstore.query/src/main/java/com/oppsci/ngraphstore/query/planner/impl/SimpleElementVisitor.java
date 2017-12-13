@@ -1,9 +1,6 @@
 package com.oppsci.ngraphstore.query.planner.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementData;
@@ -18,166 +15,163 @@ import org.apache.jena.sparql.syntax.ElementOptional;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
-import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.syntax.ElementUnion;
-import org.apache.jena.sparql.syntax.ElementVisitor;
+import org.apache.jena.sparql.syntax.ElementVisitorBase;
+import org.apache.jena.sparql.syntax.RecursiveElementVisitor;
 
-import com.oppsci.ngraphstore.query.planner.merger.Merger;
-import com.oppsci.ngraphstore.query.planner.merger.impl.JoinMerger;
 import com.oppsci.ngraphstore.query.planner.step.Step;
-import com.oppsci.ngraphstore.query.planner.step.impl.PatternStep;
 
+/**
+ * Element Visitor to walk through a query with.<br/>
+ * Will set the current steps and mergers as a linked tree.
+ * 
+ * @author f.conrads
+ *
+ */
+public class SimpleElementVisitor extends RecursiveElementVisitor {
 
-public class SimpleElementVisitor implements ElementVisitor {
-
-	
-	private List<List<Step>> steps = new LinkedList<List<Step>>();
-	private List<Step> groupSteps = new LinkedList<Step>();
-	
-	private List<List<Merger>> merger = new LinkedList<List<Merger>>();
-	private List<Merger> groupMerger = new LinkedList<Merger>();
-	
-	@Override
-	public void visit(ElementTriplesBlock el) {
-		// TODO Auto-generated method stub
-		System.out.println(0);
+	/**
+	 * Will simply creates a ElementVisitorBase as a base for the recursive 
+	 * elemental visitor
+	 */
+	public SimpleElementVisitor() {
+		//create a simple empty visitor base to override
+		super(new ElementVisitorBase());
 	}
 
-	@Override
-	public void visit(ElementPathBlock el) {
-		System.out.println(1);
-		for(TriplePath pattern : el.getPattern()) {
-			if(pattern.getPredicate()!=null) {
-				// not path, but plain predicate
-				PatternStep patternStep = new PatternStep();
-				patternStep.setPattern(pattern);
-				groupSteps.add(patternStep);
-				groupMerger.add(new JoinMerger());
-			}
+	private boolean started = false;
+	private Element where;
+	private Step rootStep;
+
+	public void setElementWhere(Element el) {
+		this.where = el;
+	}
+
+	public void startElement(ElementDataset el) {
+	}
+
+	public void endElement(ElementDataset el) {
+	}
+
+	public void startElement(ElementFilter el) {
+	}
+
+	public void endElement(ElementFilter el) {
+	}
+
+	public void startElement(ElementAssign el) {
+	}
+
+	public void endElement(ElementAssign el) {
+	}
+
+	public void startElement(ElementBind el) {
+	}
+
+	public void endElement(ElementBind el) {
+	}
+
+	public void startElement(ElementData el) {
+	}
+
+	public void endElement(ElementData el) {
+	}
+
+	public void startElement(ElementUnion el) {
+	}
+
+	public void endElement(ElementUnion el) {
+	}
+
+	public void startElement(ElementGroup el) {
+		if (el.equals(where)) {
+			//root element found
+			started = true;
+			//set initial merger
 		}
-		
+		if (started)
+			System.out.println(7 + "S: " + el);
 	}
 
-	@Override
-	public void visit(ElementFilter el) {
-		// TODO Auto-generated method stub
-		System.out.println(2);
+	public void endElement(ElementGroup el) {
+		if (started)
+			System.out.println(7 + "E: " + el);
 	}
 
-	@Override
-	public void visit(ElementAssign el) {
-		// TODO Auto-generated method stub
-		System.out.println(3);
+	public void startElement(ElementOptional el) {
 	}
 
-	@Override
-	public void visit(ElementBind el) {
-		// TODO Auto-generated method stub
-		System.out.println(4);
+	public void endElement(ElementOptional el) {
 	}
 
-	@Override
-	public void visit(ElementData el) {
-		// TODO Auto-generated method stub
-		System.out.println(5);
+	public void startElement(ElementNamedGraph el) {
+		if (started)
+			System.out.println(5 + "S: " + el);
 	}
 
-	@Override
-	public void visit(ElementUnion el) {
-		// TODO Auto-generated method stub
-		System.out.println(6);
+	public void endElement(ElementNamedGraph el) {
+		if (started)
+			System.out.println(5 + "E: " + el);
 	}
 
-	@Override
-	public void visit(ElementOptional el) {
-		// TODO Auto-generated method stub
-		System.out.println(7);
+	public void startElement(ElementService el) {
 	}
 
-	@Override
-	public void visit(ElementGroup el) {
-		//group is finished
-		//add steps
-		if(!groupSteps.isEmpty()) {
-			steps.add(groupSteps);
-			groupSteps = new LinkedList<Step>();
-		}
-		//add merger
-		if(!merger.isEmpty()) {
-			merger.add(groupMerger);
-			groupMerger = new LinkedList<Merger>();
-		}
-		System.out.println(8);
+	public void endElement(ElementService el) {
 	}
 
-	@Override
-	public void visit(ElementDataset el) {
-		// TODO Auto-generated method stub
-		System.out.println(9);
+	public void startElement(ElementExists el) {
 	}
 
-	@Override
-	public void visit(ElementNamedGraph el) {
-		// graph always appears after according group. 
-		// set graph to previous groupStep
-		
-		//get last Group of steps (previously added)
-		List<Step> lastGroup = steps.get(steps.size()-1);
-		for(Step step : lastGroup) {
-			//add graph to each step
-			if(el.getGraphNameNode().isURI()) {
-				step.setGraph("<"+el.getGraphNameNode().getURI()+">", false);
-			}
-			else {
-				// graph is var
-				step.setGraph(el.getGraphNameNode().getName(), true);
-			}
-		}
-		System.out.println(10);
+	public void endElement(ElementExists el) {
 	}
 
-	@Override
-	public void visit(ElementExists el) {
-		// TODO Auto-generated method stub
-		System.out.println(11);
+	public void startElement(ElementNotExists el) {
+		if (started)
+			System.out.println(4 + "S: " + el);
 	}
 
-	@Override
-	public void visit(ElementNotExists el) {
-		// TODO Auto-generated method stub
-		System.out.println(12);
+	public void endElement(ElementNotExists el) {
+		if (started)
+			System.out.println(4 + "E: " + el);
 	}
 
-	@Override
-	public void visit(ElementMinus el) {
-		// TODO Auto-generated method stub
-		System.out.println(13);
+	public void startElement(ElementMinus el) {
+		if (started)
+			System.out.println(3 + "S: " + el);
 	}
 
-	@Override
-	public void visit(ElementService el) {
-		// TODO Auto-generated method stub
-		System.out.println(14);
+	public void endElement(ElementMinus el) {
+		if (started)
+			System.out.println(3 + "E: " + el);
 	}
 
-	@Override
-	public void visit(ElementSubQuery el) {
-		// TODO Auto-generated method stub
-		System.out.println(15);
+	public void endElement(ElementSubQuery el) {
+		if (started)
+			System.out.println(2 + "E: " + el);
+	}
+
+	public void startElement(ElementSubQuery el) {
+		if (started)
+			System.out.println(2 + "S: " + el);
+	}
+
+	public void endElement(ElementPathBlock el) {
+		if (started)
+			System.out.println(1 + "E: " + el);
+	}
+
+	public void startElement(ElementPathBlock el) {
+		if (started)
+			System.out.println(1 + "S: " + el);
 	}
 
 	/**
 	 * @return the steps
 	 */
-	public List<List<Step>> getSteps() {
-		return steps;
+	public Step getRootStep() {
+		return rootStep;
 	}
 
-	/**
-	 * @param steps the steps to set
-	 */
-	public void setSteps(List<List<Step>> steps) {
-		this.steps = steps;
-	}
 
 }

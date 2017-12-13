@@ -56,6 +56,10 @@ public class SimpleResultSet{
 	public void addRows(Collection<Node[]> rows) {
 		this.rows.addAll(rows);
 	}
+	
+	public void addRow(Node[] node) {
+		this.rows.add(node);
+	}
 
 	//TODO optional 
 	@SuppressWarnings("unchecked")
