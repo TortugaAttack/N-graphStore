@@ -95,9 +95,9 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	 * @throws Exception 
 	 */
 	@Override
-	public boolean add(Triple<String>[] triples, String graph) throws Exception {
+	public boolean add(Triple<String>[] triples) throws Exception {
 		reopenIndexer();
-		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
+		LuceneSpec spec = new LuceneUpdateSpec(triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
 			success = execute(spec, Cluster.INSERT_METHOD, boolean.class, new SearchStats())
@@ -129,9 +129,9 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	 * @throws Exception 
 	 */
 	@Override
-	public boolean load(Triple<String>[] triples, String graph) throws Exception {
+	public boolean load(Triple<String>[] triples) throws Exception {
 		reopenIndexer();
-		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
+		LuceneSpec spec = new LuceneUpdateSpec(triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
 			success = execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
@@ -211,9 +211,9 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	}
 
 	@Override
-	public boolean delete(Triple<String>[] triples, String graph) throws Exception {
+	public boolean delete(Triple<String>[] triples) throws Exception {
 		reopenIndexer();
-		LuceneSpec spec = new LuceneUpdateSpec(graph, triples);
+		LuceneSpec spec = new LuceneUpdateSpec(triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
 			success = execute(spec, Cluster.DELETE_METHOD, boolean.class, new SearchStats())

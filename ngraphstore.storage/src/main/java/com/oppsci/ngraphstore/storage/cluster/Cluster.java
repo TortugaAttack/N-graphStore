@@ -49,6 +49,18 @@ public class Cluster implements Callable<Object> {
 
 	private boolean ignoreErrors;
 
+	/**
+	 * 
+	 * Creates a Cluster which uses the searcher and indexer and will call the specific method according 
+	 * to the Lucene Spec provided
+	 * 
+	 * @param spec the LuceneSpec to use
+	 * @param searcher the LuceneSearcher for search
+	 * @param indexer the Indexer for updates
+	 * @param methodIdentifier which method should be used
+	 * @param stats SearchStats (will save the last Doc found and total hits to get all results)
+	 * @param ignoreErrors should errors be ignored?
+	 */
 	public Cluster(LuceneSpec spec, LuceneSearcher searcher, LuceneIndexer indexer, int methodIdentifier,
 			SearchStats stats, boolean ignoreErrors) {
 		this.spec = spec;
@@ -90,7 +102,7 @@ public class Cluster implements Callable<Object> {
 			for (int j=0;j<triples.size();j++) {
 				Triple<String> triple = triples.get(j);
 				String[] quad = new String[] { triple.getSubject(), triple.getPredicate(), triple.getObject(),
-						spec.getGraph() };
+						triple.getGraph() };
 				if (!searcher.searchRelation(quad, flags, fields, stats).isEmpty()) {
 					triples.remove(j);
 					continue;
@@ -103,7 +115,7 @@ public class Cluster implements Callable<Object> {
 			for (Triple<String> triple : triples) {
 				try {
 
-					indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), spec.getGraph());
+					indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getGraph());
 				} catch (IOException e) {
 					if (!ignoreErrors)
 						return false;
@@ -124,7 +136,7 @@ public class Cluster implements Callable<Object> {
 		for (Triple<String> triple : spec.getTriples()) {
 			try {
 				indexer.deleteAll();
-				indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), spec.getGraph());
+				indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getGraph());
 			} catch (IOException e) {
 				if (!ignoreErrors)
 					return false;
@@ -162,7 +174,7 @@ public class Cluster implements Callable<Object> {
 
 		for (Triple<String> triple : spec.getTriples()) {
 			try {
-				indexer.delete(triple.getSubject(), triple.getPredicate(), triple.getObject(), spec.getGraph());
+				indexer.delete(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getGraph());
 			} catch (IOException e) {
 				if (!ignoreErrors)
 					return false;
@@ -189,6 +201,8 @@ public class Cluster implements Callable<Object> {
 			vars.add("predicate");
 		if (spec.getObjectsFlags()[2])
 			vars.add("object");
+		if (spec.getObjectsFlags()[3])
+			vars.add("graph");
 		resultSet.setVars(vars);
 		resultSet.setStats(stats);
 		return resultSet;

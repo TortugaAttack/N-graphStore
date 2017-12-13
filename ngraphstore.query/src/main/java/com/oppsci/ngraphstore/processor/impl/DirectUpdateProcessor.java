@@ -32,7 +32,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	@Override
 	public boolean insert(String triples, String graph) throws Exception {
 		try {
-			return clusterOverseer.add(TripleFactory.parseTriples(triples), graph);
+			return clusterOverseer.add(TripleFactory.parseTriples(triples, graph));
 		} catch (IOException e) {
 			return false;
 		}
@@ -41,7 +41,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	@Override
 	public boolean delete(String triples, String graph) throws Exception {
 		try {
-			return clusterOverseer.delete(TripleFactory.parseTriples(triples), graph);
+			return clusterOverseer.delete(TripleFactory.parseTriples(triples, graph));
 		} catch (IOException e) {
 			return false;
 		}
@@ -50,7 +50,7 @@ public class DirectUpdateProcessor implements UpdateProcessor {
 	@Override
 	public boolean load(String triples, String graph) throws Exception {
 		try {
-			return clusterOverseer.load(TripleFactory.parseTriples(triples), graph);
+			return clusterOverseer.load(TripleFactory.parseTriples(triples, graph));
 		} catch (IOException e) {
 			return false;
 		}

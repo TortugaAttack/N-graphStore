@@ -12,8 +12,7 @@ public class LuceneUpdateSpec implements LuceneSpec {
 	private String graph;
 	private Triple<String>[] triples;
 
-	public LuceneUpdateSpec(String graph, Triple<String>[] triples) {
-		this.graph = graph;
+	public LuceneUpdateSpec(Triple<String>[] triples) {
 		this.triples = triples;
 
 	}
