@@ -275,7 +275,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		return true;
 	}
 	
-	public void rollback() throws IOException {
+	private void rollback() throws IOException {
 		for(LuceneIndexer index : indexer) {
 			index.rollback();
 		}
