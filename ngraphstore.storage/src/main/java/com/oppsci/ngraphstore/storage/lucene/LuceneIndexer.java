@@ -41,16 +41,20 @@ public class LuceneIndexer {
 
 	/**
 	 * Creates and opens a LuceneIndexer according to the given path
-	 * @param path the path in which the indexing files should be.
+	 * 
+	 * @param path
+	 *            the path in which the indexing files should be.
 	 * @throws IOException
 	 */
 	public LuceneIndexer(String path) throws IOException {
 		open(path);
 	}
-	
+
 	/**
 	 * Will open the Lucene Indexer at the given path
-	 * @param path the path in which the indexing files should be.
+	 * 
+	 * @param path
+	 *            the path in which the indexing files should be.
 	 * @throws IOException
 	 */
 	public void open(String path) throws IOException {
@@ -59,12 +63,13 @@ public class LuceneIndexer {
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
-		
+
 		writer = new IndexWriter(dir, config);
 	}
 
 	/**
 	 * Will reopen the previously opened indexer
+	 * 
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
@@ -72,10 +77,10 @@ public class LuceneIndexer {
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
-		
+
 		writer = new IndexWriter(dir, config);
 	}
-	
+
 	/**
 	 * Will commit and close the Indexer
 	 */
@@ -91,16 +96,17 @@ public class LuceneIndexer {
 
 	/**
 	 * Will only commit the current changes.
+	 * 
 	 * @throws IOException
 	 */
 	public void commit() throws IOException {
-			writer.commit();
+		writer.commit();
 	}
 
 	/**
-	 * Will add the triple (quad) into the indexing segments. 
+	 * Will add the triple (quad) into the indexing segments.
 	 * 
-	 * @param subject 
+	 * @param subject
 	 * @param predicate
 	 * @param object
 	 * @param graph
@@ -111,9 +117,9 @@ public class LuceneIndexer {
 	}
 
 	/**
-	 * Will add the triple (quad) into the indexing segments. 
+	 * Will add the triple (quad) into the indexing segments.
 	 * 
-	 * @param subject 
+	 * @param subject
 	 * @param predicate
 	 * @param object
 	 * @param graph
@@ -121,21 +127,23 @@ public class LuceneIndexer {
 	 */
 	public void indexTriple(String subject, String predicate, String object, String graph) throws IOException {
 		Document doc = convertTerm(subject, predicate, object, graph);
-		//check before adding if already existent
+		// check before adding if already existent
 		writer.addDocument(doc);
 	}
 
-	
 	/**
-	 * Shortcut for {@link #delete(String[], String[])}. 
-	 * Will delete only the occurrences which fits all terms 
-	 * <br/>
+	 * Shortcut for {@link #delete(String[], String[])}. Will delete only the
+	 * occurrences which fits all terms <br/>
 	 * WILL NOT WORK WITH BLANK NODES!
 	 * 
-	 * @param subject The subject term 
-	 * @param predicate The predicate term
-	 * @param object the object term
-	 * @param graph the graph term
+	 * @param subject
+	 *            The subject term
+	 * @param predicate
+	 *            The predicate term
+	 * @param object
+	 *            the object term
+	 * @param graph
+	 *            the graph term
 	 * @throws IOException
 	 */
 	public void delete(String subject, String predicate, String object, String graph) throws IOException {
@@ -151,13 +159,12 @@ public class LuceneIndexer {
 		writer.deleteDocuments(finalQuery);
 	}
 
-	
 	/**
-	 * Will delete each record with the occurrence of the specific nodes at the search fields.
-	 * <br/>
-	 * F.e.: DROP graphURI:
-	 * <br/>
-	 * luceneIndexer.delete(new String[]{graphURI}, new String[]{LuceneConstants.GRAPH});
+	 * Will delete each record with the occurrence of the specific nodes at the
+	 * search fields. <br/>
+	 * F.e.: DROP graphURI: <br/>
+	 * luceneIndexer.delete(new String[]{graphURI}, new
+	 * String[]{LuceneConstants.GRAPH});
 	 * 
 	 * @param nodes
 	 * @param searchFields
@@ -165,9 +172,9 @@ public class LuceneIndexer {
 	 */
 	public void delete(String[] nodes, String[] searchFields) throws IOException {
 		BooleanQuery finalQuery = new BooleanQuery();
-		for(int i=0;i<nodes.length;i++) { 
+		for (int i = 0; i < nodes.length; i++) {
 			Query query;
-			if(nodes[i].startsWith("_:")) {
+			if (nodes[i].startsWith("_:")) {
 				// bnode
 				query = new RegexpQuery(new Term(searchFields[i], "_:[^ ]+"));
 			} else {
@@ -177,9 +184,10 @@ public class LuceneIndexer {
 		}
 		writer.deleteDocuments(finalQuery);
 	}
-	
+
 	/**
 	 * Will delete every record (same as DROP)
+	 * 
 	 * @throws IOException
 	 */
 	public void deleteAll() throws IOException {
@@ -192,7 +200,7 @@ public class LuceneIndexer {
 		Field predicateField = new StringField(LuceneConstants.PREDICATE, predicate, Field.Store.YES);
 		Field objectField = new StringField(LuceneConstants.OBJECT, object, Field.Store.YES);
 		Field graphField = new StringField(LuceneConstants.GRAPH, graph, Field.Store.YES);
-		
+
 		document.add(subjectField);
 		document.add(predicateField);
 		document.add(objectField);
@@ -200,9 +208,8 @@ public class LuceneIndexer {
 		return document;
 	}
 
-	
 	public void update(String[] oldTerms, String[] nodes) throws IOException {
-		//delete document according to old Terms 
+		// delete document according to old Terms
 		BooleanQuery finalQuery = new BooleanQuery();
 		TermQuery querySubject = new TermQuery(new Term(LuceneConstants.SUBJECT, oldTerms[0]));
 		TermQuery queryPredicate = new TermQuery(new Term(LuceneConstants.PREDICATE, oldTerms[1]));
@@ -213,12 +220,13 @@ public class LuceneIndexer {
 		finalQuery.add(queryObject, Occur.MUST);
 		finalQuery.add(queryGraph, Occur.MUST);
 		writer.deleteDocuments(finalQuery);
-		//adding new Document. 
+		// adding new Document.
 		index(nodes[0], nodes[1], nodes[2], nodes[3]);
 	}
-	
+
 	/**
 	 * Will roll back every change since the last commit
+	 * 
 	 * @throws IOException
 	 */
 	public void rollback() throws IOException {

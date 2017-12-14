@@ -41,7 +41,7 @@ public class LuceneBulkLoader {
 	 * @param args
 	 * @throws IOException
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, RiotException {
 		if (args.length < 5) {
 			System.out.println("Usage: bulkload.sh N ignoreErrors folder graphURI file1 file2...");
 			return;
@@ -104,7 +104,7 @@ public class LuceneBulkLoader {
 	 *            The RDF Files to load
 	 * @throws IOException
 	 */
-	public void load(String graph, File... files) {
+	public void load(String graph, File... files) throws RiotException {
 		savedTriples=0;
 		for (File file : files) {
 
@@ -128,7 +128,7 @@ public class LuceneBulkLoader {
 			} catch (RiotException e1) {
 				if (!ignoreErrors) {
 					LOGGER.info("[{{}}] FOUND ERROR. Will abort.", file.getName());
-					return;
+					throw e1;
 				}
 				LOGGER.info("[{{}}][ERROR found] will gracefully ignore file", file.getName());
 

@@ -132,10 +132,17 @@ public class Cluster implements Callable<Object> {
 
 	public boolean load() {
 		LuceneUpdateSpec spec = (LuceneUpdateSpec) this.spec;
-
+		try {
+			indexer.deleteAll();
+			indexer.commit();
+		} catch (IOException e1) {
+			if (!ignoreErrors)
+				return false;
+		}
+		
 		for (Triple<String> triple : spec.getTriples()) {
 			try {
-				indexer.deleteAll();
+				
 				indexer.index(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getGraph());
 			} catch (IOException e) {
 				if (!ignoreErrors)
@@ -250,7 +257,7 @@ public class Cluster implements Callable<Object> {
 		return null;
 	}
 
-	private boolean quadUpdate() {
+	public boolean quadUpdate() {
 		LuceneQuadUpdateSpec spec = (LuceneQuadUpdateSpec) this.spec;
 		try {
 			// check if exists
