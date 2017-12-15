@@ -56,12 +56,11 @@ public class SingleClusterTest {
 			indexer.close();
 			searcher.close();
 			FileUtils.deleteDirectory(new File(folder));
+		} catch (AlreadyClosedException e) {
+			// nothing to do here
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch(AlreadyClosedException e) {
-			//nothing to do here
 		}
-		
 
 	}
 
@@ -139,7 +138,7 @@ public class SingleClusterTest {
 		String[] newTerms = new String[] { "<abc://abc3>", "<abc://abc3>", "<abc://abc3>", "<urn://abc3>" };
 		String[] notUpdated = new String[] { "<abc://abc2>", "<abc://abc2>", "<abc://abc2>", "<abc://abc2>" };
 		LuceneQuadUpdateSpec spec = new LuceneQuadUpdateSpec(oldTerms, newTerms);
-		
+
 		Cluster cluster = new Cluster(spec, searcher, indexer, Cluster.QUAD_UPDATE, new SearchStats(), false);
 		cluster.call();
 		indexer.close();
@@ -155,8 +154,7 @@ public class SingleClusterTest {
 		if (!newChecked) {
 			assertTrue(checkNode(newTerms, node2));
 			assertTrue(checkNode(notUpdated, node1));
-		}
-		else {
+		} else {
 			assertTrue(checkNode(notUpdated, node2));
 		}
 	}

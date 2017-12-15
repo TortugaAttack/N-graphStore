@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Lucene Indexer. Will update and load data into the provided path
- * 
- * TODO add semaphore and mutex
- * 
+ *  
  * @author f.conrads
  *
  */
@@ -62,6 +60,7 @@ public class LuceneIndexer {
 		dir = FSDirectory.open(new File(path));
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
+	
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 
 		writer = new IndexWriter(dir, config);
@@ -89,8 +88,10 @@ public class LuceneIndexer {
 			writer.commit();
 			writer.close();
 			dir.close();
-		} catch (AlreadyClosedException | IOException e) {
+		} catch ( IOException e) {
 			LOGGER.error("Error occured during closing Index Writer", e);
+		} catch(AlreadyClosedException e) {
+			//ignore
 		}
 	}
 

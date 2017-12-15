@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.oppsci.ngraphstore.graph.Triple;
+import com.oppsci.ngraphstore.graph.TripleFactory;
 import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.graph.elements.NodeFactory;
 import com.oppsci.ngraphstore.storage.cluster.overseer.impl.ClusterOverseerImpl;
@@ -42,11 +45,14 @@ public class ClusterOverseerTest {
 		indexer0 = new LuceneIndexer(folder+File.separator+"0");
 		indexer0.index("<abc://abc>", "<abc://abc1>", "<abc://abc3>", "<abc://abc6>");
 		indexer0.index("<abc://abc>", "<abc://abc1>", "<abc://abc4>", "<abc://abc5>");
+		indexer0.index("<abc://abc>", "<abc://abc8>", "<abc://abc9>", "<abc://abc5>");
 		indexer0.close();
 		//
 		indexer1 = new LuceneIndexer(folder+File.separator+"1");
 		indexer1.index("<abc://abc>", "<abc://abc2>", "<abc://abc4>", "<abc://abc5>");
 		indexer1.index("<abc://abc>", "<abc://abc2>", "<abc://abc3>", "<abc://abc5>");
+		indexer1.index("<abc://abc>", "<abc://abc9>", "<abc://abc8>", "<abc://abc5>");
+		indexer1.index("<abc://abc9>", "<abc://abc8>", "<abc://abc8>", "<abc://abc5>");
 		indexer1.close();
 		
 		searcher0 = new LuceneSearcher(folder+File.separator+"0");
@@ -147,12 +153,11 @@ public class ClusterOverseerTest {
 	
 	@Test
 	public void select() throws Exception {
-		SearchStats stats = new SearchStats();
 		boolean[] objectFields= new boolean[] {true, true, true, true};
 		String[] uris = new String[] {"<abc://abc4>"};
 		String[] fields = new String[] {LuceneConstants.OBJECT};
 		LuceneSearchSpec spec = new LuceneSearchSpec(uris, objectFields, fields);
-		SimpleResultSet res = overseer.search(spec, stats);
+		SimpleResultSet res = overseer.search(spec, new SearchStats());
 		assertTrue(res.getRows().size()==2);
 		Iterator<Node[]> nodeIterator = res.getRows().iterator();
 		Node[] node1 = nodeIterator.next();
@@ -169,11 +174,107 @@ public class ClusterOverseerTest {
 	
 	@Test
 	public void selectAll() throws Exception {
-		SearchStats stats = new SearchStats();
 		boolean[] objectFields= new boolean[] {true, true, true, true};
 		LuceneSearchSpec spec = new LuceneSearchSpec(null, objectFields, null);
-		SimpleResultSet res = overseer.searchAll(spec, stats);
-		assertTrue(res.getRows().size()==4);
+		SimpleResultSet res = overseer.searchAll(spec, new SearchStats());
+		assertTrue(res.getRows().size()==7);
+	}
+	
+	@Test
+	public void explore() throws Exception {
+		String[][] results = overseer.explore("<abc://abc9>");
+		assertTrue(results.length==3);
+	}
+	
+	@Test
+	public void dropAll() throws Exception {
+		overseer.dropAll();
+		boolean[] objectFields= new boolean[] {true, true, true, true};
+		LuceneSearchSpec spec = new LuceneSearchSpec(null, objectFields, null);
+		assertTrue(overseer.searchAll(spec, new SearchStats()).getRows().isEmpty());
+	}
+	
+	@Test
+	public void drop() throws Exception {
+		overseer.drop("<abc://abc5>");
+		boolean[] objectFlags= new boolean[] {true, true, true, true};
+		LuceneSearchSpec spec = new LuceneSearchSpec(null, objectFlags, null);
+		searcher0.reopen();
+		assertTrue(searcher0.search("<abc://abc5>", objectFlags, LuceneConstants.GRAPH, new SearchStats()).isEmpty());
+		assertTrue(searcher0.search("<abc://abc6>", objectFlags, LuceneConstants.GRAPH, new SearchStats()).size()==1);
+		searcher0.close();
+		searcher1.reopen();
+		assertTrue(searcher1.search("<abc://abc5>", objectFlags, LuceneConstants.GRAPH, new SearchStats()).isEmpty());
+		searcher1.close();
+	}
+	
+	@Test
+	public void delete() throws Exception {
+		Triple<String>[] triples = TripleFactory.parseTriples("<abc://abc> <abc://abc1> <abc://abc4> .", "<abc://abc5>");
+		overseer.delete(triples);
+		boolean[] objectFlags= new boolean[] {true, true, true, true};
+		searcher0.reopen();
+		assertTrue(searcher0.search("<abc://abc5>", objectFlags, LuceneConstants.GRAPH, new SearchStats()).size()==1);
+		assertTrue(searcher0.search("<abc://abc6>", objectFlags, LuceneConstants.GRAPH, new SearchStats()).size()==1);
+		searcher0.close();
+		searcher1.reopen();
+		assertTrue(searcher1.search("<abc://abc5>", objectFlags, LuceneConstants.GRAPH, new SearchStats()).size()==4);
+		searcher1.close();
+	}
+	
+	@Test
+	public void load() throws Exception {
+		Triple<String>[] triples = TripleFactory.parseTriples("<abc://Z> <abc://X> <abc://Y> . <abc://U> <abc://V> <abc://W> \n ", "<abc://P>");
+		overseer.load(triples);
+		boolean[] objectFlags= new boolean[] {true, true, true, true};
+		searcher0.reopen();
+		Collection<Node[]> zxy = searcher0.getAllRecords(objectFlags, new SearchStats());
+		searcher0.close();
+		searcher1.reopen();
+		Collection<Node[]> uvw = searcher1.getAllRecords(objectFlags, new SearchStats());
+		searcher1.close();
+		assertTrue(zxy.size()==1);
+		assertTrue(uvw.size()==1);
+		Node[] zxyNode = zxy.iterator().next();
+		Node[] uvwNode = uvw.iterator().next();
+		assertEquals("<abc://Z>", zxyNode[0].getNode());
+		assertEquals("<abc://X>", zxyNode[1].getNode());
+		assertEquals("<abc://Y>", zxyNode[2].getNode());
+		assertEquals("<abc://P>", zxyNode[3].getNode());
+		assertEquals("<abc://U>", uvwNode[0].getNode());
+		assertEquals("<abc://V>", uvwNode[1].getNode());
+		assertEquals("<abc://W>", uvwNode[2].getNode());
+		assertEquals("<abc://P>", uvwNode[3].getNode());
+	}
+	
+
+	@Test
+	public void add() throws Exception {
+		Triple<String>[] triples = TripleFactory.parseTriples("<abc://Z> <abc://X> <abc://Y> . <abc://U> <abc://V> <abc://W> \n ", "<abc://P>");
+		overseer.add(triples);
+		boolean[] objectFlags= new boolean[] {true, true, true, true};
+		searcher0.reopen();
+		assertTrue(searcher0.getAllRecords(objectFlags, new SearchStats()).size()==4);
+		searcher0.close();
+		searcher0.reopen();
+		assertTrue(searcher0.search("<abc://Z>", objectFlags, LuceneConstants.SUBJECT, new SearchStats()).size()==1);
+		searcher0.close();
+		searcher1.reopen();
+		assertTrue(searcher1.getAllRecords(objectFlags, new SearchStats()).size()==5);
+		assertTrue(searcher1.search("<abc://U>", objectFlags, LuceneConstants.SUBJECT, new SearchStats()).size()==1);
+		searcher1.close();
+	}
+	
+	@Test
+	public void quadUpdate() throws Exception {
+		String[] oldTerms = new String[] {"<abc://abc>", "<abc://abc1>", "<abc://abc3>", "<abc://abc6>"};
+		String[] newTerms = new String[] {"<abc://abc10>", "<abc://abc10>", "<abc://abc10>", "<abc://abc10>"};
+		overseer.quadUpdate(oldTerms, newTerms);
+		boolean[] objectFlags= new boolean[] {true, true, true, true};
+		String[] fields = new String[] {LuceneConstants.SUBJECT, LuceneConstants.PREDICATE, LuceneConstants.OBJECT, LuceneConstants.GRAPH};
+		searcher0.reopen();
+		assertTrue(searcher0.searchRelation(oldTerms, objectFlags, fields,new SearchStats()).isEmpty());
+		assertTrue(searcher0.searchRelation(newTerms, objectFlags, fields,new SearchStats()).size()==1);
 	}
 	
 }

@@ -98,7 +98,8 @@ public class Cluster implements Callable<Object> {
 		indexer.close();
 		try {
 			searcher.reopen();
-			List<Triple<String>> triples = spec.getTriples();
+			//make copy
+			List<Triple<String>> triples = new LinkedList<Triple<String>>(spec.getTriples());
 			for (int j=0;j<triples.size();j++) {
 				Triple<String> triple = triples.get(j);
 				String[] quad = new String[] { triple.getSubject(), triple.getPredicate(), triple.getObject(),

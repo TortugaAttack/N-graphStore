@@ -69,7 +69,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	@Override
 	public SimpleResultSet search(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
-		SimpleResultSet[] results = execute(spec, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
+		SimpleResultSet[] results = execute(new LuceneSpec[] {spec}, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
 		closeSearcher();
@@ -79,7 +79,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	@Override
 	public SimpleResultSet searchAll(LuceneSpec spec, SearchStats stats) throws Exception {
 		reopenSearcher();
-		SimpleResultSet[] results = execute(spec, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
+		SimpleResultSet[] results = execute(new LuceneSpec[] {spec}, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
 		closeSearcher();
@@ -97,10 +97,11 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	@Override
 	public boolean add(Triple<String>[] triples) throws Exception {
 		reopenIndexer();
+		//TODO each cluster his own spec with only the first triples/N triples
 		LuceneSpec spec = new LuceneUpdateSpec(triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = execute(spec, Cluster.INSERT_METHOD, boolean.class, new SearchStats())
+			success = execute(createAddSpecs(triples), Cluster.INSERT_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -120,6 +121,23 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		return true;
 	}
 
+	
+	private LuceneUpdateSpec[] createAddSpecs(Triple<String>[] triples) {
+		LuceneUpdateSpec[] specs = new LuceneUpdateSpec[clusterSize];
+		int j = 0;
+		for(int i=0;i<triples.length;i++) {
+			if(specs[j]==null) {
+				//init 
+				specs[j] = new LuceneUpdateSpec();
+			}
+			specs[j++].getTriples().add(triples[i]);
+			if(j>=clusterSize) {
+				j=0;
+			}
+		}
+		return specs;
+	}
+	
 	/**
 	 * Adds triples to index cluster
 	 * 
@@ -131,10 +149,10 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	@Override
 	public boolean load(Triple<String>[] triples) throws Exception {
 		reopenIndexer();
-		LuceneSpec spec = new LuceneUpdateSpec(triples);
+		
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = execute(spec, Cluster.LOAD_METHOD, boolean.class, new SearchStats())
+			success = execute(createAddSpecs(triples), Cluster.LOAD_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			//Logging purpose
@@ -161,7 +179,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		LuceneSpec spec = new LuceneUpdateSpec();
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = execute(spec, Cluster.DROP_ALL_METHOD, boolean.class, new SearchStats())
+			success = execute(new LuceneSpec[] {spec}, Cluster.DROP_ALL_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -189,7 +207,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		LuceneSpec spec = new LuceneUpdateSpec(graph);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = execute(spec, Cluster.DROP_METHOD, boolean.class, new SearchStats())
+			success = execute(new LuceneSpec[] {spec}, Cluster.DROP_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -216,7 +234,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		LuceneSpec spec = new LuceneUpdateSpec(triples);
 		Boolean[] success = new Boolean[] {false};
 		try {
-			success = execute(spec, Cluster.DELETE_METHOD, boolean.class, new SearchStats())
+			success = execute(new LuceneSpec[] {spec}, Cluster.DELETE_METHOD, boolean.class, new SearchStats())
 					.toArray(new Boolean[] {});
 		} catch (InterruptedException | ExecutionException | TimeoutException e1) {
 			e1.printStackTrace();
@@ -241,7 +259,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	public String[][] explore(String term) throws InterruptedException, ExecutionException, TimeoutException {
 		reopenSearcher();
 		LuceneSpec spec= new LuceneSearchSpec(new String[] {term}, null, null);
-		String[][][] unmergedResults =  execute(spec, Cluster.EXPLORE_METHOD, String[][][].class, new SearchStats())
+		String[][][] unmergedResults =  execute(new LuceneSpec[] {spec}, Cluster.EXPLORE_METHOD, String[][][].class, new SearchStats())
 				.toArray(new String[][][] {});
 		String[][] mergedResults=mergeExploreResults(unmergedResults);
 		closeSearcher();
@@ -267,7 +285,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	public boolean quadUpdate(String[] oldTerms, String[] newTerms) throws Exception {
 		LuceneSpec spec = new LuceneQuadUpdateSpec(oldTerms, newTerms);
 		try {
-			execute(spec, Cluster.QUAD_UPDATE, boolean.class, new SearchStats());
+			execute(new LuceneSpec[] {spec}, Cluster.QUAD_UPDATE, boolean.class, new SearchStats());
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 			throw e;
@@ -352,7 +370,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> List<T> execute(LuceneSpec spec, int methodIdentifier, Class T, SearchStats stats)
+	public <T> List<T> execute(LuceneSpec[] specs, int methodIdentifier, Class T, SearchStats stats)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		List<Future<T>> futures = new LinkedList<Future<T>>();
 		List<T> results = new LinkedList<T>();
@@ -361,6 +379,13 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		ExecutorService service = Executors.newFixedThreadPool(indexer.length);
 		// put query into each cluster using the according lucenesearcher
 		for (int i = 0; i < indexer.length; i++) {
+			LuceneSpec spec;
+			if(specs.length==1) {
+				spec=specs[0];
+			}
+			else {
+				spec=specs[i];
+			}
 			futures.add((Future<T>) service.submit(new Cluster(spec, searcher[i], indexer[i], methodIdentifier, stats, ignoreErrors)));
 		}
 		// shutdown and await termination of threads
