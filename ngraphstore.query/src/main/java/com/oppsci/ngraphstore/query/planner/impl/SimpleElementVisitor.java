@@ -1,10 +1,10 @@
 package com.oppsci.ngraphstore.query.planner.impl;
 
+import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementData;
-import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
@@ -19,7 +19,12 @@ import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.syntax.ElementVisitorBase;
 import org.apache.jena.sparql.syntax.RecursiveElementVisitor;
 
+import com.oppsci.ngraphstore.query.planner.merger.impl.AddMerger;
+import com.oppsci.ngraphstore.query.planner.merger.impl.JoinMerger;
+import com.oppsci.ngraphstore.query.planner.merger.impl.OptionalMerger;
 import com.oppsci.ngraphstore.query.planner.step.Step;
+import com.oppsci.ngraphstore.query.planner.step.impl.GroupStep;
+import com.oppsci.ngraphstore.query.planner.step.impl.PatternStep;
 
 /**
  * Element Visitor to walk through a query with.<br/>
@@ -42,21 +47,21 @@ public class SimpleElementVisitor extends RecursiveElementVisitor {
 	private boolean started = false;
 	private Element where;
 	private Step rootStep;
+	private Step lastStep;
 
+	/**
+	 * Sets the complete where clause element 
+	 * @param el
+	 */
 	public void setElementWhere(Element el) {
 		this.where = el;
 	}
 
-	public void startElement(ElementDataset el) {
-	}
-
-	public void endElement(ElementDataset el) {
-	}
-
-	public void startElement(ElementFilter el) {
-	}
 
 	public void endElement(ElementFilter el) {
+		//TODO create filter step
+		
+		//TODO add filter merger
 	}
 
 	public void startElement(ElementAssign el) {
@@ -77,50 +82,56 @@ public class SimpleElementVisitor extends RecursiveElementVisitor {
 	public void endElement(ElementData el) {
 	}
 
-	public void startElement(ElementUnion el) {
-	}
 
 	public void endElement(ElementUnion el) {
+		//lastStep is current union group, parent needs add merger
+		if(started)
+			lastStep.getMerger().add(new AddMerger());
 	}
 
 	public void startElement(ElementGroup el) {
-		if (el.equals(where)) {
+		if (!started && el.equals(where)) {
 			//root element found
 			started = true;
 			//set initial merger
+			rootStep = new GroupStep();
+			lastStep = rootStep;
+			
 		}
-		if (started)
-			System.out.println(7 + "S: " + el);
+		else if (started) {
+			GroupStep group = new GroupStep();
+			group.setParent(lastStep);
+			lastStep.getChildSteps().add(group);
+			lastStep = group;
+			
+		}
 	}
 
 	public void endElement(ElementGroup el) {
-		if (started)
-			System.out.println(7 + "E: " + el);
-	}
-
-	public void startElement(ElementOptional el) {
+		//set back to parent
+		if(started)
+			this.lastStep = lastStep.getParent();
 	}
 
 	public void endElement(ElementOptional el) {
+		//lastStep is current optional group, parent needs optional merger
+		if(started) 
+			lastStep.getMerger().add(new OptionalMerger());
 	}
 
-	public void startElement(ElementNamedGraph el) {
-		if (started)
-			System.out.println(5 + "S: " + el);
-	}
 
 	public void endElement(ElementNamedGraph el) {
-		if (started)
-			System.out.println(5 + "E: " + el);
-	}
-
-	public void startElement(ElementService el) {
+		if (started) {
+			if(el.getGraphNameNode().isURI()) {
+				lastStep.setGraph(el.getGraphNameNode().getURI(), false);
+			}
+			else {
+				lastStep.setGraph(el.getGraphNameNode().getName(), true);
+			}
+		}
 	}
 
 	public void endElement(ElementService el) {
-	}
-
-	public void startElement(ElementExists el) {
 	}
 
 	public void endElement(ElementExists el) {
@@ -157,14 +168,21 @@ public class SimpleElementVisitor extends RecursiveElementVisitor {
 	}
 
 	public void endElement(ElementPathBlock el) {
-		if (started)
-			System.out.println(1 + "E: " + el);
+		if (started) {
+			for(TriplePath path : el.getPattern().getList()) {
+				if(path.getPredicate()!=null) {
+					//plain predicate
+					PatternStep step = new PatternStep();
+					step.setPattern(path);
+					step.setParent(lastStep);
+					lastStep.getChildSteps().add(step);
+				}
+			}
+			for(int i=0; i<el.getPattern().size()-1;i++)
+				lastStep.getMerger().add(new JoinMerger());
+		}
 	}
 
-	public void startElement(ElementPathBlock el) {
-		if (started)
-			System.out.println(1 + "S: " + el);
-	}
 
 	/**
 	 * @return the steps

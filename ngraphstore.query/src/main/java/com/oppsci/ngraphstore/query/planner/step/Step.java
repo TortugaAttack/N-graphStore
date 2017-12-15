@@ -75,7 +75,7 @@ public interface Step {
 	 * 
 	 * @return
 	 */
-	public Merger getMerger();
+	public List<Merger> getMerger();
 
 	/**
 	 * Sets the merger to use for the child steps of this particaular step (e.g. if this is a group step
@@ -83,7 +83,7 @@ public interface Step {
 	 * 
 	 * @param downMerger
 	 */
-	public void setMerger(Merger downMerger);
+	public void setMerger(List<Merger> downMerger);
 
 	/**
 	 * Returns the Child Steps of this current Step

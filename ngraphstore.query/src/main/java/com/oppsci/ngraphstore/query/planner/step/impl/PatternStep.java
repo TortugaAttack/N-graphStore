@@ -22,8 +22,6 @@ public class PatternStep extends AbstractStep {
 
 	private TriplePath pattern;
 	private SearchStats stats = new SearchStats();
-	private String graph;
-	private boolean graphIsVar;
 
 	@Override
 	public SimpleResultSet execute(ClusterOverseer<SimpleResultSet> overseer) throws Exception {
@@ -122,10 +120,6 @@ public class PatternStep extends AbstractStep {
 		return i;
 	}
 
-	@Override
-	public void setGraph(String graph, boolean isVar) {
-		this.graph = graph;
-		this.graphIsVar= isVar;
-	}
+
 
 }

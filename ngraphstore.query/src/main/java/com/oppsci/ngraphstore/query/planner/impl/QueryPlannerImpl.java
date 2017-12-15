@@ -3,6 +3,8 @@ package com.oppsci.ngraphstore.query.planner.impl;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.sparql.syntax.ElementWalker;
+
 import com.oppsci.ngraphstore.query.planner.QueryPlanner;
 import com.oppsci.ngraphstore.query.planner.step.Step;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
@@ -34,6 +36,8 @@ public class QueryPlannerImpl implements QueryPlanner {
 	private Step createSteps(Query query) {
 		// create steps and merger
 		SimpleElementVisitor elVisitor = new SimpleElementVisitor();
+		elVisitor.setElementWhere(query.getQueryPattern());
+		ElementWalker.walk(query.getQueryPattern(), elVisitor);
 		return elVisitor.getRootStep();
 	}
 
