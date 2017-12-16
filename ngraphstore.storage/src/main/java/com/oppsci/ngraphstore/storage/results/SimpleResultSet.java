@@ -1,8 +1,16 @@
 package com.oppsci.ngraphstore.storage.results;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.jena.ext.com.google.common.collect.Sets;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -95,6 +103,44 @@ public class SimpleResultSet{
 	 */
 	public void setStats(SearchStats stats) {
 		this.stats = stats;
+	}
+
+	public void distinct() {
+		Map<Integer, Node[]> map = new HashMap<Integer, Node[]>();
+		for(Node[] node : rows) {
+			StringBuilder key = new StringBuilder();
+			for(Node n : node) {
+				key.append(n.getNode()).append("\t");
+			}
+			map.put(key.toString().hashCode(), node);
+		}
+		rows = new LinkedList<Node[]>();
+		for(Integer key : map.keySet()) {
+			rows.add(map.get(key));
+		}
+	}
+	
+	public void removeNonProjection(List<String> projection) {
+		//create Mapping
+		Collection<Node[]> newRows = new LinkedList<Node[]>();
+		int[] mapping = new int[projection.size()];
+		int i=0;
+		for(String projectVar : projection) {			
+			mapping[i++]= vars.indexOf("?"+projectVar);
+		}
+		Iterator<Node[]> iterator = rows.iterator();
+		while(iterator.hasNext()) {
+			Node[] node = iterator.next();
+			Node[] newNode = new Node[mapping.length];
+			i=0;
+			for(int j : mapping) {
+				newNode[i++]= node[j];
+			}
+			newRows.add(newNode);
+			iterator.remove();
+		}
+		rows = newRows;
+		this.vars=projection;
 	}
 
 

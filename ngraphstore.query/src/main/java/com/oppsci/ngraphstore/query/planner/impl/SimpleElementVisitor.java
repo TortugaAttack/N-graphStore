@@ -126,7 +126,7 @@ public class SimpleElementVisitor extends RecursiveElementVisitor {
 				lastStep.setGraph(el.getGraphNameNode().getURI(), false);
 			}
 			else {
-				lastStep.setGraph(el.getGraphNameNode().getName(), true);
+				lastStep.setGraph("?"+el.getGraphNameNode().getName(), true);
 			}
 		}
 	}

@@ -49,5 +49,23 @@ public class URINode implements Node {
 	public boolean isBlankNode() {
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.uri.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return getNode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof URINode) {
+			return getNode().equals(((URINode)obj).getNode());
+		}
+		return false;
+	}
 
 }

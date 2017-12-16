@@ -32,7 +32,10 @@ public class SimpleElementVisitorTest {
 		List<Object[]> testConfigs = new ArrayList<Object[]>();
 
 		testConfigs.add(new Object[] { "SELECT * {?s ?p ?o}", 1, new Class[] { PatternStep.class } });
+		testConfigs.add(new Object[] { "SELECT * {?s ?p ?o . ?u ?v ?w}", 2, new Class[] {PatternStep.class, PatternStep.class } });
 		testConfigs.add(new Object[] { "SELECT * {Graph ?g {?s ?p ?o}}", 1,
+				new Class[] { GroupStep.class, PatternStep.class } });
+		testConfigs.add(new Object[] { "SELECT * {Graph <urn://test> {?s ?p ?o}}", 1,
 				new Class[] { GroupStep.class, PatternStep.class } });
 		testConfigs.add(new Object[] { "SELECT * {{?s ?p ?o} UNION {?u ?v ?w}}", 2,
 				new Class[] { GroupStep.class, PatternStep.class, GroupStep.class, PatternStep.class } });

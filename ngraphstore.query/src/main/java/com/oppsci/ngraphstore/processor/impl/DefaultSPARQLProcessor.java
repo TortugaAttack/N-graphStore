@@ -36,7 +36,9 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 	}
 
 	public JSONObject select(String queryString) throws Exception {
+		//TODO check cache first
 		Query query = QueryFactory.create(queryString);
+		//if not cached add to cache if possible
 		return planner.select(query).asJSON();
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.jena.sparql.core.TriplePath;
 
+import com.oppsci.ngraphstore.graph.TripleFactory;
 import com.oppsci.ngraphstore.query.planner.step.AbstractStep;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
@@ -33,25 +34,22 @@ public class PatternStep extends AbstractStep {
 			objectsFlag[0] = true;
 			vars.add(pattern.getSubject().toString());
 		} else {
-			// TODO parse Node to String
 			searchFields.add(LuceneConstants.SUBJECT);
-			uris.add("<" + pattern.getSubject().toString(true) + ">");
+			uris.add(TripleFactory.parseSubject(pattern.getSubject()));
 		}
 		if (pattern.getPredicate().isVariable()) {
 			objectsFlag[1] = true;
 			vars.add(pattern.getPredicate().toString());
 		} else {
-			// TODO parse Node to String
 			searchFields.add(LuceneConstants.PREDICATE);
-			uris.add("<" + pattern.getPredicate().toString(true) + ">");
+			uris.add(TripleFactory.parsePredicate(pattern.getPredicate()));
 		}
 		if (pattern.getObject().isVariable()) {
 			objectsFlag[2] = true;
 			vars.add(pattern.getObject().toString());
 		} else {
-			// TODO parse Node to String
 			searchFields.add(LuceneConstants.OBJECT);
-			uris.add("<" + pattern.getObject().toString(true) + ">");
+			uris.add(TripleFactory.parseObject(pattern.getObject()));
 		}
 		if(graphIsVar) {
 			objectsFlag[3]=true;
@@ -64,7 +62,13 @@ public class PatternStep extends AbstractStep {
 
 		LuceneSearchSpec spec = new LuceneSearchSpec(uris.toArray(new String[] {}), objectsFlag,
 				searchFields.toArray(new String[] {}));
-		SimpleResultSet ret = overseer.search(spec, stats);
+		SimpleResultSet ret;
+		if(uris.isEmpty()) {
+			ret = overseer.searchAll(spec, stats);
+		}
+		else {
+			ret = overseer.search(spec, stats);
+		}
 		ret.setVars(vars);
 		return ret;
 	}

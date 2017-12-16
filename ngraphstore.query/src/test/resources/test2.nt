@@ -1,0 +1,4 @@
+<urn://a2> <urn://b3> <urn://c2> .
+<urn://a3> <urn://b3> <urn://c2> .
+<urn://c2> <urn://d> <urn://e> .
+<urn://c2> <urn://p> "test"@en .

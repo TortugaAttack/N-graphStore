@@ -1,0 +1,7 @@
+<u://book1> <http://purl.org/dc/elements/1.1/title> <urn://book/Title1> .
+<u://book1> <http://purl.org/dc/elements/1.1/title> <urn://book/Title3> .
+<urn://book/Title1> <http://www.w3.org/2000/01/rdf-schema#label> "test title 1" .
+<urn://book/Title2> <http://www.w3.org/2000/01/rdf-schema#label> "test title 2" .
+<urn://book/Title3> <http://www.w3.org/2000/01/rdf-schema#label> "test title 3" .
+<urn://a> <urn://b> <urn://c> .
+<urn://a1> <urn://b2> <urn://c> .
