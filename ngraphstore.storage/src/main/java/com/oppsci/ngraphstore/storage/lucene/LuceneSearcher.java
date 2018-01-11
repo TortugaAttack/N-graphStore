@@ -44,6 +44,8 @@ public class LuceneSearcher {
 	private Directory indexDirectory;
 	private IndexReader indexReader;
 	private String path;
+	
+	private int maxSearch = LuceneConstants.MAX_SEARCH;
 
 	/**
 	 * Creates and opens a Lucene Searcher according to the given path
@@ -54,6 +56,19 @@ public class LuceneSearcher {
 	 */
 	public LuceneSearcher(String indexDirectoryPath) throws IOException {
 		open(indexDirectoryPath);
+	}
+	
+	/**
+	 * Creates and opens a Lucene Searcher according to the given path
+	 * 
+	 * @param indexDirectoryPath
+	 *            the path in which the indexing files should be.
+	 * @param maxSearch the internal lucene maximal documents at a time search
+	 * @throws IOException
+	 */
+	public LuceneSearcher(String indexDirectoryPath, int maxSearch) throws IOException {
+		this(indexDirectoryPath);
+		this.maxSearch=maxSearch;
 	}
 
 	/**
@@ -120,9 +135,8 @@ public class LuceneSearcher {
 				finalQuery.add(query, Occur.MUST);
 			}
 		}
-		if (stats.getLastDoc() != null)
-			return indexSearcher.searchAfter(stats.getLastDoc(), finalQuery, LuceneConstants.MAX_SEARCH);
-		return indexSearcher.search(finalQuery, LuceneConstants.MAX_SEARCH);
+		return getTopDocsAfterSave(stats, finalQuery);
+
 
 	}
 
@@ -134,9 +148,8 @@ public class LuceneSearcher {
 		} else {
 			query = new TermQuery(new Term(searchField, searchQuery));
 		}
-		if (stats.getLastDoc() != null)
-			return indexSearcher.searchAfter(stats.getLastDoc(), query, LuceneConstants.MAX_SEARCH);
-		return indexSearcher.search(query, LuceneConstants.MAX_SEARCH);
+		return getTopDocsAfterSave(stats, query);
+		
 	}
 
 	private Document getDocument(ScoreDoc scoreDoc) throws CorruptIndexException, IOException {
@@ -232,13 +245,31 @@ public class LuceneSearcher {
 	public Collection<Node[]> getAllRecords(boolean[] objectsFlag, SearchStats stats)
 			throws CorruptIndexException, IOException {
 		MatchAllDocsQuery query = new MatchAllDocsQuery();
-		return searchTopDocs(indexSearcher.search(query, LuceneConstants.MAX_SEARCH), objectsFlag, stats);
+		TopDocs docs = getTopDocsAfterSave(stats, query);
+		
+		return searchTopDocs(docs, objectsFlag, stats);
+	}
+	
+	private TopDocs getTopDocsAfterSave(SearchStats stats, Query query) throws IOException {
+		if (stats.getLastDoc() != null) {
+			if(stats.getLastDoc().doc<stats.getTotalHits()) {
+				return  indexSearcher.searchAfter(stats.getLastDoc(), query, maxSearch);
+			}
+			else {
+				return null;
+			}
+		}
+		else {
+			return indexSearcher.search(query, maxSearch);
+		}
 	}
 
 	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag, SearchStats stats)
 			throws CorruptIndexException, IOException {
 		Collection<Node[]> triples = new HashSet<Node[]>();
-
+		if(docs==null) {
+			return triples;
+		}
 		for (ScoreDoc scoreDoc : docs.scoreDocs) {
 			Document doc;
 			doc = getDocument(scoreDoc);
@@ -256,8 +287,9 @@ public class LuceneSearcher {
 		}
 		if (docs.scoreDocs.length > 0) {
 			stats.setLastDoc(docs.scoreDocs[docs.scoreDocs.length - 1]);
+			stats.setLastHit(stats.getLastDoc().doc);
 		}
-		stats.setLastHit(docs.scoreDocs.length);
+		
 		stats.setTotalHits(docs.totalHits);
 
 		return triples;
@@ -272,7 +304,7 @@ public class LuceneSearcher {
 
 		}
 		wrapperQuery.add(finalQuery, Occur.MUST);
-		return indexSearcher.search(wrapperQuery, LuceneConstants.MAX_SEARCH);
+		return indexSearcher.search(wrapperQuery, maxSearch);
 	}
 
 	public String[][] explore(String term) throws IOException {

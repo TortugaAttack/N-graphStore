@@ -157,7 +157,7 @@ public class ClusterOverseerTest {
 		String[] uris = new String[] {"<abc://abc4>"};
 		String[] fields = new String[] {LuceneConstants.OBJECT};
 		LuceneSearchSpec spec = new LuceneSearchSpec(uris, objectFields, fields);
-		SimpleResultSet res = overseer.search(spec, new SearchStats());
+		SimpleResultSet res = overseer.search(spec, null);
 		assertTrue(res.getRows().size()==2);
 		Iterator<Node[]> nodeIterator = res.getRows().iterator();
 		Node[] node1 = nodeIterator.next();
@@ -176,7 +176,7 @@ public class ClusterOverseerTest {
 	public void selectAll() throws Exception {
 		boolean[] objectFields= new boolean[] {true, true, true, true};
 		LuceneSearchSpec spec = new LuceneSearchSpec(null, objectFields, null);
-		SimpleResultSet res = overseer.searchAll(spec, new SearchStats());
+		SimpleResultSet res = overseer.searchAll(spec, null);
 		assertTrue(res.getRows().size()==7);
 	}
 	
@@ -191,7 +191,7 @@ public class ClusterOverseerTest {
 		overseer.dropAll();
 		boolean[] objectFields= new boolean[] {true, true, true, true};
 		LuceneSearchSpec spec = new LuceneSearchSpec(null, objectFields, null);
-		assertTrue(overseer.searchAll(spec, new SearchStats()).getRows().isEmpty());
+		assertTrue(overseer.searchAll(spec, null).getRows().isEmpty());
 	}
 	
 	@Test

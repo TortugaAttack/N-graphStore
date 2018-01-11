@@ -22,10 +22,20 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 public class PatternStep extends AbstractStep {
 
 	private TriplePath pattern;
-	private SearchStats stats = new SearchStats();
+	private SearchStats[] stats;
 
+	private void init(int size) {
+		stats = new SearchStats[size];
+		for(int i=0;i<size;i++) {
+			stats[i] = new SearchStats();
+		}
+	}
+	
 	@Override
 	public SimpleResultSet execute(ClusterOverseer<SimpleResultSet> overseer) throws Exception {
+		if(stats==null) {
+			init(overseer.getClusterSize());
+		}
 		List<String> uris = new LinkedList<String>();
 		List<String> searchFields = new LinkedList<String>();
 		boolean[] objectsFlag = new boolean[] { false, false, false, false };
@@ -84,12 +94,17 @@ public class PatternStep extends AbstractStep {
 
 	@Override
 	public boolean isRemembered() {
-		return stats.getTotalHits()>stats.getLastHit();
+		for(SearchStats stats : this.stats) {
+			if( stats.getTotalHits()>stats.getLastHit()+1) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public void reset() {
-		stats = new SearchStats();
+		init(stats.length);
 	}
 
 	@Override

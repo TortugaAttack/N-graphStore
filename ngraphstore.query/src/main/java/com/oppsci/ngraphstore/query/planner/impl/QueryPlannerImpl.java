@@ -1,5 +1,7 @@
 package com.oppsci.ngraphstore.query.planner.impl;
 
+import java.util.List;
+
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
@@ -28,6 +30,11 @@ public class QueryPlannerImpl implements QueryPlanner {
 		// 1. create Steps & merger (this is the actual queryplan)
 		Step rootStep = createSteps(query);
 		boolean constraintsMet = true;
+		//set limit to internal limit and check if actual limit is smaller than internal
+		Long limit = internalLimit;
+		if (query.getLimit() > 0) {
+			limit = Math.min(internalLimit, query.getLimit());
+		}
 		// execute first round
 		SimpleResultSet results = new SimpleResultSet();
 		do {
@@ -41,10 +48,7 @@ public class QueryPlannerImpl implements QueryPlanner {
 			}else {
 				results = new AddMerger().merge(results, newResults);
 			}
-
-			long limit = internalLimit;
-			if (query.getLimit() > 0)
-				limit = Math.min(internalLimit, query.getLimit());
+			
 			// apply modifier.
 			if (query.isDistinct()) {
 				results.distinct();
@@ -57,7 +61,10 @@ public class QueryPlannerImpl implements QueryPlanner {
 			// does constraints still met?
 
 		} while (rootStep.isRemembered() && !constraintsMet);
-
+		
+		if(results.getRows().size()>limit) {
+			results.setRows(((List)results.getRows()).subList(0, limit.intValue()));
+		}
 		return results;
 	}
 
@@ -66,9 +73,17 @@ public class QueryPlannerImpl implements QueryPlanner {
 		SimpleElementVisitor elVisitor = new SimpleElementVisitor();
 		elVisitor.setElementWhere(query.getQueryPattern());
 		ElementWalker.walk(query.getQueryPattern(), elVisitor);
+		//return root step
 		return elVisitor.getRootStep();
 	}
 
+	/**
+	 * Executes an ASK query and returns the answer as a boolean
+	 * 
+	 * @param queryString the ask query
+	 * @return the answer to the ask query
+	 * @throws Exception
+	 */
 	public boolean ask(String queryString) throws Exception {
 		return ask(QueryFactory.create(queryString));
 	}
@@ -76,12 +91,12 @@ public class QueryPlannerImpl implements QueryPlanner {
 	public boolean ask(Query query) throws Exception {
 		// 1. create Steps & merger (this is the actual queryplan)
 		Step rootStep = createSteps(query);
-		boolean constraintsMet = true;
-		// execute first round
+		// execute until either no more triples can be considered or the the results are not empty
 		SimpleResultSet results = new SimpleResultSet();
 		do {
 			results = rootStep.execute(overseer);
 		}while(rootStep.isRemembered()&&results.getRows().isEmpty());
+		//if the results are empty return true, otherwise false
 		return !results.getRows().isEmpty();
 	}
 

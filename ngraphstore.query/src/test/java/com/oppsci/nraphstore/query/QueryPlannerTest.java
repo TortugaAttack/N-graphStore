@@ -28,6 +28,7 @@ import com.oppsci.ngraphstore.graph.TripleFactory;
 import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.query.planner.impl.QueryPlannerImpl;
 import com.oppsci.ngraphstore.storage.cluster.overseer.impl.ClusterOverseerImpl;
+import com.oppsci.ngraphstore.storage.lucene.LuceneConstants;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 @RunWith(Parameterized.class)
@@ -37,30 +38,38 @@ public class QueryPlannerTest {
 	private ClusterOverseerImpl overseer;
 	private String queryString;
 	private File expectedFile;
+	private int maxSearch;
 	
 	@Parameters
 	public static Collection<Object[]> data() {
 		List<Object[]> testConfigs = new ArrayList<Object[]>();
 
-		testConfigs.add(new Object[] { "SELECT ?s ?p {?s ?p ?o}", "src/test/resources/full.tsv"});
-		testConfigs.add(new Object[] { "SELECT DISTINCT ?g {Graph ?g {?s ?p ?o}}", "src/test/resources/graph.tsv"});
-		testConfigs.add(new Object[] { "SELECT * {{?s <urn://b> ?o} UNION {?s <urn://b2> ?o}}", "src/test/resources/union.tsv"});
-		testConfigs.add(new Object[] { "SELECT ?v ?s ?o  {?s <http://www.w3.org/2000/01/rdf-schema#label> ?o . <u://book1> ?v ?s}", "src/test/resources/join.tsv"});
-		testConfigs.add(new Object[] { "SELECT ?p ?o {<urn://not> ?p ?o}", "src/test/resources/empty.tsv"});
+		testConfigs.add(new Object[] { "SELECT ?s ?p {?s ?p ?o}", "src/test/resources/full.tsv", LuceneConstants.MAX_SEARCH});
+		testConfigs.add(new Object[] { "SELECT ?s ?p {?s ?p ?o}", "src/test/resources/full.tsv", 1});
+		testConfigs.add(new Object[] { "SELECT DISTINCT ?g {Graph ?g {?s ?p ?o}}", "src/test/resources/graph.tsv", LuceneConstants.MAX_SEARCH});
+		testConfigs.add(new Object[] { "SELECT DISTINCT ?g {Graph ?g {?s ?p ?o}}", "src/test/resources/graph.tsv", 1});
+		testConfigs.add(new Object[] { "SELECT * {{?s <urn://b> ?o} UNION {?s <urn://b2> ?o}}", "src/test/resources/union.tsv", LuceneConstants.MAX_SEARCH});
+		testConfigs.add(new Object[] { "SELECT * {{?s <urn://b> ?o} UNION {?s <urn://b2> ?o}}", "src/test/resources/union.tsv", 1});
+		testConfigs.add(new Object[] { "SELECT ?v ?s ?o  {?s <http://www.w3.org/2000/01/rdf-schema#label> ?o . <u://book1> ?v ?s}", "src/test/resources/join.tsv", LuceneConstants.MAX_SEARCH});
+		testConfigs.add(new Object[] { "SELECT ?v ?s ?o  {?s <http://www.w3.org/2000/01/rdf-schema#label> ?o . <u://book1> ?v ?s}", "src/test/resources/join.tsv", 1});
+		testConfigs.add(new Object[] { "SELECT ?p ?o {<urn://not> ?p ?o}", "src/test/resources/empty.tsv", LuceneConstants.MAX_SEARCH});
+		testConfigs.add(new Object[] { "SELECT ?p ?o {<urn://not> ?p ?o}", "src/test/resources/empty.tsv", 1});
 		
 		return testConfigs;
 	}
 	
-	public QueryPlannerTest(String queryString, String expectedFile) throws MalformedURLException {
+	
+	public QueryPlannerTest(String queryString, String expectedFile, int maxSearch) throws MalformedURLException {
 		this.queryString=queryString;
 		this.expectedFile = new File(expectedFile);
+		this.maxSearch = maxSearch;
 	}
 	
 	@Before
 	public void init() throws Exception {
 		uuid = UUID.randomUUID().toString();
 		//load datatest
-		overseer = new ClusterOverseerImpl(uuid, 2, 180, false);
+		overseer = new ClusterOverseerImpl(uuid, 2, 180, maxSearch, false);
 		//load files as String and load it into the database
 		String data = FileUtils.readFileToString(new File("src/test/resources/test1.nt"), Charset.forName("UTF-8"));
 		overseer.load(TripleFactory.parseTriples(data, "<urn://a>"));
@@ -80,7 +89,7 @@ public class QueryPlannerTest {
 		QueryPlannerImpl planner = new QueryPlannerImpl(overseer);
 		SimpleResultSet res = planner.select(queryString);
 		List<String> csvContent = FileUtils.readLines(expectedFile, "UTF-8");
-		assertTrue(csvContent.size()==res.getRows().size());
+		assertEquals(csvContent.size(), res.getRows().size());
 		for(Node[] nodes : res.getRows()) {
 			//check if nodes in expected Files.
 			String[] strNode = node2String(nodes);
@@ -92,6 +101,7 @@ public class QueryPlannerTest {
 			assertTrue(csvContent.contains(builder.toString()));
 		}
 	}
+	
 	
 	private String[] node2String(Node[] nodes) {
 		String[] ret = new String[nodes.length];

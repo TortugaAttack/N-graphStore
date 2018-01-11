@@ -28,7 +28,7 @@ public class NodeFactoryTest {
 	public static Collection<Object[]> data() {
 		List<Object[]> testConfigs = new ArrayList<Object[]>();
 
-		testConfigs.add(new Object[] {"<urn://test>", "{ \"value\":\"<urn://test>\", \"type\":\"uri\" }", 0});
+		testConfigs.add(new Object[] {"<urn://test>", "{ \"value\":\"urn://test\", \"type\":\"uri\" }", 0});
 		testConfigs.add(new Object[] {"_:b1", "{ \"value\":\"_:b1\", \"type\":\"bnode\" }", 1});
 		testConfigs.add(new Object[] {"\"test\"", "{ \"value\":\"test\", \"type\":\"literal\" }", 2});
 		testConfigs.add(new Object[] {"\"test\"^^<urn://test>", "{ \"value\":\"test\", \"datatype\":\"urn://test\" \"type\":\"typed-literal\" }", 2});

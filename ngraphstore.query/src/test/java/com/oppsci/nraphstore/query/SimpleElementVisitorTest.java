@@ -43,6 +43,7 @@ public class SimpleElementVisitorTest {
 				new Class[] { PatternStep.class, GroupStep.class, PatternStep.class } });
 		testConfigs.add(new Object[] { "SELECT * {?s ?p ?o OPTIONAL {{?u ?v ?w}}}", 2,
 				new Class[] { PatternStep.class, GroupStep.class, GroupStep.class, PatternStep.class } });
+		
 		return testConfigs;
 	}
 

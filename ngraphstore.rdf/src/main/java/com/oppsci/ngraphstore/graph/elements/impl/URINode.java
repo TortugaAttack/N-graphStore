@@ -31,7 +31,7 @@ public class URINode implements Node {
 	public JSONObject asJSON() {
 		JSONObject uriJSON = new JSONObject();
 		uriJSON.put("type", "uri");
-		uriJSON.put("value", "<" +uri+">");
+		uriJSON.put("value", uri);
 		return uriJSON;
 	}
 

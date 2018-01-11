@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.oppsci.ngraphstore.graph.elements.Node;
-import com.oppsci.ngraphstore.query.planner.merger.AbstractMerger;
+import com.oppsci.ngraphstore.query.planner.merger.Merger;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
 /**
@@ -15,8 +15,29 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
  * @author f.conrads
  *
  */
-public class JoinMerger extends AbstractMerger {
+public class JoinMerger implements Merger {
 
+	/**
+	 * Joins two variable sets
+	 * 
+	 * @param vars1
+	 * @param vars2
+	 * @return
+	 */
+	public List<String> joinVars(List<String> vars1, List<String> vars2) {
+		List<String> join = new LinkedList<String>();
+		if(vars1.isEmpty() || vars2.isEmpty()) {
+			return join;
+		}
+		join.addAll(vars1);
+		for (String varIn2 : vars2) {
+			if (!join.contains(varIn2)) {
+				join.add(varIn2);
+			}
+		}
+		return join;
+	}
+	
 	@Override
 	public SimpleResultSet merge(SimpleResultSet oldRS, SimpleResultSet newRS) {
 		SimpleResultSet join = new SimpleResultSet();
@@ -25,7 +46,7 @@ public class JoinMerger extends AbstractMerger {
 		return join;
 	}
 
-	public List<Node[]> joinTables(SimpleResultSet oldRS, SimpleResultSet newRS) {
+	protected List<Node[]> joinTables(SimpleResultSet oldRS, SimpleResultSet newRS) {
 		List<Node[]> join = new LinkedList<Node[]>();
 		Collection<Node[]> table1 = oldRS.getRows();
 		Collection<Node[]> table2 = newRS.getRows();
@@ -56,7 +77,7 @@ public class JoinMerger extends AbstractMerger {
 		return join;
 	}
 
-	private List<Node[]> cartesianJoin(SimpleResultSet oldRS, SimpleResultSet newRS) {
+	protected List<Node[]> cartesianJoin(SimpleResultSet oldRS, SimpleResultSet newRS) {
 		List<Node[]> cartesianProduct = new LinkedList<Node[]>();
 		for (Node[] node1 : oldRS.getRows()) {
 			for (Node[] node2 : newRS.getRows()) {
@@ -67,7 +88,7 @@ public class JoinMerger extends AbstractMerger {
 		return cartesianProduct;
 	}
 
-	public Node[] joinNodes(Node[] node1, Node[] node2, List<Integer[]> indexMapping) {
+	protected Node[] joinNodes(Node[] node1, Node[] node2, List<Integer[]> indexMapping) {
 		Node[] join = new Node[node1.length + node2.length - indexMapping.size()];
 		int i = 0;
 		for (; i < node1.length; i++) {
@@ -94,7 +115,7 @@ public class JoinMerger extends AbstractMerger {
 		return join;
 	}
 
-	public List<Integer[]> indexMapping(List<String> vars1, List<String> vars2) {
+	protected List<Integer[]> indexMapping(List<String> vars1, List<String> vars2) {
 		List<Integer[]> indexMapping = new LinkedList<Integer[]>();
 		for (int i = 0; i < vars2.size(); i++) {
 			String varIn2 = vars2.get(i);

@@ -248,7 +248,7 @@ public class StorageTest {
 		Collection<Node[]> nodes1 = searcher.search(quad1[0], objectsFlag, LuceneConstants.SUBJECT, stats);
 		assertTrue(nodes1.size()==1);
 		assertTrue(stats.getTotalHits()==2);
-		assertTrue(stats.getLastHit()==1);
+		assertTrue(stats.getLastHit()==0);
 		Collection<Node[]> nodes2 = searcher.search(quad1[0], objectsFlag, LuceneConstants.SUBJECT, stats);
 		assertTrue(nodes2.size()==1);
 		nodes1.addAll(nodes2);

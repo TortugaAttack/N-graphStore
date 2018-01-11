@@ -75,19 +75,29 @@ public class SimpleResultSet{
 		JSONObject json = new JSONObject();
 		JSONArray jsonVars = new JSONArray();
 		jsonVars.addAll(this.vars);
-		json.put("head", jsonVars);
+		JSONObject head = new JSONObject();
+		head.put("vars", jsonVars);
+		json.put("head", head);
 		JSONArray bindings = new JSONArray();
 		for (Node[] row : rows) {
+			JSONObject binding = new JSONObject();
 			for (int i = 0; i < row.length; i++) {
 				String var = this.vars.get(i);
-				JSONObject result = row[i].asJSON();
-
-				JSONObject binding = new JSONObject();
+				JSONObject result;
+				if(row[i]!=null) {
+					result = row[i].asJSON();
+				}
+				else {
+					result = new JSONObject();
+				}
 				binding.put(var, result);
-				bindings.add(binding);
+				
 			}
+			bindings.add(binding);
 		}
-		json.put("results", bindings);
+		JSONObject bind = new JSONObject();
+		bind.put("bindings", bindings);
+		json.put("results", bind);
 		return json;
 	}
 

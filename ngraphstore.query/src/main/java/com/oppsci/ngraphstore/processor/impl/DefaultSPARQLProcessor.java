@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 import com.oppsci.ngraphstore.graph.Model2JSONConverter;
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
 import com.oppsci.ngraphstore.query.planner.QueryPlanner;
+import com.oppsci.ngraphstore.query.planner.impl.QueryPlannerImpl;
 import com.oppsci.ngraphstore.storage.cluster.overseer.ClusterOverseer;
 import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 
@@ -33,6 +34,7 @@ public class DefaultSPARQLProcessor implements SPARQLProcessor {
 	 */
 	public DefaultSPARQLProcessor(ClusterOverseer<SimpleResultSet> overseer) {
 		this.overseer = overseer;
+		this.planner=new QueryPlannerImpl(overseer);
 	}
 
 	public JSONObject select(String queryString) throws Exception {

@@ -1,5 +1,7 @@
 package com.oppsci.ngraphstore.web.rest.rdf;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.json.simple.JSONObject;
 import com.oppsci.ngraphstore.processor.SPARQLProcessor;
 
@@ -56,8 +58,16 @@ public class SPARQLRestController {
 	 * @throws Exception 
 	 */
 	public JSONObject processQuery(String query) throws Exception {
-
-		return processor.select(query);
+		Query q = QueryFactory.create(query);
+		if(q.isSelectType())
+			return processor.select(query);
+		if(q.isAskType())
+			return processor.ask(query);
+		if(q.isConstructType())
+			return processor.construct(query);
+		if(q.isDescribeType())
+			return processor.describe(query);
+		return null;
 	}
 
 	public JSONObject explore(String uri) throws Exception {
