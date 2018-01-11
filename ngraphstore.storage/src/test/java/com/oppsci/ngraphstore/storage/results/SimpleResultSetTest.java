@@ -21,7 +21,7 @@ public class SimpleResultSetTest {
 	public void emptyJsonTest() {
 		SimpleResultSet res = new SimpleResultSet();
 		JSONObject results = (JSONObject)res.asJSON();
-		JSONArray head = ((JSONArray)results.get("head"));
+		JSONArray head = (JSONArray)((JSONObject)results.get("head")).get("vars");
 		assertTrue(head.isEmpty());
 		JSONArray bindings = ((JSONArray)((JSONObject)results.get("results")).get("bindings"));
 		assertTrue(bindings.isEmpty());
@@ -49,7 +49,7 @@ public class SimpleResultSetTest {
 		res.addRows(rows);
 		
 		JSONObject results = (JSONObject)res.asJSON();
-		JSONArray head = ((JSONArray)results.get("head"));
+		JSONArray head = (JSONArray)((JSONObject)results.get("head")).get("vars");
 		assertEquals("s", head.get(0));
 		assertEquals("p", head.get(1));
 		JSONArray bindings = ((JSONArray)((JSONObject)results.get("results")).get("bindings"));
