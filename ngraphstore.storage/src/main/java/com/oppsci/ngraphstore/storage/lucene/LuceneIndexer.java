@@ -19,6 +19,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.util.Version;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.slf4j.Logger;
@@ -57,7 +59,7 @@ public class LuceneIndexer {
 	 */
 	public void open(String path) throws IOException {
 		this.path = path;
-		dir = FSDirectory.open(new File(path));
+		dir = MMapDirectory.open(new File(path));
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
 	
@@ -72,7 +74,7 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-		dir = FSDirectory.open(new File(path));
+		dir = MMapDirectory.open(new File(path));
 		Analyzer analyzer = new KeywordAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);

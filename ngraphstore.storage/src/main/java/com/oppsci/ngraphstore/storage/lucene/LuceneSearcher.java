@@ -2,6 +2,7 @@ package com.oppsci.ngraphstore.storage.lucene;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,6 +25,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 
 import com.oppsci.ngraphstore.graph.elements.Node;
 import com.oppsci.ngraphstore.graph.elements.NodeFactory;
@@ -80,7 +83,7 @@ public class LuceneSearcher {
 	 */
 	public void open(String indexDirectoryPath) throws IOException {
 		this.path = indexDirectoryPath;
-		indexDirectory = FSDirectory.open(new File(indexDirectoryPath));
+		indexDirectory = MMapDirectory.open(new File(indexDirectoryPath));
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
@@ -91,7 +94,7 @@ public class LuceneSearcher {
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-		indexDirectory = FSDirectory.open(new File(path));
+		indexDirectory = MMapDirectory.open(new File(path));
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
@@ -204,7 +207,10 @@ public class LuceneSearcher {
 	public Collection<Node[]> searchRelation(String uri, boolean[] objectsFlag, String searchField, SearchStats stats)
 			throws IOException {
 		TopDocs docs;
+		long start = Calendar.getInstance().getTimeInMillis();
 		docs = searchTops(uri, searchField, stats);
+		long end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("search Tops took "+(end-start)+"ms");
 		return searchTopDocs(docs, objectsFlag, stats);
 	}
 
@@ -227,7 +233,10 @@ public class LuceneSearcher {
 	public Collection<Node[]> searchRelation(String[] uris, boolean[] objectsFlag, String[] searchFields,
 			SearchStats stats) throws CorruptIndexException, IOException {
 		TopDocs docs;
+		long start = Calendar.getInstance().getTimeInMillis();
 		docs = searchTops(uris, searchFields, stats);
+		long end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("search Tops took "+(end-start)+"ms");
 		return searchTopDocs(docs, objectsFlag, stats);
 	}
 
@@ -245,8 +254,10 @@ public class LuceneSearcher {
 	public Collection<Node[]> getAllRecords(boolean[] objectsFlag, SearchStats stats)
 			throws CorruptIndexException, IOException {
 		MatchAllDocsQuery query = new MatchAllDocsQuery();
+		long start = Calendar.getInstance().getTimeInMillis();
 		TopDocs docs = getTopDocsAfterSave(stats, query);
-		
+		long end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("Get All took "+(end-start)+"ms");
 		return searchTopDocs(docs, objectsFlag, stats);
 	}
 	
@@ -266,6 +277,7 @@ public class LuceneSearcher {
 
 	private Collection<Node[]> searchTopDocs(TopDocs docs, boolean[] objectsFlag, SearchStats stats)
 			throws CorruptIndexException, IOException {
+		long start = Calendar.getInstance().getTimeInMillis();
 		Collection<Node[]> triples = new HashSet<Node[]>();
 		if(docs==null) {
 			return triples;
@@ -291,7 +303,8 @@ public class LuceneSearcher {
 		}
 		
 		stats.setTotalHits(docs.totalHits);
-
+		long end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("Search TopDocs took "+(end-start)+"ms");
 		return triples;
 	}
 

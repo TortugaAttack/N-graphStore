@@ -1,5 +1,6 @@
 package com.oppsci.ngraphstore.query.planner.impl;
 
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.jena.query.Query;
@@ -28,7 +29,12 @@ public class QueryPlannerImpl implements QueryPlanner {
 
 	public SimpleResultSet select(Query query) throws Exception {
 		// 1. create Steps & merger (this is the actual queryplan)
+		System.out.println("###########");
+		System.out.println(query);
+		long start = Calendar.getInstance().getTimeInMillis();
 		Step rootStep = createSteps(query);
+		long end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("Create Steps took "+(end-start)+"ms");
 		boolean constraintsMet = true;
 		//set limit to internal limit and check if actual limit is smaller than internal
 		Long limit = internalLimit;
@@ -40,6 +46,9 @@ public class QueryPlannerImpl implements QueryPlanner {
 		do {
 			constraintsMet = true;
 			SimpleResultSet newResults = rootStep.execute(overseer);
+			end = Calendar.getInstance().getTimeInMillis();
+			System.out.println("Last run took "+(end-start)+"ms");
+
 			// remove all non projection vars
 			newResults.removeNonProjection(query.getResultVars());
 			// merge results with old results
@@ -61,7 +70,8 @@ public class QueryPlannerImpl implements QueryPlanner {
 			// does constraints still met?
 
 		} while (rootStep.isRemembered() && !constraintsMet);
-		
+		end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("Complete run took "+(end-start)+"ms");
 		if(results.getRows().size()>limit) {
 			results.setRows(((List)results.getRows()).subList(0, limit.intValue()));
 		}

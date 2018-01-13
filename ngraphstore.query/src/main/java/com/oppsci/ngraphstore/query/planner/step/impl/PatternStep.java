@@ -1,5 +1,6 @@
 package com.oppsci.ngraphstore.query.planner.step.impl;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class PatternStep extends AbstractStep {
 		List<String> searchFields = new LinkedList<String>();
 		boolean[] objectsFlag = new boolean[] { false, false, false, false };
 		List<String> vars = new LinkedList<String>();
+		
 		if (pattern.getSubject().isVariable()) {
 			objectsFlag[0] = true;
 			vars.add(pattern.getSubject().toString());
@@ -73,12 +75,17 @@ public class PatternStep extends AbstractStep {
 		LuceneSearchSpec spec = new LuceneSearchSpec(uris.toArray(new String[] {}), objectsFlag,
 				searchFields.toArray(new String[] {}));
 		SimpleResultSet ret;
+		
+		long start = Calendar.getInstance().getTimeInMillis();
+
 		if(uris.isEmpty()) {
 			ret = overseer.searchAll(spec, stats);
 		}
 		else {
 			ret = overseer.search(spec, stats);
 		}
+		long end = Calendar.getInstance().getTimeInMillis();
+		System.out.println("One Search took "+(end-start)+"ms");
 		ret.setVars(vars);
 		return ret;
 	}

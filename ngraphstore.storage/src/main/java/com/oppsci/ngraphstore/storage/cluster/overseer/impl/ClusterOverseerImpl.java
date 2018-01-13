@@ -50,6 +50,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		closeIndexer(this.indexer);
 		this.searcher = createSearcherOnTheFly(rootFolder);
 		this.ignoreErrors=ignoreErrors;
+		
 
 	}
 
