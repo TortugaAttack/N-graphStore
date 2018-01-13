@@ -7,7 +7,7 @@ public class SearchStats {
 	private ScoreDoc lastDoc;
 	private int lastHit;
 
-	private int totalHits;
+	private long totalHits;
 
 	public boolean hasMoreResults() {
 		return totalHits > lastHit;
@@ -31,16 +31,16 @@ public class SearchStats {
 	/**
 	 * @return the totalHits
 	 */
-	public int getTotalHits() {
+	public long getTotalHits() {
 		return totalHits;
 	}
 
 	/**
-	 * @param totalHits
+	 * @param totalHits2
 	 *            the totalHits to set
 	 */
-	public void setTotalHits(int totalHits) {
-		this.totalHits = totalHits;
+	public void setTotalHits(long totalHits2) {
+		this.totalHits = totalHits2;
 	}
 
 	/**

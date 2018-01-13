@@ -15,6 +15,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -83,7 +84,7 @@ public class LuceneSearcher {
 	 */
 	public void open(String indexDirectoryPath) throws IOException {
 		this.path = indexDirectoryPath;
-		indexDirectory = MMapDirectory.open(new File(indexDirectoryPath));
+		indexDirectory = MMapDirectory.open(new File(path).toPath());
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
@@ -94,7 +95,8 @@ public class LuceneSearcher {
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-		indexDirectory = MMapDirectory.open(new File(path));
+		indexDirectory = MMapDirectory.open(new File(path).toPath());
+
 		indexReader = DirectoryReader.open(indexDirectory);
 		indexSearcher = new IndexSearcher(indexReader);
 	}
@@ -126,7 +128,7 @@ public class LuceneSearcher {
 	}
 
 	private TopDocs searchTerms(String[] searchQueries, String[] searchFields, SearchStats stats) throws IOException {
-		BooleanQuery finalQuery = new BooleanQuery();
+		Builder finalQuery = new BooleanQuery.Builder();
 
 		for (int i = 0; i < searchQueries.length; i++) {
 			if (searchQueries[i].startsWith("_:")) {
@@ -138,7 +140,7 @@ public class LuceneSearcher {
 				finalQuery.add(query, Occur.MUST);
 			}
 		}
-		return getTopDocsAfterSave(stats, finalQuery);
+		return getTopDocsAfterSave(stats, finalQuery.build());
 
 
 	}
@@ -309,15 +311,15 @@ public class LuceneSearcher {
 	}
 
 	public TopDocs searchORFields(String term, String[] searchFields) throws IOException {
-		BooleanQuery finalQuery = new BooleanQuery();
-		BooleanQuery wrapperQuery = new BooleanQuery();
+		Builder finalQuery = new BooleanQuery.Builder();
+		Builder wrapperQuery = new BooleanQuery.Builder();
 		for (int i = 0; i < searchFields.length; i++) {
 			TermQuery query = new TermQuery(new Term(searchFields[i], term));
 			finalQuery.add(query, Occur.SHOULD);
 
 		}
-		wrapperQuery.add(finalQuery, Occur.MUST);
-		return indexSearcher.search(wrapperQuery, maxSearch);
+		wrapperQuery.add(finalQuery.build(), Occur.MUST);
+		return indexSearcher.search(wrapperQuery.build(), maxSearch);
 	}
 
 	public String[][] explore(String term) throws IOException {

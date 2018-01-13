@@ -13,15 +13,13 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.util.Version;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +57,9 @@ public class LuceneIndexer {
 	 */
 	public void open(String path) throws IOException {
 		this.path = path;
-		dir = MMapDirectory.open(new File(path));
+		dir = MMapDirectory.open(new File(path).toPath());
 		Analyzer analyzer = new KeywordAnalyzer();
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
+		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 	
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 
@@ -74,9 +72,9 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void reopen() throws IOException {
-		dir = MMapDirectory.open(new File(path));
+		dir = MMapDirectory.open(new File(path).toPath());
 		Analyzer analyzer = new KeywordAnalyzer();
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46, analyzer);
+		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 
 		writer = new IndexWriter(dir, config);
@@ -150,7 +148,7 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void delete(String subject, String predicate, String object, String graph) throws IOException {
-		BooleanQuery finalQuery = new BooleanQuery();
+		Builder finalQuery = new BooleanQuery.Builder();
 		TermQuery query = new TermQuery(new Term(LuceneConstants.SUBJECT, subject));
 		finalQuery.add(query, Occur.MUST);
 		query = new TermQuery(new Term(LuceneConstants.PREDICATE, predicate));
@@ -159,7 +157,7 @@ public class LuceneIndexer {
 		finalQuery.add(query, Occur.MUST);
 		query = new TermQuery(new Term(LuceneConstants.GRAPH, graph));
 		finalQuery.add(query, Occur.MUST);
-		writer.deleteDocuments(finalQuery);
+		writer.deleteDocuments(finalQuery.build());
 	}
 
 	/**
@@ -174,7 +172,7 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void delete(String[] nodes, String[] searchFields) throws IOException {
-		BooleanQuery finalQuery = new BooleanQuery();
+		Builder finalQuery = new BooleanQuery.Builder();
 		for (int i = 0; i < nodes.length; i++) {
 			Query query;
 			if (nodes[i].startsWith("_:")) {
@@ -185,7 +183,7 @@ public class LuceneIndexer {
 			}
 			finalQuery.add(query, Occur.MUST);
 		}
-		writer.deleteDocuments(finalQuery);
+		writer.deleteDocuments(finalQuery.build());
 	}
 
 	/**
@@ -208,21 +206,24 @@ public class LuceneIndexer {
 		document.add(predicateField);
 		document.add(objectField);
 		document.add(graphField);
+	
 		return document;
 	}
 
 	public void update(String[] oldTerms, String[] nodes) throws IOException {
 		// delete document according to old Terms
-		BooleanQuery finalQuery = new BooleanQuery();
+//		BooleanQuery finalQuery = new BooleanQuery();
 		TermQuery querySubject = new TermQuery(new Term(LuceneConstants.SUBJECT, oldTerms[0]));
 		TermQuery queryPredicate = new TermQuery(new Term(LuceneConstants.PREDICATE, oldTerms[1]));
 		TermQuery queryObject = new TermQuery(new Term(LuceneConstants.OBJECT, oldTerms[2]));
 		TermQuery queryGraph = new TermQuery(new Term(LuceneConstants.GRAPH, oldTerms[3]));
-		finalQuery.add(querySubject, Occur.MUST);
-		finalQuery.add(queryPredicate, Occur.MUST);
-		finalQuery.add(queryObject, Occur.MUST);
-		finalQuery.add(queryGraph, Occur.MUST);
-		writer.deleteDocuments(finalQuery);
+		Builder builder = new BooleanQuery.Builder();
+
+		builder.add(querySubject, Occur.MUST);
+		builder.add(queryPredicate, Occur.MUST);
+		builder.add(queryObject, Occur.MUST);
+		builder.add(queryGraph, Occur.MUST);
+		writer.deleteDocuments(builder.build());
 		// adding new Document.
 		index(nodes[0], nodes[1], nodes[2], nodes[3]);
 	}
