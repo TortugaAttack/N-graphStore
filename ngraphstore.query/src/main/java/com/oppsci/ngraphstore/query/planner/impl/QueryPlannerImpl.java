@@ -16,7 +16,7 @@ import com.oppsci.ngraphstore.storage.results.SimpleResultSet;
 public class QueryPlannerImpl implements QueryPlanner {
 
 	private ClusterOverseer<SimpleResultSet> overseer;
-	private long internalLimit = 40000;
+	private long internalLimit = 1000000;
 
 	public QueryPlannerImpl(ClusterOverseer<SimpleResultSet> overseer) {
 		this.overseer = overseer;

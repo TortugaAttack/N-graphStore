@@ -43,9 +43,9 @@ public class RDFRestController {
 	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/sparql", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String getSPARQLresults(@RequestParam(value="query") String query) throws Exception {
+	public byte[] getSPARQLresults(@RequestParam(value="query") String query) throws Exception {
 		JSONObject results =  sparqlRestController.processQuery(query);
-		return results.toJSONString().replace("\\/", "/");
+		return results.toJSONString().replace("\\/", "/").replace("\\\\\\\"", "\\\"").getBytes("UTF-8");
 	}
 	
 	

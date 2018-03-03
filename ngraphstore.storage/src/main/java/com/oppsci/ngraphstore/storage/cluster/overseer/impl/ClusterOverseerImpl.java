@@ -49,7 +49,6 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		this.indexer = createIndexerOnTheFly(rootFolder);
 		closeIndexer(this.indexer);
 		this.searcher = createSearcherOnTheFly(rootFolder);
-		closeSearcher(this.searcher);
 		this.ignoreErrors=ignoreErrors;
 
 	}
@@ -348,7 +347,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	}
 
 	protected void closeSearcher() {
-		closeSearcher(searcher);
+//		closeSearcher(searcher);
 	}
 	
 	protected void closeSearcher(LuceneSearcher[] searcher) {

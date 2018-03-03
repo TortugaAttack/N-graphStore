@@ -11,7 +11,7 @@ public class LuceneConstants {
 	/**
 	 * The Lucene internal MAX_SEARCH amount
 	 */
-	public static int MAX_SEARCH=20000;
+	public static int MAX_SEARCH=1000000;
 	
 	/**
 	 * The lucene field name for subjects

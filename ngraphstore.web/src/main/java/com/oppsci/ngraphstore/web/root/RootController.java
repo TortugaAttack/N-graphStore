@@ -115,7 +115,8 @@ public class RootController {
 	}
 	
 	public static @Bean ClusterOverseer<SimpleResultSet> clusterOverseer(CompositeConfiguration config) throws IOException {
-		
+		System.out.println("Free memory (bytes): " + 
+			Runtime.getRuntime().freeMemory());
 		int clusterSize = config.getInt(CLUSTER_SIZE);
 		int timeout = config.getInt(CLUSTER_TIMEOUT);
 		String luceneBase = config.getString(LUCENE_BASE);
