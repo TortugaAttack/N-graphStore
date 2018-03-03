@@ -50,6 +50,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		closeIndexer(this.indexer);
 		this.searcher = createSearcherOnTheFly(rootFolder);
 		this.ignoreErrors=ignoreErrors;
+		
 
 	}
 
@@ -74,21 +75,17 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	 */
 	@Override
 	public SimpleResultSet search(LuceneSpec spec, SearchStats[] stats) throws Exception {
-		reopenSearcher();
 		SimpleResultSet[] results = execute(new LuceneSpec[] {spec}, Cluster.SEARCH_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
-		closeSearcher();
 		return mergeSyncedResults(results);
 	}
 	
 	@Override
 	public SimpleResultSet searchAll(LuceneSpec spec, SearchStats[] stats) throws Exception {
-		reopenSearcher();
 		SimpleResultSet[] results = execute(new LuceneSpec[] {spec}, Cluster.SEARCH_ALL_METHOD, SimpleResultSet.class, stats)
 				.toArray(new SimpleResultSet[] {});
 		// sync results and return
-		closeSearcher();
 		return mergeSyncedResults(results);
 	}
 
@@ -101,7 +98,8 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	 * @throws Exception 
 	 */
 	@Override
-	public boolean add(Triple<String>[] triples) throws Exception {
+	public synchronized boolean add(Triple<String>[] triples) throws Exception {
+		closeSearcher();
 		reopenIndexer();
 		//TODO each cluster his own spec with only the first triples/N triples
 		LuceneSpec spec = new LuceneUpdateSpec(triples);
@@ -124,6 +122,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 			}
 		}
 		closeIndexer();
+		reopenSearcher();
 		return true;
 	}
 
@@ -153,7 +152,8 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	 * @throws Exception 
 	 */
 	@Override
-	public boolean load(Triple<String>[] triples) throws Exception {
+	public synchronized boolean load(Triple<String>[] triples) throws Exception {
+		closeSearcher();
 		reopenIndexer();
 		
 		Boolean[] success = new Boolean[] {false};
@@ -176,11 +176,13 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 			}
 		}
 		closeIndexer();
+		reopenSearcher();
 		return true;
 	}
 
 	@Override
-	public boolean dropAll() throws Exception {
+	public synchronized boolean dropAll() throws Exception {
+		closeSearcher();
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec();
 		Boolean[] success = new Boolean[] {false};
@@ -202,13 +204,14 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 			}
 		}
 		closeIndexer();
-
+		reopenSearcher();
 		return true;
 	}
 
 	@Override
-	public boolean drop(String graph) throws Exception {
+	public synchronized boolean drop(String graph) throws Exception {
 		// delete all triples with graph
+		closeSearcher();
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec(graph);
 		Boolean[] success = new Boolean[] {false};
@@ -230,12 +233,14 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 			}
 		}
 		closeIndexer();
+		reopenSearcher();
 		return true;
 
 	}
 
 	@Override
-	public boolean delete(Triple<String>[] triples) throws Exception {
+	public synchronized boolean delete(Triple<String>[] triples) throws Exception {
+		closeSearcher();
 		reopenIndexer();
 		LuceneSpec spec = new LuceneUpdateSpec(triples);
 		Boolean[] success = new Boolean[] {false};
@@ -257,18 +262,16 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 			}
 		}
 		closeIndexer();
-
+		reopenSearcher();
 		return true;
 	}
 	
 	@Override
 	public String[][] explore(String term) throws InterruptedException, ExecutionException, TimeoutException {
-		reopenSearcher();
 		LuceneSpec spec= new LuceneSearchSpec(new String[] {term}, null, null);
 		String[][][] unmergedResults =  execute(new LuceneSpec[] {spec}, Cluster.EXPLORE_METHOD, String[][][].class, null)
 				.toArray(new String[][][] {});
 		String[][] mergedResults=mergeExploreResults(unmergedResults);
-		closeSearcher();
 		return mergedResults;
 	}
 	
@@ -288,7 +291,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 	}
 	
 	@Override
-	public boolean quadUpdate(String[] oldTerms, String[] newTerms) throws Exception {
+	public synchronized boolean quadUpdate(String[] oldTerms, String[] newTerms) throws Exception {
 		LuceneSpec spec = new LuceneQuadUpdateSpec(oldTerms, newTerms);
 		try {
 			execute(new LuceneSpec[] {spec}, Cluster.QUAD_UPDATE, boolean.class, null);
@@ -299,7 +302,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		return true;
 	}
 	
-	private void rollback() throws IOException {
+	private synchronized void rollback() throws IOException {
 		for(LuceneIndexer index : indexer) {
 			index.rollback();
 		}
@@ -350,7 +353,7 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 //		closeSearcher(searcher);
 	}
 	
-	protected void closeSearcher(LuceneSearcher[] searcher) {
+	protected synchronized void closeSearcher(LuceneSearcher[] searcher) {
 		for (LuceneSearcher search : searcher) {
 			try {
 				search.close();
@@ -360,11 +363,11 @@ public class ClusterOverseerImpl implements ClusterOverseer<SimpleResultSet> {
 		}
 	}
 
-	protected void reopenSearcher() {
+	protected synchronized void reopenSearcher() {
 		reopenSearcher(searcher);
 	}
 	
-	protected void reopenSearcher(LuceneSearcher[] searcher) {
+	protected synchronized void reopenSearcher(LuceneSearcher[] searcher) {
 		for (LuceneSearcher search : searcher) {
 			try {
 				search.reopen();

@@ -1,5 +1,7 @@
 package com.oppsci.ngraphstore.graph.elements;
 
+import org.apache.xerces.util.URI;
+
 import com.oppsci.ngraphstore.graph.elements.impl.BlankNode;
 import com.oppsci.ngraphstore.graph.elements.impl.Literal;
 import com.oppsci.ngraphstore.graph.elements.impl.URINode;
@@ -11,6 +13,8 @@ public class NodeFactory {
 		if (workNode.startsWith("<")) {
 			// uri
 			return createURI(workNode.substring(1, workNode.length()-1));
+		}else if(validateURI(workNode)) {
+			return createURI(workNode);
 		} else if (workNode.startsWith("_:")) {
 			// blank node
 			return createBNode(workNode);
@@ -18,6 +22,15 @@ public class NodeFactory {
 			// literal
 			return parseLiteral(node);
 		}
+	}
+	
+	public static boolean validateURI(String uriStr) {
+	    try {
+	        new URI(uriStr);
+	    } catch (Exception e1) {
+	        return false;
+	    }
+	    return true;
 	}
 	
 	private static Literal parseLiteral(String literalString) {
